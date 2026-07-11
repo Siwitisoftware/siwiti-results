@@ -1,0 +1,10 @@
+{
+"name":"Results System",
+"short_name":"Results",
+"start_url":"/",
+"scope":"/",
+"display":"standalone",
+"background_color":"#ffffff",
+"theme_color":"#0B57D0",
+"icons":[{"src":"favicon.png","sizes":"512x512","type":"image/png"}]
+}
