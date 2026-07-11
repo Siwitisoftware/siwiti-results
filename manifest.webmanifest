@@ -2,7 +2,7 @@
   "id": "/",
   "name": "Results System",
   "short_name": "Results System",
-  "description": "Results System by Siwiti Software. A modern platform for managing, viewing and downloading school examination results.",
+  "description": "Results System by Siwiti Software. A modern platform for managing, viewing, analysing and downloading school examination results.",
   "lang": "en",
   "dir": "ltr",
 
@@ -88,7 +88,7 @@
       "sizes": "512x512",
       "type": "image/png",
       "form_factor": "wide",
-      "label": "Results System Home"
+      "label": "Results System"
     },
     {
       "src": "/icons/icon-512.png",
@@ -108,7 +108,8 @@
       "icons": [
         {
           "src": "/icons/icon-192.png",
-          "sizes": "192x192"
+          "sizes": "192x192",
+          "type": "image/png"
         }
       ]
     },
@@ -120,31 +121,47 @@
       "icons": [
         {
           "src": "/icons/icon-192.png",
-          "sizes": "192x192"
+          "sizes": "192x192",
+          "type": "image/png"
         }
       ]
     },
     {
-      "name": "Registration",
+      "name": "School Registration",
       "short_name": "Registration",
-      "description": "Register a School",
+      "description": "Register School",
       "url": "/registration",
       "icons": [
         {
           "src": "/icons/icon-192.png",
-          "sizes": "192x192"
+          "sizes": "192x192",
+          "type": "image/png"
         }
       ]
     },
     {
       "name": "Downloads",
       "short_name": "Downloads",
-      "description": "Download Files",
+      "description": "Download Applications",
       "url": "/download",
       "icons": [
         {
           "src": "/icons/icon-192.png",
-          "sizes": "192x192"
+          "sizes": "192x192",
+          "type": "image/png"
+        }
+      ]
+    },
+    {
+      "name": "Home",
+      "short_name": "Home",
+      "description": "Go to Home Page",
+      "url": "/",
+      "icons": [
+        {
+          "src": "/icons/icon-192.png",
+          "sizes": "192x192",
+          "type": "image/png"
         }
       ]
     }
