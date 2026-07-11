@@ -5737,7 +5737,7 @@ body.modal-open {
 </div>
   <script>
 //AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
-    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzK2Zf_tJPYVlWs2tSjIeZ3tX2Wv2a9KN6xsPWMUFDs3G3BZzJkgKYzFInTUUUqwkAz/exec";
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxSjwgqLAEkE9fMhC0goydBvI1480kb_kQxtTleQwQ9tlKZjsxw9B-Tc23ZW54XI4jE/exec";
     let currentDbId = null
     let currentSchoolName = '';
     let subjects = [];
@@ -5858,66 +5858,7 @@ function forceDownloadSubjectTemplate(templateInfo) {
 }
 
 
-// ============================================
-// DIRECT DOWNLOAD SYSTEM - No Google Account Selection
-// ============================================
 
-/**
- * Download file directly using fetch and blob
- * This bypasses Google Drive's account selection page
- */
-async function downloadFileDirectly(url, fileName) {
-    try {
-        // Show downloading notification
-        Notiflix.Notify.info('Inapakua faili...', {
-            timeout: 2000,
-            position: 'right-top'
-        });
-        
-        // Fetch the file as blob
-        const response = await fetch(url);
-        
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        
-        // Get the blob from response
-        const blob = await response.blob();
-        
-        // Create blob URL
-        const blobUrl = URL.createObjectURL(blob);
-        
-        // Create download link and trigger download
-        const link = document.createElement('a');
-        link.href = blobUrl;
-        link.download = fileName;
-        link.style.display = 'none';
-        
-        document.body.appendChild(link);
-        link.click();
-        
-        // Clean up
-        setTimeout(() => {
-            document.body.removeChild(link);
-            URL.revokeObjectURL(blobUrl);
-        }, 1000);
-        
-        Notiflix.Notify.success(`✅ "${fileName}" imepakuliwa!`, {
-            timeout: 3000,
-            position: 'right-top'
-        });
-        
-        return { success: true };
-        
-    } catch (error) {
-        console.error('Download error:', error);
-        Notiflix.Notify.failure('Imeshindikana kupakua faili. Tafadhali jaribu tena.', {
-            timeout: 3000,
-            position: 'right-top'
-        });
-        return { success: false, error: error.message };
-    }
-}
 
 /**
  * Convert Google Drive share link to direct download link
@@ -11722,27 +11663,125 @@ function copyToClipboard(text) {
 
 
 
-// Generic file download function
+// ============================================
+// DIRECT DOWNLOAD FUNCTIONS - FIXED
+// ============================================
+
+/**
+ * Download file directly using fetch and blob
+ * This bypasses Google Drive's account selection page
+ */
+async function downloadFileDirectly(url, fileName) {
+    try {
+        // Show downloading notification
+        Notiflix.Notify.info('Inapakua faili...', {
+            timeout: 2000,
+            position: 'right-top'
+        });
+        
+        console.log("Downloading from URL:", url);
+        console.log("File name:", fileName);
+        
+        // Fetch the file as blob
+        const response = await fetch(url);
+        
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
+        // Get the blob from response
+        const blob = await response.blob();
+        
+        // Create blob URL
+        const blobUrl = URL.createObjectURL(blob);
+        
+        // Create download link and trigger download
+        const link = document.createElement('a');
+        link.href = blobUrl;
+        link.download = fileName;
+        link.style.display = 'none';
+        
+        document.body.appendChild(link);
+        link.click();
+        
+        // Clean up
+        setTimeout(() => {
+            document.body.removeChild(link);
+            URL.revokeObjectURL(blobUrl);
+        }, 1000);
+        
+        Notiflix.Notify.success(`✅ "${fileName}" imepakuliwa!`, {
+            timeout: 3000,
+            position: 'right-top'
+        });
+        
+        return { success: true };
+        
+    } catch (error) {
+        console.error('Download error:', error);
+        Notiflix.Notify.failure('Imeshindikana kupakua faili. Tafadhali jaribu tena.', {
+            timeout: 3000,
+            position: 'right-top'
+        });
+        return { success: false, error: error.message };
+    }
+}
+
+/**
+ * Force download using anchor tag (fallback method)
+ */
+function forceDownloadFallback(url, fileName) {
+    try {
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = fileName;
+        link.style.display = 'none';
+        link.target = '_blank';
+        
+        document.body.appendChild(link);
+        link.click();
+        
+        setTimeout(() => {
+            document.body.removeChild(link);
+        }, 1000);
+        
+        Notiflix.Notify.success(`✅ "${fileName}" inapakuliwa...`, {
+            timeout: 3000,
+            position: 'right-top'
+        });
+        
+        return true;
+    } catch (error) {
+        console.error('Fallback download error:', error);
+        return false;
+    }
+}
+
+/**
+ * Main download function with multiple fallbacks
+ */
 function downloadFile(url, fileName) {
-  const link = document.createElement('a');
-  link.href = url;
-  link.download = fileName;
-  link.style.display = 'none';
-  
-  document.body.appendChild(link);
-  link.click();
-  document.body.removeChild(link);
-  
-  setTimeout(() => {
-    Swal.fire({
-      icon: 'success',
-      title: 'Imepakuliwa',
-      text: `Faili "${fileName}" imehifadhiwa kwenye kifaa chako.`,
-      confirmButtonColor: '#4361ee',
-      timer: 2000,
-      showConfirmButton: false
-    });
-  }, 500);
+    if (!url) {
+        Notiflix.Notify.failure('URL ya faili haijapatikana', {
+            timeout: 3000,
+            position: 'right-top'
+        });
+        return;
+    }
+    
+    // Try direct download with fetch first
+    downloadFileDirectly(url, fileName)
+        .then(result => {
+            if (!result.success) {
+                // If fetch fails, try fallback
+                console.log("Fetch download failed, trying fallback...");
+                forceDownloadFallback(url, fileName);
+            }
+        })
+        .catch(error => {
+            console.log("Download error, trying fallback...", error);
+            forceDownloadFallback(url, fileName);
+        });
 }
 
 // Function to copy link to clipboard (simplified)
