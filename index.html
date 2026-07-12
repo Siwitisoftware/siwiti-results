@@ -4461,6 +4461,7 @@ body.modal-open {
 </head>
 <body>
 
+
 <!-- Sidebar -->
 <div class="sidebar hidden" id="sidebar">
   <button class="menu-toggle" onclick="toggleSidebar()">
@@ -4741,6 +4742,10 @@ body.modal-open {
     </div>
   </div>
 </div>
+
+
+
+
 
   <!-- Students Dashboard -->
   <div class="container hidden" id="studentDashboard">
@@ -5737,7 +5742,7 @@ body.modal-open {
 </div>
   <script>
 //AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
-    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzMj5J45ZVpUeMNGEdwzQA5dLOpF0O379d-ztKuf03n8wUSPFAES0lB5C-PU_aO9LnO/exec";
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxdUWBpni_fSDjnb1T09eG7bJJvSSlv5a8G3V0w3qVqgdH3yDM7Sj18EnbdML-HO-dC/exec";
     let currentDbId = null
     let currentSchoolName = '';
     let subjects = [];
@@ -5779,7 +5784,79 @@ function openSubjectTab(tabName, element) {
     document.getElementById(tabName).classList.add('active');
 }
 
+// ============================================
+// DOWNLOAD SUBJECT TEMPLATE - Auto download
+// ============================================
+function downloadSubjectTemplate() {
+    if (!isOnline()) {
+        Notiflix.Notify.warning('Huwezi kupakua kiolezo ukiwa nje ya mtandao', {
+            timeout: 2000,
+            position: 'right-top'
+        });
+        return;
+    }
 
+    // Show loading on button
+    const downloadBtn = document.querySelector('#subjectDashboard .btn-success[onclick="downloadSubjectTemplate()"]');
+    let originalButtonHTML = '';
+    
+    if (downloadBtn) {
+        originalButtonHTML = downloadBtn.innerHTML;
+        downloadBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Inatengeneza...';
+        downloadBtn.disabled = true;
+    }
+
+    const data = {
+        action: "downloadSubjectTemplate",
+        dbId: currentDbId
+    };
+
+    fetch(SCRIPT_URL, {
+        method: "POST",
+        body: JSON.stringify(data)
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (downloadBtn) {
+            downloadBtn.innerHTML = originalButtonHTML;
+            downloadBtn.disabled = false;
+        }
+        
+        if (data.status === "success") {
+            // Auto download - no button
+            const downloadUrl = data.directDownloadUrl || data.downloadUrl;
+            const fileName = data.fileName || "Masomo_Template.xlsx";
+            
+            // Create temporary link and trigger download
+            const link = document.createElement('a');
+            link.href = downloadUrl;
+            link.download = fileName;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            
+            Notiflix.Notify.success(`Kiolezo "${fileName}" kinapakuliwa`, {
+                timeout: 2000,
+                position: 'right-top'
+            });
+        } else {
+            Notiflix.Notify.failure(data.message || 'Imeshindikana kutengeneza kiolezo', {
+                timeout: 3000,
+                position: 'right-top'
+            });
+        }
+    })
+    .catch(error => {
+        if (downloadBtn) {
+            downloadBtn.innerHTML = originalButtonHTML;
+            downloadBtn.disabled = false;
+        }
+        Notiflix.Notify.failure('Hitilafu ya mtandao. Tafadhali jaribu tena.', {
+            timeout: 3000,
+            position: 'right-top'
+        });
+    });
+}
 
 // Function to show download dialog for subject template
 function showSubjectTemplateDownloadDialog(templateInfo) {
@@ -5856,206 +5933,6 @@ function forceDownloadSubjectTemplate(templateInfo) {
         });
     }, 500);
 }
-
-
-
-
-/**
- * Convert Google Drive share link to direct download link
- */
-function getDirectDownloadUrl(shareUrl) {
-    if (!shareUrl) return shareUrl;
-    
-    // If it's already a direct download URL, return as is
-    if (shareUrl.includes('export=download') || shareUrl.includes('uc?export=download')) {
-        return shareUrl;
-    }
-    
-    // Handle Google Drive share links
-    const fileIdMatch = shareUrl.match(/\/d\/([a-zA-Z0-9-_]+)/);
-    if (fileIdMatch && fileIdMatch[1]) {
-        return `https://drive.google.com/uc?export=download&id=${fileIdMatch[1]}`;
-    }
-    
-    // Handle view links
-    const viewMatch = shareUrl.match(/id=([a-zA-Z0-9-_]+)/);
-    if (viewMatch && viewMatch[1]) {
-        return `https://drive.google.com/uc?export=download&id=${viewMatch[1]}`;
-    }
-    
-    // Handle open?id= format
-    const openMatch = shareUrl.match(/open\?id=([a-zA-Z0-9-_]+)/);
-    if (openMatch && openMatch[1]) {
-        return `https://drive.google.com/uc?export=download&id=${openMatch[1]}`;
-    }
-    
-    return shareUrl;
-}
-
-
-
-
-
-// ============================================
-// UPDATED: generatePDFReport
-// ============================================
-function generatePDFReport(darasa, studentNames, gradeSettings, subjectGradeSettings, termId, reportSettings, reportBtn, originalButtonHTML) {
-    if (!currentDbId || !darasa || !studentNames || studentNames.length === 0) {
-        if (reportBtn) {
-            reportBtn.innerHTML = originalButtonHTML;
-            reportBtn.disabled = false;
-        }
-        Notiflix.Notify.failure('Data ya kutosha haijatolewa', {
-            timeout: 3000,
-            position: 'right-top'
-        });
-        return;
-    }
-
-    const requestData = {
-        action: "generateStudentReportPDF",
-        dbId: currentDbId,
-        darasa: darasa,
-        studentNames: studentNames,
-        gradeSettings: gradeSettings,
-        subjectGradeSettings: subjectGradeSettings,
-        termId: termId,
-        reportSettings: reportSettings
-    };
-
-    if (!isOnline()) {
-        let offlineQueue = JSON.parse(localStorage.getItem('offlineQueue')) || [];
-        offlineQueue.push(requestData);
-        localStorage.setItem('offlineQueue', JSON.stringify(offlineQueue));
-
-        if (reportBtn) {
-            reportBtn.innerHTML = originalButtonHTML;
-            reportBtn.disabled = false;
-        }
-
-        Notiflix.Notify.success('Ombi limehifadhiwa nje ya mtandao', {
-            timeout: 2000,
-            position: 'right-top'
-        });
-        return;
-    }
-
-    fetch(SCRIPT_URL, {
-        method: "POST",
-        body: JSON.stringify(requestData)
-    })
-    .then(res => res.json())
-    .then(response => {
-        if (reportBtn) {
-            reportBtn.innerHTML = originalButtonHTML;
-            reportBtn.disabled = false;
-        }
-        
-        if (response.status === "success") {
-            const downloadUrl = response.fileUrl;
-            const fileName = response.fileName || `${darasa}_Ripoti.pdf`;
-            
-            // Download directly using fetch - NO Google Account Selection
-            downloadFileDirectly(downloadUrl, fileName);
-            
-        } else {
-            Notiflix.Notify.failure(response.message, {
-                timeout: 3000,
-                position: 'right-top'
-            });
-        }
-    })
-    .catch(error => {
-        if (reportBtn) {
-            reportBtn.innerHTML = originalButtonHTML;
-            reportBtn.disabled = false;
-        }
-        Notiflix.Notify.failure('Hitilafu ya mtandao. Tafadhali jaribu tena.', {
-            timeout: 3000,
-            position: 'right-top'
-        });
-    });
-}
-
-function forceDownloadFile(url, fileName) {
-    return new Promise((resolve, reject) => {
-        try {
-            // Ensure we have a direct download URL
-            const downloadUrl = getDirectDownloadUrl(url);
-            
-            // Create a hidden anchor element
-            const link = document.createElement('a');
-            link.href = downloadUrl;
-            link.download = fileName || 'download';
-            link.style.display = 'none';
-            link.target = '_blank';
-            
-            // Append, click, and remove
-            document.body.appendChild(link);
-            link.click();
-            
-            // Remove after a short delay
-            setTimeout(() => {
-                document.body.removeChild(link);
-                resolve({ success: true, fileName: fileName });
-            }, 1000);
-            
-        } catch (error) {
-            console.error('Download error:', error);
-            reject(error);
-        }
-    });
-}
-
-/**
- * Download file using fetch and blob (more reliable for some browsers)
- */
-function downloadFileWithFetch(url, fileName) {
-    return new Promise((resolve, reject) => {
-        const downloadUrl = getDirectDownloadUrl(url);
-        
-        fetch(downloadUrl)
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                }
-                return response.blob();
-            })
-            .then(blob => {
-                const blobUrl = URL.createObjectURL(blob);
-                const link = document.createElement('a');
-                link.href = blobUrl;
-                link.download = fileName || 'download';
-                link.style.display = 'none';
-                document.body.appendChild(link);
-                link.click();
-                document.body.removeChild(link);
-                URL.revokeObjectURL(blobUrl);
-                resolve({ success: true, fileName: fileName });
-            })
-            .catch(error => {
-                console.error('Fetch download error:', error);
-                // Fallback to anchor method
-                forceDownloadFile(url, fileName)
-                    .then(resolve)
-                    .catch(reject);
-            });
-    });
-}
-
-// ============================================
-// HELPER: arrayBufferToBase64 - Keep as is
-// ============================================
-function arrayBufferToBase64(buffer) {
-    let binary = '';
-    const bytes = new Uint8Array(buffer);
-    const len = bytes.byteLength;
-    for (let i = 0; i < len; i++) {
-        binary += String.fromCharCode(bytes[i]);
-    }
-    return btoa(binary);
-}
-
 
 // Function to upload and process subject template
 function uploadSubjectTemplate() {
@@ -10636,7 +10513,116 @@ function deselectAllSubjects() {
   });
 }
 
+// ============================================
+// DOWNLOAD MARKS TEMPLATE - Auto download
+// ============================================
+function downloadMarksTemplate() {
+    const termId = document.getElementById("bulkTermSelect")?.value;
+    const darasa = document.getElementById("bulkDarasaSelect")?.value;
+    
+    if (!termId) {
+        Notiflix.Notify.warning('Tafadhali chagua muhula kwanza', {
+            timeout: 2000,
+            position: 'right-top'
+        });
+        return;
+    }
+    
+    if (!darasa) {
+        Notiflix.Notify.warning('Tafadhali chagua darasa kwanza', {
+            timeout: 2000,
+            position: 'right-top'
+        });
+        return;
+    }
+    
+    // Get selected subjects
+    const selectedSubjects = [];
+    const checkboxes = document.querySelectorAll('#bulkSubjectsCheckboxes input[type="checkbox"]:checked');
+    checkboxes.forEach(checkbox => {
+        selectedSubjects.push(checkbox.value);
+    });
+    
+    if (selectedSubjects.length === 0) {
+        Notiflix.Notify.warning('Tafadhali angalau chagua somo moja', {
+            timeout: 2000,
+            position: 'right-top'
+        });
+        return;
+    }
+    
+    if (!isOnline()) {
+        Notiflix.Notify.warning('Huwezi kupakua kiolezo ukiwa nje ya mtandao', {
+            timeout: 2000,
+            position: 'right-top'
+        });
+        return;
+    }
+    
+    // Show loading on button
+    const downloadBtn = document.querySelector('#bulkEntry .btn-success[onclick="downloadMarksTemplate()"]');
+    let originalButtonHTML = '';
+    
+    if (downloadBtn) {
+        originalButtonHTML = downloadBtn.innerHTML;
+        downloadBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Inatengeneza...';
+        downloadBtn.disabled = true;
+    }
+    
+    const data = {
+        action: "downloadMarksTemplate",
+        dbId: currentDbId,
+        darasa: darasa,
+        termId: termId,
+        subjects: selectedSubjects
+    };
 
+    fetch(SCRIPT_URL, {
+        method: "POST",
+        body: JSON.stringify(data)
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (downloadBtn) {
+            downloadBtn.innerHTML = originalButtonHTML;
+            downloadBtn.disabled = false;
+        }
+        
+        if (data.status === "success") {
+            // Auto download - no button
+            const downloadUrl = data.directDownloadUrl || data.downloadUrl;
+            const fileName = data.fileName || "Alama_Template.xlsx";
+            
+            // Create temporary link and trigger download
+            const link = document.createElement('a');
+            link.href = downloadUrl;
+            link.download = fileName;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            
+            Notiflix.Notify.success(`Kiolezo "${fileName}" kinapakuliwa`, {
+                timeout: 2000,
+                position: 'right-top'
+            });
+        } else {
+            Notiflix.Notify.failure(data.message || 'Imeshindikana kutengeneza kiolezo', {
+                timeout: 3000,
+                position: 'right-top'
+            });
+        }
+    })
+    .catch(error => {
+        if (downloadBtn) {
+            downloadBtn.innerHTML = originalButtonHTML;
+            downloadBtn.disabled = false;
+        }
+        Notiflix.Notify.failure('Hitilafu ya mtandao. Tafadhali jaribu tena.', {
+            timeout: 3000,
+            position: 'right-top'
+        });
+    });
+}
 
 // ============================================
 // NEW: uploadMarksTemplate - Pakia kiolezo cha Excel
@@ -10815,6 +10801,19 @@ function uploadMarksTemplate() {
   reader.readAsArrayBuffer(file);
 }
 
+// ============================================
+// HELPER: arrayBufferToBase64 - Badilisha ArrayBuffer kuwa Base64
+// ============================================
+function arrayBufferToBase64(buffer) {
+  let binary = '';
+  const bytes = new Uint8Array(buffer);
+  const len = bytes.byteLength;
+  for (let i = 0; i < len; i++) {
+    binary += String.fromCharCode(bytes[i]);
+  }
+  return btoa(binary);
+}
+
 
 // j. deleteSubjectScores (UPDATED) FUNCTION
 function deleteSubjectScores(somo, termId) {
@@ -10930,9 +10929,178 @@ function deleteSubjectScores(somo, termId) {
   });
 }
 
+// ============================================
+// SHOW EXCEL OPTIONS - Loading on button
+// ============================================
+function showExcelOptions() {
+  const darasa = document.getElementById("darasaReport").value;
+  const termId = document.getElementById("termReport").value;
+  
+  if (!termId) {
+    Notiflix.Notify.warning('Tafadhali chagua muhula kwanza', {
+      timeout: 2000,
+      position: 'right-top'
+    });
+    return;
+  }
+  
+  Swal.fire({
+    title: 'Chagua Aina ya Matokeo',
+    html: `
+      <div style="display: flex; flex-direction: column; gap: 15px; padding: 10px;">
+        <button id="standardExcelBtn" class="btn btn-primary" style="width: 100%;">
+          <i class="fas fa-file-excel"></i> Kawaida (bila madaraja ya masomo)
+        </button>
+        <button id="gradedExcelBtn" class="btn btn-success" style="width: 100%;">
+          <i class="fas fa-star"></i> Yenye Madaraja ya Masomo
+        </button>
+      </div>
+    `,
+    showConfirmButton: false,
+    showCancelButton: true,
+    cancelButtonText: 'Ghairi',
+    cancelButtonColor: '#f72585',
+    width: '450px',
+    didOpen: () => {
+      document.getElementById('standardExcelBtn').addEventListener('click', () => {
+        Swal.close();
+        generateExcelReport('standard');
+      });
+      document.getElementById('gradedExcelBtn').addEventListener('click', () => {
+        Swal.close();
+        generateExcelReport('graded');
+      });
+    }
+  });
+}
 
+// ============================================
+// GENERATE EXCEL REPORT - Loading on button
+// ============================================
+function generateExcelReport(type) {
+  const darasa = document.getElementById("darasaReport").value;
+  const termId = document.getElementById("termReport").value;
+  const gradeA = document.getElementById("gradeA").value;
+  const gradeB = document.getElementById("gradeB").value;
+  const gradeC = document.getElementById("gradeC").value;
+  const gradeD = document.getElementById("gradeD").value;
+  const gradeE = document.getElementById("gradeE").value;
 
+  if (!termId) {
+    Notiflix.Notify.warning('Tafadhali chagua muhula kwanza', {
+      timeout: 2000,
+      position: 'right-top'
+    });
+    return;
+  }
 
+  // Get button and show loading
+  const excelBtn = document.querySelector('#reportDashboard .btn-primary[onclick="showExcelOptions()"]');
+  let originalButtonHTML = '';
+  
+  if (excelBtn) {
+    originalButtonHTML = excelBtn.innerHTML;
+    excelBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Inatengeneza...';
+    excelBtn.disabled = true;
+  }
+  
+  const gradeSettings = {
+    A: parseFloat(gradeA),
+    B: parseFloat(gradeB),
+    C: parseFloat(gradeC),
+    D: parseFloat(gradeD),
+    E: parseFloat(gradeE)
+  };
+
+  const subjectGradeSystem = document.getElementById("subjectGradeSystem").value;
+  const subjectGradeA = document.getElementById("subjectGradeA").value;
+  const subjectGradeB = document.getElementById("subjectGradeB").value;
+  const subjectGradeC = document.getElementById("subjectGradeC").value;
+  const subjectGradeD = document.getElementById("subjectGradeD").value;
+  const subjectGradeE = document.getElementById("subjectGradeE").value;
+
+  const subjectGradeSettings = {
+    system: subjectGradeSystem,
+    a_min: parseFloat(subjectGradeA) || (subjectGradeSystem === "out_of_50" ? 41 : 80),
+    b_min: parseFloat(subjectGradeB) || (subjectGradeSystem === "out_of_50" ? 31 : 65),
+    c_min: parseFloat(subjectGradeC) || (subjectGradeSystem === "out_of_50" ? 21 : 50),
+    d_min: parseFloat(subjectGradeD) || (subjectGradeSystem === "out_of_50" ? 11 : 35),
+    e_min: parseFloat(subjectGradeE) || 0
+  };
+
+  const data = {
+    action: "generateResults",
+    dbId: currentDbId,
+    darasa: darasa,
+    gradeSettings: gradeSettings,
+    subjectGradeSettings: subjectGradeSettings,
+    termId: termId,
+    reportType: type
+  };
+
+  if (!isOnline()) {
+    let offlineQueue = JSON.parse(localStorage.getItem('offlineQueue')) || [];
+    offlineQueue.push(data);
+    localStorage.setItem('offlineQueue', JSON.stringify(offlineQueue));
+
+    if (excelBtn) {
+      excelBtn.innerHTML = originalButtonHTML;
+      excelBtn.disabled = false;
+    }
+
+    Notiflix.Notify.success('Ombi limehifadhiwa nje ya mtandao', {
+      timeout: 2000,
+      position: 'right-top'
+    });
+    return;
+  }
+
+  fetch(SCRIPT_URL, {
+    method: "POST",
+    body: JSON.stringify(data)
+  })
+  .then(res => res.json())
+  .then(data => {
+    if (excelBtn) {
+      excelBtn.innerHTML = originalButtonHTML;
+      excelBtn.disabled = false;
+    }
+    
+    if (data.status === "success") {
+      const downloadUrl = data.spreadsheetUrl;
+      const fileName = data.fileName || `${darasa}_Matokeo.xlsx`;
+      
+      const link = document.createElement('a');
+      link.href = downloadUrl;
+      link.download = fileName;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      
+      Notiflix.Notify.success(`✅ Matokeo yamepakuliwa! ${fileName}`, {
+        timeout: 3000,
+        position: 'right-top'
+      });
+      
+      loadReport();
+    } else {
+      Notiflix.Notify.failure(data.message, {
+        timeout: 3000,
+        position: 'right-top'
+      });
+    }
+  })
+  .catch(error => {
+    if (excelBtn) {
+      excelBtn.innerHTML = originalButtonHTML;
+      excelBtn.disabled = false;
+    }
+    Notiflix.Notify.failure('Hitilafu ya mtandao. Tafadhali jaribu tena.', {
+      timeout: 3000,
+      position: 'right-top'
+    });
+  });
+}
 
 // ============================================
 // GENERATE REPORT (Excel) - Loading on button only
@@ -11099,6 +11267,131 @@ function generateReport() {
 
 
 
+// ============================================
+// GENERATE PDF RESULTS - Loading on button
+// ============================================
+function generatePDFResultsAction() {
+  const darasa = document.getElementById("darasaReport").value;
+  const termId = document.getElementById("termReport").value;
+  
+  if (!termId) {
+    Notiflix.Notify.warning('Tafadhali chagua muhula kwanza', {
+      timeout: 2000,
+      position: 'right-top'
+    });
+    return;
+  }
+
+  // Get button and show loading
+  const pdfBtn = document.querySelector('#reportDashboard .btn-primary[onclick="generatePDFResultsAction()"]');
+  let originalButtonHTML = '';
+  
+  if (pdfBtn) {
+    originalButtonHTML = pdfBtn.innerHTML;
+    pdfBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Inatengeneza PDF...';
+    pdfBtn.disabled = true;
+  }
+  
+  const gradeA = document.getElementById("gradeA").value;
+  const gradeB = document.getElementById("gradeB").value;
+  const gradeC = document.getElementById("gradeC").value;
+  const gradeD = document.getElementById("gradeD").value;
+  const gradeE = document.getElementById("gradeE").value;
+
+  const gradeSettings = {
+    A: parseFloat(gradeA),
+    B: parseFloat(gradeB),
+    C: parseFloat(gradeC),
+    D: parseFloat(gradeD),
+    E: parseFloat(gradeE)
+  };
+
+  const subjectGradeSystem = document.getElementById("subjectGradeSystem").value;
+  const subjectGradeA = document.getElementById("subjectGradeA").value;
+  const subjectGradeB = document.getElementById("subjectGradeB").value;
+  const subjectGradeC = document.getElementById("subjectGradeC").value;
+  const subjectGradeD = document.getElementById("subjectGradeD").value;
+  const subjectGradeE = document.getElementById("subjectGradeE").value;
+
+  const subjectGradeSettings = {
+    system: subjectGradeSystem,
+    a_min: parseFloat(subjectGradeA) || (subjectGradeSystem === "out_of_50" ? 41 : 80),
+    b_min: parseFloat(subjectGradeB) || (subjectGradeSystem === "out_of_50" ? 31 : 65),
+    c_min: parseFloat(subjectGradeC) || (subjectGradeSystem === "out_of_50" ? 21 : 50),
+    d_min: parseFloat(subjectGradeD) || (subjectGradeSystem === "out_of_50" ? 11 : 35),
+    e_min: parseFloat(subjectGradeE) || 0
+  };
+
+  const data = {
+    action: "generatePDFResults",
+    dbId: currentDbId,
+    darasa: darasa,
+    gradeSettings: gradeSettings,
+    subjectGradeSettings: subjectGradeSettings,
+    termId: termId
+  };
+
+  if (!isOnline()) {
+    let offlineQueue = JSON.parse(localStorage.getItem('offlineQueue')) || [];
+    offlineQueue.push(data);
+    localStorage.setItem('offlineQueue', JSON.stringify(offlineQueue));
+
+    if (pdfBtn) {
+      pdfBtn.innerHTML = originalButtonHTML;
+      pdfBtn.disabled = false;
+    }
+
+    Notiflix.Notify.success('Ombi limehifadhiwa nje ya mtandao', {
+      timeout: 2000,
+      position: 'right-top'
+    });
+    return;
+  }
+
+  fetch(SCRIPT_URL, {
+    method: "POST",
+    body: JSON.stringify(data)
+  })
+  .then(res => res.json())
+  .then(data => {
+    if (pdfBtn) {
+      pdfBtn.innerHTML = originalButtonHTML;
+      pdfBtn.disabled = false;
+    }
+    
+    if (data.status === "success") {
+      const downloadUrl = data.pdfDownloadUrl;
+      const fileName = data.pdfFileName || `${darasa}_Matokeo.pdf`;
+      
+      const link = document.createElement('a');
+      link.href = downloadUrl;
+      link.download = fileName;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      
+      Notiflix.Notify.success(`✅ PDF imepakuliwa! ${fileName}`, {
+        timeout: 3000,
+        position: 'right-top'
+      });
+    } else {
+      Notiflix.Notify.failure(data.message, {
+        timeout: 3000,
+        position: 'right-top'
+      });
+    }
+  })
+  .catch(error => {
+    if (pdfBtn) {
+      pdfBtn.innerHTML = originalButtonHTML;
+      pdfBtn.disabled = false;
+    }
+    Notiflix.Notify.failure('Hitilafu ya mtandao. Tafadhali jaribu tena.', {
+      timeout: 3000,
+      position: 'right-top'
+    });
+  });
+}
 
 
 // Function to download Excel file
@@ -11154,7 +11447,28 @@ function copyToClipboard(text) {
 
 
 
-
+// Generic file download function
+function downloadFile(url, fileName) {
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = fileName;
+  link.style.display = 'none';
+  
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  
+  setTimeout(() => {
+    Swal.fire({
+      icon: 'success',
+      title: 'Imepakuliwa',
+      text: `Faili "${fileName}" imehifadhiwa kwenye kifaa chako.`,
+      confirmButtonColor: '#4361ee',
+      timer: 2000,
+      showConfirmButton: false
+    });
+  }, 500);
+}
 
 // Function to copy link to clipboard (simplified)
 function copyToClipboard(text) {
@@ -11181,7 +11495,86 @@ function copyToClipboard(text) {
   });
 }
 
-
+// ============================================
+// GENERATE SELECTED STUDENTS REPORT - Loading on button
+// ============================================
+function generateSelectedStudentsReport() {
+  const darasa = document.getElementById("darasaReport").value;
+  const termId = document.getElementById("termReport").value;
+  const selectedStudents = getSelectedStudents();
+  
+  if (!termId) {
+    Notiflix.Notify.warning('Tafadhali chagua muhula kwanza', {
+      timeout: 2000,
+      position: 'right-top'
+    });
+    return;
+  }
+  
+  if (selectedStudents.length === 0) {
+    Notiflix.Notify.warning('Tafadhali chagua angalau mwanafunzi mmoja', {
+      timeout: 2000,
+      position: 'right-top'
+    });
+    return;
+  }
+  
+  // Get button and show loading
+  const reportBtn = document.querySelector('#reportDashboard .btn-primary[onclick="generateSelectedStudentsReport()"]');
+  let originalButtonHTML = '';
+  
+  if (reportBtn) {
+    originalButtonHTML = reportBtn.innerHTML;
+    reportBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Inatengeneza Ripoti...';
+    reportBtn.disabled = true;
+  }
+  
+  const classTeacherName = document.getElementById("classTeacherName")?.value || "";
+  const headTeacherName = document.getElementById("headTeacherName")?.value || "";
+  const principalMessage = document.getElementById("principalMessage")?.value || "";
+  const termStartDate = document.getElementById("termStartDate")?.value || "";
+  const termEndDate = document.getElementById("termEndDate")?.value || "";
+  
+  const reportSettings = {
+    classTeacherName: classTeacherName,
+    headTeacherName: headTeacherName,
+    principalMessage: principalMessage,
+    termStartDate: termStartDate,
+    termEndDate: termEndDate
+  };
+  
+  const gradeA = document.getElementById("gradeA").value;
+  const gradeB = document.getElementById("gradeB").value;
+  const gradeC = document.getElementById("gradeC").value;
+  const gradeD = document.getElementById("gradeD").value;
+  const gradeE = document.getElementById("gradeE").value;
+  
+  const gradeSettings = {
+    A: parseFloat(gradeA) || 80,
+    B: parseFloat(gradeB) || 65,
+    C: parseFloat(gradeC) || 50,
+    D: parseFloat(gradeD) || 35,
+    E: parseFloat(gradeE) || 0
+  };
+  
+  const subjectGradeSystem = document.getElementById("subjectGradeSystem").value;
+  const subjectGradeA = document.getElementById("subjectGradeA").value;
+  const subjectGradeB = document.getElementById("subjectGradeB").value;
+  const subjectGradeC = document.getElementById("subjectGradeC").value;
+  const subjectGradeD = document.getElementById("subjectGradeD").value;
+  const subjectGradeE = document.getElementById("subjectGradeE").value;
+  
+  const subjectGradeSettings = {
+    system: subjectGradeSystem,
+    a_min: parseFloat(subjectGradeA) || (subjectGradeSystem === "out_of_50" ? 41 : 80),
+    b_min: parseFloat(subjectGradeB) || (subjectGradeSystem === "out_of_50" ? 31 : 65),
+    c_min: parseFloat(subjectGradeC) || (subjectGradeSystem === "out_of_50" ? 21 : 50),
+    d_min: parseFloat(subjectGradeD) || (subjectGradeSystem === "out_of_50" ? 11 : 35),
+    e_min: parseFloat(subjectGradeE) || 0
+  };
+  
+  generatePDFReport(darasa, selectedStudents, gradeSettings, subjectGradeSettings, termId, reportSettings, reportBtn, originalButtonHTML);
+}
 
 // o. generatePDFReport (UPDATED) FUNCTION
 // Function to download PDF file (FIXED)
@@ -11248,7 +11641,95 @@ function downloadPDFFile(downloadInfo) {
   }
 }
 
+// ============================================
+// GENERATE PDF REPORT - Loading on button
+// ============================================
+function generatePDFReport(darasa, studentNames, gradeSettings, subjectGradeSettings, termId, reportSettings, reportBtn, originalButtonHTML) {
+  if (!currentDbId || !darasa || !studentNames || studentNames.length === 0) {
+    if (reportBtn) {
+      reportBtn.innerHTML = originalButtonHTML;
+      reportBtn.disabled = false;
+    }
+    Notiflix.Notify.failure('Data ya kutosha haijatolewa', {
+      timeout: 3000,
+      position: 'right-top'
+    });
+    return;
+  }
 
+  const requestData = {
+    action: "generateStudentReportPDF",
+    dbId: currentDbId,
+    darasa: darasa,
+    studentNames: studentNames,
+    gradeSettings: gradeSettings,
+    subjectGradeSettings: subjectGradeSettings,
+    termId: termId,
+    reportSettings: reportSettings
+  };
+
+  if (!isOnline()) {
+    let offlineQueue = JSON.parse(localStorage.getItem('offlineQueue')) || [];
+    offlineQueue.push(requestData);
+    localStorage.setItem('offlineQueue', JSON.stringify(offlineQueue));
+
+    if (reportBtn) {
+      reportBtn.innerHTML = originalButtonHTML;
+      reportBtn.disabled = false;
+    }
+
+    Notiflix.Notify.success('Ombi limehifadhiwa nje ya mtandao', {
+      timeout: 2000,
+      position: 'right-top'
+    });
+    return;
+  }
+
+  fetch(SCRIPT_URL, {
+    method: "POST",
+    body: JSON.stringify(requestData)
+  })
+  .then(res => res.json())
+  .then(response => {
+    if (reportBtn) {
+      reportBtn.innerHTML = originalButtonHTML;
+      reportBtn.disabled = false;
+    }
+    
+    if (response.status === "success") {
+      const downloadUrl = response.fileUrl;
+      const fileName = response.fileName || `${darasa}_Ripoti.pdf`;
+      
+      const link = document.createElement('a');
+      link.href = downloadUrl;
+      link.download = fileName;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      
+      Notiflix.Notify.success(`✅ Ripoti ${response.studentCount} zimepakuliwa!`, {
+        timeout: 3000,
+        position: 'right-top'
+      });
+      
+    } else {
+      Notiflix.Notify.failure(response.message, {
+        timeout: 3000,
+        position: 'right-top'
+      });
+    }
+  })
+  .catch(error => {
+    if (reportBtn) {
+      reportBtn.innerHTML = originalButtonHTML;
+      reportBtn.disabled = false;
+    }
+    Notiflix.Notify.failure('Hitilafu ya mtandao. Tafadhali jaribu tena.', {
+      timeout: 3000,
+      position: 'right-top'
+    });
+  });
+}
 
 // Updated copyToClipboard function (more robust)
 function copyToClipboard(text) {
@@ -22318,7 +22799,90 @@ function preloadGradeSettings() {
 }
 
 
+// ============================================
+// DOWNLOAD STUDENT TEMPLATE - Auto download
+// ============================================
+function downloadStudentTemplate() {
+    const darasa = document.getElementById("darasaTemplate").value;
+    
+    if (!darasa) {
+        Notiflix.Notify.warning('Tafadhali chagua darasa kwanza', {
+            timeout: 2000,
+            position: 'right-top'
+        });
+        return;
+    }
 
+    if (!isOnline()) {
+        Notiflix.Notify.warning('Huwezi kupakua kiolezo ukiwa nje ya mtandao', {
+            timeout: 2000,
+            position: 'right-top'
+        });
+        return;
+    }
+
+    // Show loading on button
+    const downloadBtn = document.querySelector('#studentDashboard .btn-success[onclick="downloadStudentTemplate()"]');
+    let originalButtonHTML = '';
+    
+    if (downloadBtn) {
+        originalButtonHTML = downloadBtn.innerHTML;
+        downloadBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Inatengeneza...';
+        downloadBtn.disabled = true;
+    }
+
+    const data = {
+        action: "downloadStudentTemplate",
+        dbId: currentDbId,
+        darasa: darasa
+    };
+
+    fetch(SCRIPT_URL, {
+        method: "POST",
+        body: JSON.stringify(data)
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (downloadBtn) {
+            downloadBtn.innerHTML = originalButtonHTML;
+            downloadBtn.disabled = false;
+        }
+        
+        if (data.status === "success") {
+            // Auto download - no button
+            const downloadUrl = data.downloadUrl;
+            const fileName = `${darasa.replace(/ /g, '_')}_Usajili_Wanafunzi.xlsx`;
+            
+            // Create temporary link and trigger download
+            const link = document.createElement('a');
+            link.href = downloadUrl;
+            link.download = fileName;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            
+            Notiflix.Notify.success(`Kiolezo cha ${darasa} kinapakuliwa`, {
+                timeout: 2000,
+                position: 'right-top'
+            });
+        } else {
+            Notiflix.Notify.failure(data.message || 'Imeshindikana kutengeneza kiolezo', {
+                timeout: 3000,
+                position: 'right-top'
+            });
+        }
+    })
+    .catch(error => {
+        if (downloadBtn) {
+            downloadBtn.innerHTML = originalButtonHTML;
+            downloadBtn.disabled = false;
+        }
+        Notiflix.Notify.failure('Hitilafu ya mtandao. Tafadhali jaribu tena.', {
+            timeout: 3000,
+            position: 'right-top'
+        });
+    });
+}
 
 
 
@@ -23195,804 +23759,6 @@ function withButtonLoading(button, asyncFunction) {
       button.innerHTML = originalHTML;
     }
   };
-}
-
-
-
-// ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZzzZz
-
-// ============================================
-// DIRECT DOWNLOAD SYSTEM - NO Google Account Selection
-// ============================================
-
-/**
- * Download file directly using fetch and blob
- * This completely bypasses Google Drive's account selection page
- */
-async function downloadFileDirectly(url, fileName) {
-    try {
-        // Show downloading notification
-        Notiflix.Notify.info('Inapakua faili...', {
-            timeout: 2000,
-            position: 'right-top'
-        });
-        
-        console.log("📥 Downloading from URL:", url);
-        console.log("📄 File name:", fileName);
-        
-        // Fetch the file as blob
-        const response = await fetch(url);
-        
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        
-        // Get the blob from response
-        const blob = await response.blob();
-        
-        // Create blob URL
-        const blobUrl = URL.createObjectURL(blob);
-        
-        // Create download link and trigger download
-        const link = document.createElement('a');
-        link.href = blobUrl;
-        link.download = fileName;
-        link.style.display = 'none';
-        
-        document.body.appendChild(link);
-        link.click();
-        
-        // Clean up
-        setTimeout(() => {
-            document.body.removeChild(link);
-            URL.revokeObjectURL(blobUrl);
-        }, 1000);
-        
-        Notiflix.Notify.success(`✅ "${fileName}" imepakuliwa!`, {
-            timeout: 3000,
-            position: 'right-top'
-        });
-        
-        return { success: true };
-        
-    } catch (error) {
-        console.error('❌ Download error:', error);
-        Notiflix.Notify.failure('Imeshindikana kupakua faili. Tafadhali jaribu tena.', {
-            timeout: 3000,
-            position: 'right-top'
-        });
-        return { success: false, error: error.message };
-    }
-}
-
-/**
- * Force download using anchor tag (fallback method)
- */
-function forceDownloadFallback(url, fileName) {
-    try {
-        // Ensure we have a direct download URL
-        let downloadUrl = url;
-        if (downloadUrl.includes('/file/d/') && !downloadUrl.includes('export=download')) {
-            const match = downloadUrl.match(/\/d\/([a-zA-Z0-9-_]+)/);
-            if (match && match[1]) {
-                downloadUrl = 'https://drive.google.com/uc?export=download&id=' + match[1];
-            }
-        }
-        
-        const link = document.createElement('a');
-        link.href = downloadUrl;
-        link.download = fileName;
-        link.style.display = 'none';
-        
-        document.body.appendChild(link);
-        link.click();
-        
-        setTimeout(() => {
-            document.body.removeChild(link);
-        }, 1000);
-        
-        Notiflix.Notify.success(`✅ "${fileName}" inapakuliwa...`, {
-            timeout: 3000,
-            position: 'right-top'
-        });
-        
-        return true;
-    } catch (error) {
-        console.error('Fallback download error:', error);
-        return false;
-    }
-}
-
-/**
- * Main download function with multiple fallbacks
- */
-function downloadFile(url, fileName) {
-    if (!url) {
-        Notiflix.Notify.failure('URL ya faili haijapatikana', {
-            timeout: 3000,
-            position: 'right-top'
-        });
-        return;
-    }
-    
-    // Make sure we have a direct download URL
-    let downloadUrl = url;
-    if (downloadUrl.includes('/file/d/') && !downloadUrl.includes('export=download')) {
-        const match = downloadUrl.match(/\/d\/([a-zA-Z0-9-_]+)/);
-        if (match && match[1]) {
-            downloadUrl = 'https://drive.google.com/uc?export=download&id=' + match[1];
-        }
-    }
-    
-    // Try direct download with fetch first
-    downloadFileDirectly(downloadUrl, fileName)
-        .then(result => {
-            if (!result.success) {
-                console.log("Fetch download failed, trying fallback...");
-                forceDownloadFallback(downloadUrl, fileName);
-            }
-        })
-        .catch(error => {
-            console.log("Download error, trying fallback...", error);
-            forceDownloadFallback(downloadUrl, fileName);
-        });
-}
-
-// ============================================
-// DOWNLOAD STUDENT TEMPLATE - UPDATED
-// ============================================
-function downloadStudentTemplate() {
-    const darasa = document.getElementById("darasaTemplate").value;
-    
-    if (!darasa) {
-        Notiflix.Notify.warning('Tafadhali chagua darasa kwanza', {
-            timeout: 2000,
-            position: 'right-top'
-        });
-        return;
-    }
-
-    if (!isOnline()) {
-        Notiflix.Notify.warning('Huwezi kupakua kiolezo ukiwa nje ya mtandao', {
-            timeout: 2000,
-            position: 'right-top'
-        });
-        return;
-    }
-
-    const downloadBtn = document.querySelector('#studentDashboard .btn-success[onclick="downloadStudentTemplate()"]');
-    let originalButtonHTML = '';
-    
-    if (downloadBtn) {
-        originalButtonHTML = downloadBtn.innerHTML;
-        downloadBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Inatengeneza...';
-        downloadBtn.disabled = true;
-    }
-
-    const data = {
-        action: "downloadStudentTemplate",
-        dbId: currentDbId,
-        darasa: darasa
-    };
-
-    fetch(SCRIPT_URL, {
-        method: "POST",
-        body: JSON.stringify(data)
-    })
-    .then(res => res.json())
-    .then(data => {
-        if (downloadBtn) {
-            downloadBtn.innerHTML = originalButtonHTML;
-            downloadBtn.disabled = false;
-        }
-        
-        if (data.status === "success") {
-            const downloadUrl = data.directDownloadUrl || data.downloadUrl;
-            const fileName = data.fileName || `${darasa.replace(/ /g, '_')}_Usajili_Wanafunzi.xlsx`;
-            
-            // Use the new download function - NO Google Account Selection
-            downloadFile(downloadUrl, fileName);
-            
-        } else {
-            Notiflix.Notify.failure(data.message || 'Imeshindikana kutengeneza kiolezo', {
-                timeout: 3000,
-                position: 'right-top'
-            });
-        }
-    })
-    .catch(error => {
-        if (downloadBtn) {
-            downloadBtn.innerHTML = originalButtonHTML;
-            downloadBtn.disabled = false;
-        }
-        Notiflix.Notify.failure('Hitilafu ya mtandao. Tafadhali jaribu tena.', {
-            timeout: 3000,
-            position: 'right-top'
-        });
-    });
-}
-
-// ============================================
-// DOWNLOAD SUBJECT TEMPLATE - UPDATED
-// ============================================
-function downloadSubjectTemplate() {
-    if (!isOnline()) {
-        Notiflix.Notify.warning('Huwezi kupakua kiolezo ukiwa nje ya mtandao', {
-            timeout: 2000,
-            position: 'right-top'
-        });
-        return;
-    }
-
-    const downloadBtn = document.querySelector('#subjectDashboard .btn-success[onclick="downloadSubjectTemplate()"]');
-    let originalButtonHTML = '';
-    
-    if (downloadBtn) {
-        originalButtonHTML = downloadBtn.innerHTML;
-        downloadBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Inatengeneza...';
-        downloadBtn.disabled = true;
-    }
-
-    const data = {
-        action: "downloadSubjectTemplate",
-        dbId: currentDbId
-    };
-
-    fetch(SCRIPT_URL, {
-        method: "POST",
-        body: JSON.stringify(data)
-    })
-    .then(res => res.json())
-    .then(data => {
-        if (downloadBtn) {
-            downloadBtn.innerHTML = originalButtonHTML;
-            downloadBtn.disabled = false;
-        }
-        
-        if (data.status === "success") {
-            const downloadUrl = data.directDownloadUrl || data.downloadUrl;
-            const fileName = data.fileName || "Kiolezo_Usajili_Masomo.xlsx";
-            
-            // Use the new download function - NO Google Account Selection
-            downloadFile(downloadUrl, fileName);
-            
-        } else {
-            Notiflix.Notify.failure(data.message || 'Imeshindikana kutengeneza kiolezo', {
-                timeout: 3000,
-                position: 'right-top'
-            });
-        }
-    })
-    .catch(error => {
-        if (downloadBtn) {
-            downloadBtn.innerHTML = originalButtonHTML;
-            downloadBtn.disabled = false;
-        }
-        Notiflix.Notify.failure('Hitilafu ya mtandao. Tafadhali jaribu tena.', {
-            timeout: 3000,
-            position: 'right-top'
-        });
-    });
-}
-
-// ============================================
-// DOWNLOAD MARKS TEMPLATE - UPDATED
-// ============================================
-function downloadMarksTemplate() {
-    const termId = document.getElementById("bulkTermSelect")?.value;
-    const darasa = document.getElementById("bulkDarasaSelect")?.value;
-    
-    if (!termId) {
-        Notiflix.Notify.warning('Tafadhali chagua muhula kwanza', {
-            timeout: 2000,
-            position: 'right-top'
-        });
-        return;
-    }
-    
-    if (!darasa) {
-        Notiflix.Notify.warning('Tafadhali chagua darasa kwanza', {
-            timeout: 2000,
-            position: 'right-top'
-        });
-        return;
-    }
-    
-    const selectedSubjects = [];
-    const checkboxes = document.querySelectorAll('#bulkSubjectsCheckboxes input[type="checkbox"]:checked');
-    checkboxes.forEach(checkbox => {
-        selectedSubjects.push(checkbox.value);
-    });
-    
-    if (selectedSubjects.length === 0) {
-        Notiflix.Notify.warning('Tafadhali angalau chagua somo moja', {
-            timeout: 2000,
-            position: 'right-top'
-        });
-        return;
-    }
-    
-    if (!isOnline()) {
-        Notiflix.Notify.warning('Huwezi kupakua kiolezo ukiwa nje ya mtandao', {
-            timeout: 2000,
-            position: 'right-top'
-        });
-        return;
-    }
-
-    const downloadBtn = document.querySelector('#bulkEntry .btn-success[onclick="downloadMarksTemplate()"]');
-    let originalButtonHTML = '';
-    
-    if (downloadBtn) {
-        originalButtonHTML = downloadBtn.innerHTML;
-        downloadBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Inatengeneza...';
-        downloadBtn.disabled = true;
-    }
-
-    const data = {
-        action: "downloadMarksTemplate",
-        dbId: currentDbId,
-        darasa: darasa,
-        termId: termId,
-        subjects: selectedSubjects
-    };
-
-    fetch(SCRIPT_URL, {
-        method: "POST",
-        body: JSON.stringify(data)
-    })
-    .then(res => res.json())
-    .then(data => {
-        if (downloadBtn) {
-            downloadBtn.innerHTML = originalButtonHTML;
-            downloadBtn.disabled = false;
-        }
-        
-        if (data.status === "success") {
-            const downloadUrl = data.directDownloadUrl || data.downloadUrl;
-            const fileName = data.fileName || "Alama_Template.xlsx";
-            
-            // Use the new download function - NO Google Account Selection
-            downloadFile(downloadUrl, fileName);
-            
-        } else {
-            Notiflix.Notify.failure(data.message || 'Imeshindikana kutengeneza kiolezo', {
-                timeout: 3000,
-                position: 'right-top'
-            });
-        }
-    })
-    .catch(error => {
-        if (downloadBtn) {
-            downloadBtn.innerHTML = originalButtonHTML;
-            downloadBtn.disabled = false;
-        }
-        Notiflix.Notify.failure('Hitilafu ya mtandao. Tafadhali jaribu tena.', {
-            timeout: 3000,
-            position: 'right-top'
-        });
-    });
-}
-
-// ============================================
-// GENERATE EXCEL REPORT - UPDATED
-// ============================================
-function generateExcelReport(type) {
-    const darasa = document.getElementById("darasaReport").value;
-    const termId = document.getElementById("termReport").value;
-    const gradeA = document.getElementById("gradeA").value;
-    const gradeB = document.getElementById("gradeB").value;
-    const gradeC = document.getElementById("gradeC").value;
-    const gradeD = document.getElementById("gradeD").value;
-    const gradeE = document.getElementById("gradeE").value;
-
-    if (!termId) {
-        Notiflix.Notify.warning('Tafadhali chagua muhula kwanza', {
-            timeout: 2000,
-            position: 'right-top'
-        });
-        return;
-    }
-
-    const excelBtn = document.querySelector('#reportDashboard .btn-primary[onclick="showExcelOptions()"]');
-    let originalButtonHTML = '';
-    
-    if (excelBtn) {
-        originalButtonHTML = excelBtn.innerHTML;
-        excelBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Inatengeneza...';
-        excelBtn.disabled = true;
-    }
-    
-    const gradeSettings = {
-        A: parseFloat(gradeA),
-        B: parseFloat(gradeB),
-        C: parseFloat(gradeC),
-        D: parseFloat(gradeD),
-        E: parseFloat(gradeE)
-    };
-
-    const subjectGradeSystem = document.getElementById("subjectGradeSystem").value;
-    const subjectGradeA = document.getElementById("subjectGradeA").value;
-    const subjectGradeB = document.getElementById("subjectGradeB").value;
-    const subjectGradeC = document.getElementById("subjectGradeC").value;
-    const subjectGradeD = document.getElementById("subjectGradeD").value;
-    const subjectGradeE = document.getElementById("subjectGradeE").value;
-
-    const subjectGradeSettings = {
-        system: subjectGradeSystem,
-        a_min: parseFloat(subjectGradeA) || (subjectGradeSystem === "out_of_50" ? 41 : 80),
-        b_min: parseFloat(subjectGradeB) || (subjectGradeSystem === "out_of_50" ? 31 : 65),
-        c_min: parseFloat(subjectGradeC) || (subjectGradeSystem === "out_of_50" ? 21 : 50),
-        d_min: parseFloat(subjectGradeD) || (subjectGradeSystem === "out_of_50" ? 11 : 35),
-        e_min: parseFloat(subjectGradeE) || 0
-    };
-
-    const data = {
-        action: "generateResults",
-        dbId: currentDbId,
-        darasa: darasa,
-        gradeSettings: gradeSettings,
-        subjectGradeSettings: subjectGradeSettings,
-        termId: termId,
-        reportType: type
-    };
-
-    if (!isOnline()) {
-        let offlineQueue = JSON.parse(localStorage.getItem('offlineQueue')) || [];
-        offlineQueue.push(data);
-        localStorage.setItem('offlineQueue', JSON.stringify(offlineQueue));
-
-        if (excelBtn) {
-            excelBtn.innerHTML = originalButtonHTML;
-            excelBtn.disabled = false;
-        }
-
-        Notiflix.Notify.success('Ombi limehifadhiwa nje ya mtandao', {
-            timeout: 2000,
-            position: 'right-top'
-        });
-        return;
-    }
-
-    fetch(SCRIPT_URL, {
-        method: "POST",
-        body: JSON.stringify(data)
-    })
-    .then(res => res.json())
-    .then(data => {
-        if (excelBtn) {
-            excelBtn.innerHTML = originalButtonHTML;
-            excelBtn.disabled = false;
-        }
-        
-        if (data.status === "success") {
-            const downloadUrl = data.directDownloadUrl || data.downloadUrl || data.spreadsheetUrl;
-            const fileName = data.fileName || `${darasa}_Matokeo.xlsx`;
-            
-            // Use the new download function - NO Google Account Selection
-            downloadFile(downloadUrl, fileName);
-            
-        } else {
-            Notiflix.Notify.failure(data.message, {
-                timeout: 3000,
-                position: 'right-top'
-            });
-        }
-    })
-    .catch(error => {
-        if (excelBtn) {
-            excelBtn.innerHTML = originalButtonHTML;
-            excelBtn.disabled = false;
-        }
-        Notiflix.Notify.failure('Hitilafu ya mtandao. Tafadhali jaribu tena.', {
-            timeout: 3000,
-            position: 'right-top'
-        });
-    });
-}
-
-// ============================================
-// GENERATE PDF RESULTS - UPDATED
-// ============================================
-function generatePDFResultsAction() {
-    const darasa = document.getElementById("darasaReport").value;
-    const termId = document.getElementById("termReport").value;
-    
-    if (!termId) {
-        Notiflix.Notify.warning('Tafadhali chagua muhula kwanza', {
-            timeout: 2000,
-            position: 'right-top'
-        });
-        return;
-    }
-
-    const pdfBtn = document.querySelector('#reportDashboard .btn-primary[onclick="generatePDFResultsAction()"]');
-    let originalButtonHTML = '';
-    
-    if (pdfBtn) {
-        originalButtonHTML = pdfBtn.innerHTML;
-        pdfBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Inatengeneza PDF...';
-        pdfBtn.disabled = true;
-    }
-    
-    const gradeA = document.getElementById("gradeA").value;
-    const gradeB = document.getElementById("gradeB").value;
-    const gradeC = document.getElementById("gradeC").value;
-    const gradeD = document.getElementById("gradeD").value;
-    const gradeE = document.getElementById("gradeE").value;
-
-    const gradeSettings = {
-        A: parseFloat(gradeA),
-        B: parseFloat(gradeB),
-        C: parseFloat(gradeC),
-        D: parseFloat(gradeD),
-        E: parseFloat(gradeE)
-    };
-
-    const subjectGradeSystem = document.getElementById("subjectGradeSystem").value;
-    const subjectGradeA = document.getElementById("subjectGradeA").value;
-    const subjectGradeB = document.getElementById("subjectGradeB").value;
-    const subjectGradeC = document.getElementById("subjectGradeC").value;
-    const subjectGradeD = document.getElementById("subjectGradeD").value;
-    const subjectGradeE = document.getElementById("subjectGradeE").value;
-
-    const subjectGradeSettings = {
-        system: subjectGradeSystem,
-        a_min: parseFloat(subjectGradeA) || (subjectGradeSystem === "out_of_50" ? 41 : 80),
-        b_min: parseFloat(subjectGradeB) || (subjectGradeSystem === "out_of_50" ? 31 : 65),
-        c_min: parseFloat(subjectGradeC) || (subjectGradeSystem === "out_of_50" ? 21 : 50),
-        d_min: parseFloat(subjectGradeD) || (subjectGradeSystem === "out_of_50" ? 11 : 35),
-        e_min: parseFloat(subjectGradeE) || 0
-    };
-
-    const data = {
-        action: "generatePDFResults",
-        dbId: currentDbId,
-        darasa: darasa,
-        gradeSettings: gradeSettings,
-        subjectGradeSettings: subjectGradeSettings,
-        termId: termId
-    };
-
-    if (!isOnline()) {
-        let offlineQueue = JSON.parse(localStorage.getItem('offlineQueue')) || [];
-        offlineQueue.push(data);
-        localStorage.setItem('offlineQueue', JSON.stringify(offlineQueue));
-
-        if (pdfBtn) {
-            pdfBtn.innerHTML = originalButtonHTML;
-            pdfBtn.disabled = false;
-        }
-
-        Notiflix.Notify.success('Ombi limehifadhiwa nje ya mtandao', {
-            timeout: 2000,
-            position: 'right-top'
-        });
-        return;
-    }
-
-    fetch(SCRIPT_URL, {
-        method: "POST",
-        body: JSON.stringify(data)
-    })
-    .then(res => res.json())
-    .then(data => {
-        if (pdfBtn) {
-            pdfBtn.innerHTML = originalButtonHTML;
-            pdfBtn.disabled = false;
-        }
-        
-        if (data.status === "success") {
-            const downloadUrl = data.directDownloadUrl || data.pdfDownloadUrl;
-            const fileName = data.pdfFileName || `${darasa}_Matokeo.pdf`;
-            
-            // Use the new download function - NO Google Account Selection
-            downloadFile(downloadUrl, fileName);
-            
-        } else {
-            Notiflix.Notify.failure(data.message, {
-                timeout: 3000,
-                position: 'right-top'
-            });
-        }
-    })
-    .catch(error => {
-        if (pdfBtn) {
-            pdfBtn.innerHTML = originalButtonHTML;
-            pdfBtn.disabled = false;
-        }
-        Notiflix.Notify.failure('Hitilafu ya mtandao. Tafadhali jaribu tena.', {
-            timeout: 3000,
-            position: 'right-top'
-        });
-    });
-}
-
-// ============================================
-// GENERATE SELECTED STUDENTS REPORT - UPDATED
-// ============================================
-function generateSelectedStudentsReport() {
-    const darasa = document.getElementById("darasaReport").value;
-    const termId = document.getElementById("termReport").value;
-    const selectedStudents = getSelectedStudents();
-    
-    if (!termId) {
-        Notiflix.Notify.warning('Tafadhali chagua muhula kwanza', {
-            timeout: 2000,
-            position: 'right-top'
-        });
-        return;
-    }
-    
-    if (selectedStudents.length === 0) {
-        Notiflix.Notify.warning('Tafadhali chagua angalau mwanafunzi mmoja', {
-            timeout: 2000,
-            position: 'right-top'
-        });
-        return;
-    }
-    
-    const reportBtn = document.querySelector('#reportDashboard .btn-primary[onclick="generateSelectedStudentsReport()"]');
-    let originalButtonHTML = '';
-    
-    if (reportBtn) {
-        originalButtonHTML = reportBtn.innerHTML;
-        reportBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Inatengeneza Ripoti...';
-        reportBtn.disabled = true;
-    }
-    
-    const classTeacherName = document.getElementById("classTeacherName")?.value || "";
-    const headTeacherName = document.getElementById("headTeacherName")?.value || "";
-    const principalMessage = document.getElementById("principalMessage")?.value || "";
-    const termStartDate = document.getElementById("termStartDate")?.value || "";
-    const termEndDate = document.getElementById("termEndDate")?.value || "";
-    
-    const reportSettings = {
-        classTeacherName: classTeacherName,
-        headTeacherName: headTeacherName,
-        principalMessage: principalMessage,
-        termStartDate: termStartDate,
-        termEndDate: termEndDate
-    };
-    
-    const gradeA = document.getElementById("gradeA").value;
-    const gradeB = document.getElementById("gradeB").value;
-    const gradeC = document.getElementById("gradeC").value;
-    const gradeD = document.getElementById("gradeD").value;
-    const gradeE = document.getElementById("gradeE").value;
-    
-    const gradeSettings = {
-        A: parseFloat(gradeA) || 80,
-        B: parseFloat(gradeB) || 65,
-        C: parseFloat(gradeC) || 50,
-        D: parseFloat(gradeD) || 35,
-        E: parseFloat(gradeE) || 0
-    };
-    
-    const subjectGradeSystem = document.getElementById("subjectGradeSystem").value;
-    const subjectGradeA = document.getElementById("subjectGradeA").value;
-    const subjectGradeB = document.getElementById("subjectGradeB").value;
-    const subjectGradeC = document.getElementById("subjectGradeC").value;
-    const subjectGradeD = document.getElementById("subjectGradeD").value;
-    const subjectGradeE = document.getElementById("subjectGradeE").value;
-    
-    const subjectGradeSettings = {
-        system: subjectGradeSystem,
-        a_min: parseFloat(subjectGradeA) || (subjectGradeSystem === "out_of_50" ? 41 : 80),
-        b_min: parseFloat(subjectGradeB) || (subjectGradeSystem === "out_of_50" ? 31 : 65),
-        c_min: parseFloat(subjectGradeC) || (subjectGradeSystem === "out_of_50" ? 21 : 50),
-        d_min: parseFloat(subjectGradeD) || (subjectGradeSystem === "out_of_50" ? 11 : 35),
-        e_min: parseFloat(subjectGradeE) || 0
-    };
-    
-    const requestData = {
-        action: "generateStudentReportPDF",
-        dbId: currentDbId,
-        darasa: darasa,
-        studentNames: selectedStudents,
-        gradeSettings: gradeSettings,
-        subjectGradeSettings: subjectGradeSettings,
-        termId: termId,
-        reportSettings: reportSettings
-    };
-
-    if (!isOnline()) {
-        let offlineQueue = JSON.parse(localStorage.getItem('offlineQueue')) || [];
-        offlineQueue.push(requestData);
-        localStorage.setItem('offlineQueue', JSON.stringify(offlineQueue));
-
-        if (reportBtn) {
-            reportBtn.innerHTML = originalButtonHTML;
-            reportBtn.disabled = false;
-        }
-
-        Notiflix.Notify.success('Ombi limehifadhiwa nje ya mtandao', {
-            timeout: 2000,
-            position: 'right-top'
-        });
-        return;
-    }
-
-    fetch(SCRIPT_URL, {
-        method: "POST",
-        body: JSON.stringify(requestData)
-    })
-    .then(res => res.json())
-    .then(response => {
-        if (reportBtn) {
-            reportBtn.innerHTML = originalButtonHTML;
-            reportBtn.disabled = false;
-        }
-        
-        if (response.status === "success") {
-            const downloadUrl = response.directDownloadUrl || response.fileUrl;
-            const fileName = response.fileName || `${darasa}_Ripoti.pdf`;
-            
-            // Use the new download function - NO Google Account Selection
-            downloadFile(downloadUrl, fileName);
-            
-        } else {
-            Notiflix.Notify.failure(response.message, {
-                timeout: 3000,
-                position: 'right-top'
-            });
-        }
-    })
-    .catch(error => {
-        if (reportBtn) {
-            reportBtn.innerHTML = originalButtonHTML;
-            reportBtn.disabled = false;
-        }
-        Notiflix.Notify.failure('Hitilafu ya mtandao. Tafadhali jaribu tena.', {
-            timeout: 3000,
-            position: 'right-top'
-        });
-    });
-}
-
-// ============================================
-// SHOW EXCEL OPTIONS - Wrapper function
-// ============================================
-function showExcelOptions() {
-    const darasa = document.getElementById("darasaReport").value;
-    const termId = document.getElementById("termReport").value;
-    
-    if (!termId) {
-        Notiflix.Notify.warning('Tafadhali chagua muhula kwanza', {
-            timeout: 2000,
-            position: 'right-top'
-        });
-        return;
-    }
-    
-    Swal.fire({
-        title: 'Chagua Aina ya Matokeo',
-        html: `
-            <div style="display: flex; flex-direction: column; gap: 15px; padding: 10px;">
-                <button id="standardExcelBtn" class="btn btn-primary" style="width: 100%;">
-                    <i class="fas fa-file-excel"></i> Kawaida (bila madaraja ya masomo)
-                </button>
-                <button id="gradedExcelBtn" class="btn btn-success" style="width: 100%;">
-                    <i class="fas fa-star"></i> Yenye Madaraja ya Masomo
-                </button>
-            </div>
-        `,
-        showConfirmButton: false,
-        showCancelButton: true,
-        cancelButtonText: 'Ghairi',
-        cancelButtonColor: '#f72585',
-        width: '450px',
-        didOpen: () => {
-            document.getElementById('standardExcelBtn').addEventListener('click', () => {
-                Swal.close();
-                generateExcelReport('standard');
-            });
-            document.getElementById('gradedExcelBtn').addEventListener('click', () => {
-                Swal.close();
-                generateExcelReport('graded');
-            });
-        }
-    });
 }
 
 
