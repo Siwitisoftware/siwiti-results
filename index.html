@@ -23771,6 +23771,145 @@ if ('serviceWorker' in navigator) {
   });
 }
 
+// ============================================
+// URL ROUTING - Sync address bar with app views
+// Maps: /login, /registration, /recovery, /dashboard/<name>
+// ============================================
+(function() {
+  const DASHBOARD_PATHS = {
+    student: '/dashboard/wanafunzi',
+    subject: '/dashboard/masomo',
+    results: '/dashboard/matokeo',
+    report: '/dashboard/ripoti',
+    staff: '/dashboard/watumiaji',
+    systemSettings: '/dashboard/mipangilio',
+    developer: '/dashboard/developer'
+  };
+  const PATH_TO_DASHBOARD = Object.fromEntries(
+    Object.entries(DASHBOARD_PATHS).map(([k, v]) => [v, k])
+  );
+
+  let isRoutingSuppressed = false;
+
+  function updateUrl(path) {
+    if (isRoutingSuppressed) return;
+    try {
+      if (window.location.pathname !== path) {
+        window.history.pushState({ path: path }, '', path);
+      }
+    } catch (e) {
+      // Some environments (e.g. sandboxed previews / about:srcdoc) block
+      // the History API. Fail silently so the app keeps working normally.
+      console.warn('URL routing skipped (not supported in this context):', e.message);
+    }
+  }
+
+  // Wrap the existing view functions to also update the URL.
+  // Original functions are preserved and still run exactly as before.
+  const _showLogin = window.showLogin;
+  window.showLogin = function() {
+    _showLogin.apply(this, arguments);
+    updateUrl('/login');
+  };
+
+  const _showRegister = window.showRegister;
+  window.showRegister = function() {
+    _showRegister.apply(this, arguments);
+    updateUrl('/registration');
+  };
+
+  const _showForgotPassword = window.showForgotPassword;
+  window.showForgotPassword = function() {
+    _showForgotPassword.apply(this, arguments);
+    updateUrl('/recovery');
+  };
+
+  const _showDashboard = window.showDashboard;
+  window.showDashboard = function(dashboard) {
+    _showDashboard.apply(this, arguments);
+    const path = DASHBOARD_PATHS[dashboard] || ('/dashboard/' + dashboard);
+    updateUrl(path);
+  };
+
+  const _showDeveloperDashboard = window.showDeveloperDashboard;
+  if (typeof _showDeveloperDashboard === 'function') {
+    window.showDeveloperDashboard = function() {
+      _showDeveloperDashboard.apply(this, arguments);
+      updateUrl(DASHBOARD_PATHS.developer);
+    };
+  }
+
+  // Handle browser Back/Forward buttons
+  window.addEventListener('popstate', function(event) {
+    isRoutingSuppressed = true;
+    try {
+      routeFromPath(window.location.pathname);
+    } finally {
+      isRoutingSuppressed = false;
+    }
+  });
+
+  // Decide which view to show based on the current URL path
+  function routeFromPath(path) {
+    const dbId = localStorage.getItem('dbId');
+    const isLoggedIn = !!dbId;
+
+    if (path === '/registration') {
+      window.showRegister();
+      return;
+    }
+    if (path === '/recovery') {
+      window.showForgotPassword();
+      return;
+    }
+    if (path === '/login') {
+      window.showLogin();
+      return;
+    }
+    if (PATH_TO_DASHBOARD[path]) {
+      if (isLoggedIn) {
+        window.showDashboard(PATH_TO_DASHBOARD[path]);
+      } else {
+        window.showLogin();
+      }
+      return;
+    }
+    // Unknown or root path: fall back sensibly
+    if (isLoggedIn) {
+      const savedDashboard = localStorage.getItem('currentDashboard') || 'student';
+      window.showDashboard(savedDashboard);
+    } else {
+      window.showLogin();
+    }
+  }
+
+  // On initial page load, sync the view to whatever the app already
+  // decided to show, OR route based on the URL if one was provided directly.
+  window.addEventListener('load', function() {
+    isRoutingSuppressed = true;
+    const path = window.location.pathname;
+    const knownPaths = ['/login', '/registration', '/recovery', ...Object.keys(PATH_TO_DASHBOARD)];
+
+    if (knownPaths.includes(path)) {
+      // Deep link: honor the URL (e.g. user refreshed on /dashboard/matokeo)
+      setTimeout(function() {
+        isRoutingSuppressed = false;
+        routeFromPath(path);
+      }, 50);
+    } else {
+      // No specific path (e.g. just "/"): reflect whatever the app booted into
+      isRoutingSuppressed = false;
+      const dbId = localStorage.getItem('dbId');
+      if (dbId) {
+        const savedDashboard = localStorage.getItem('currentDashboard') || 'student';
+        updateUrl(DASHBOARD_PATHS[savedDashboard] || ('/dashboard/' + savedDashboard));
+      } else {
+        updateUrl('/login');
+      }
+    }
+  });
+})();
+
 
   </script>
 </body>
