@@ -5742,7 +5742,58 @@ body.modal-open {
 </div>
   <script>
 //AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
-    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxdUWBpni_fSDjnb1T09eG7bJJvSSlv5a8G3V0w3qVqgdH3yDM7Sj18EnbdML-HO-dC/exec";
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyYQik_FotbL7lVmcA68Mh85bObbJuPmzJO7KN1ESTez-3GyC0j3BZO3mIq-uUFDwKE/exec";
+
+    // ============================================
+    // DIRECT DOWNLOAD HELPER (fixes Google account
+    // sign-in prompt on the website by downloading
+    // the actual file bytes as a Blob instead of
+    // navigating to a drive.google.com link).
+    //
+    // Pass the base64 file data returned by the
+    // backend (fileBase64/pdfBase64) plus its mime
+    // type. If base64 isn't available for any reason,
+    // it safely falls back to the old link-based
+    // download (same behavior as before).
+    // ============================================
+    function triggerDirectDownload(base64Data, mimeType, fileName, fallbackUrl) {
+      try {
+        if (base64Data) {
+          const byteChars = atob(base64Data);
+          const byteNumbers = new Array(byteChars.length);
+          for (let i = 0; i < byteChars.length; i++) {
+            byteNumbers[i] = byteChars.charCodeAt(i);
+          }
+          const byteArray = new Uint8Array(byteNumbers);
+          const blob = new Blob([byteArray], { type: mimeType || 'application/octet-stream' });
+          const blobUrl = URL.createObjectURL(blob);
+
+          const link = document.createElement('a');
+          link.href = blobUrl;
+          link.download = fileName;
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+
+          setTimeout(() => URL.revokeObjectURL(blobUrl), 15000);
+          return true;
+        }
+      } catch (err) {
+        console.warn('Direct blob download failed, falling back to URL download:', err);
+      }
+
+      // Fallback: old behavior (Drive link) if base64 wasn't provided
+      if (fallbackUrl) {
+        const link = document.createElement('a');
+        link.href = fallbackUrl;
+        link.download = fileName;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+      }
+      return false;
+    }
+
     let currentDbId = null
     let currentSchoolName = '';
     let subjects = [];
@@ -5827,13 +5878,8 @@ function downloadSubjectTemplate() {
             const downloadUrl = data.directDownloadUrl || data.downloadUrl;
             const fileName = data.fileName || "Masomo_Template.xlsx";
             
-            // Create temporary link and trigger download
-            const link = document.createElement('a');
-            link.href = downloadUrl;
-            link.download = fileName;
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
+            // Direct download via Blob (falls back to link if base64 unavailable)
+            triggerDirectDownload(data.fileBase64, data.mimeType, fileName, downloadUrl);
             
             Notiflix.Notify.success(`Kiolezo "${fileName}" kinapakuliwa`, {
                 timeout: 2000,
@@ -5913,14 +5959,7 @@ function showSubjectTemplateDownloadDialog(templateInfo) {
 
 // Function to force download subject template
 function forceDownloadSubjectTemplate(templateInfo) {
-    const link = document.createElement('a');
-    link.href = templateInfo.directDownloadUrl;
-    link.download = templateInfo.fileName;
-    link.style.display = 'none';
-    
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+    triggerDirectDownload(templateInfo.fileBase64, templateInfo.mimeType, templateInfo.fileName, templateInfo.directDownloadUrl);
     
     setTimeout(() => {
         Swal.fire({
@@ -10593,13 +10632,8 @@ function downloadMarksTemplate() {
             const downloadUrl = data.directDownloadUrl || data.downloadUrl;
             const fileName = data.fileName || "Alama_Template.xlsx";
             
-            // Create temporary link and trigger download
-            const link = document.createElement('a');
-            link.href = downloadUrl;
-            link.download = fileName;
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
+            // Direct download via Blob (falls back to link if base64 unavailable)
+            triggerDirectDownload(data.fileBase64, data.mimeType, fileName, downloadUrl);
             
             Notiflix.Notify.success(`Kiolezo "${fileName}" kinapakuliwa`, {
                 timeout: 2000,
@@ -11070,12 +11104,7 @@ function generateExcelReport(type) {
       const downloadUrl = data.spreadsheetUrl;
       const fileName = data.fileName || `${darasa}_Matokeo.xlsx`;
       
-      const link = document.createElement('a');
-      link.href = downloadUrl;
-      link.download = fileName;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
+      triggerDirectDownload(data.fileBase64, data.mimeType, fileName, downloadUrl);
       
       Notiflix.Notify.success(`✅ Matokeo yamepakuliwa! ${fileName}`, {
         timeout: 3000,
@@ -11208,7 +11237,9 @@ function generateReport() {
         const downloadInfo = {
           downloadUrl: data.spreadsheetUrl,
           fileName: data.fileName || `${darasa}_Matokeo.xlsx`,
-          viewUrl: data.viewUrl || data.spreadsheetUrl
+          viewUrl: data.viewUrl || data.spreadsheetUrl,
+          fileBase64: data.fileBase64,
+          mimeType: data.mimeType
         };
         
         Swal.fire({
@@ -11363,12 +11394,7 @@ function generatePDFResultsAction() {
       const downloadUrl = data.pdfDownloadUrl;
       const fileName = data.pdfFileName || `${darasa}_Matokeo.pdf`;
       
-      const link = document.createElement('a');
-      link.href = downloadUrl;
-      link.download = fileName;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
+      triggerDirectDownload(data.pdfBase64, data.mimeType, fileName, downloadUrl);
       
       Notiflix.Notify.success(`✅ PDF imepakuliwa! ${fileName}`, {
         timeout: 3000,
@@ -11396,16 +11422,7 @@ function generatePDFResultsAction() {
 
 // Function to download Excel file
 function downloadExcelFile(downloadInfo) {
-  // Create a hidden anchor element
-  const link = document.createElement('a');
-  link.href = downloadInfo.downloadUrl;
-  link.download = downloadInfo.fileName;
-  link.style.display = 'none';
-  
-  // Append to document, trigger click, and remove
-  document.body.appendChild(link);
-  link.click();
-  document.body.removeChild(link);
+  triggerDirectDownload(downloadInfo.fileBase64, downloadInfo.mimeType, downloadInfo.fileName, downloadInfo.downloadUrl);
   
   // Show success message
   setTimeout(() => {
@@ -11448,15 +11465,8 @@ function copyToClipboard(text) {
 
 
 // Generic file download function
-function downloadFile(url, fileName) {
-  const link = document.createElement('a');
-  link.href = url;
-  link.download = fileName;
-  link.style.display = 'none';
-  
-  document.body.appendChild(link);
-  link.click();
-  document.body.removeChild(link);
+function downloadFile(url, fileName, base64Data, mimeType) {
+  triggerDirectDownload(base64Data, mimeType, fileName, url);
   
   setTimeout(() => {
     Swal.fire({
@@ -11588,17 +11598,7 @@ function downloadPDFFile(downloadInfo) {
     
     console.log("Attempting to download:", { downloadUrl, fileName });
     
-    // Create a hidden anchor element
-    const link = document.createElement('a');
-    link.href = downloadUrl;
-    link.download = fileName;
-    link.style.display = 'none';
-    link.target = '_blank'; // Add target for compatibility
-    
-    // Append to document, trigger click, and remove
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+    triggerDirectDownload(downloadInfo.fileBase64, downloadInfo.mimeType, fileName, downloadUrl);
     
     // Show success message
     setTimeout(() => {
@@ -11700,12 +11700,7 @@ function generatePDFReport(darasa, studentNames, gradeSettings, subjectGradeSett
       const downloadUrl = response.fileUrl;
       const fileName = response.fileName || `${darasa}_Ripoti.pdf`;
       
-      const link = document.createElement('a');
-      link.href = downloadUrl;
-      link.download = fileName;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
+      triggerDirectDownload(response.fileBase64, response.mimeType, fileName, downloadUrl);
       
       Notiflix.Notify.success(`✅ Ripoti ${response.studentCount} zimepakuliwa!`, {
         timeout: 3000,
@@ -22853,13 +22848,8 @@ function downloadStudentTemplate() {
             const downloadUrl = data.downloadUrl;
             const fileName = `${darasa.replace(/ /g, '_')}_Usajili_Wanafunzi.xlsx`;
             
-            // Create temporary link and trigger download
-            const link = document.createElement('a');
-            link.href = downloadUrl;
-            link.download = fileName;
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
+            // Direct download via Blob (falls back to link if base64 unavailable)
+            triggerDirectDownload(data.fileBase64, data.mimeType, fileName, downloadUrl);
             
             Notiflix.Notify.success(`Kiolezo cha ${darasa} kinapakuliwa`, {
                 timeout: 2000,
@@ -23047,16 +23037,10 @@ function forceDownloadTemplate(templateInfo) {
     allowOutsideClick: false
   });
   
-  // Create a hidden iframe for download
-  const iframe = document.createElement('iframe');
-  iframe.style.display = 'none';
-  iframe.src = templateInfo.directDownloadUrl;
-  
-  document.body.appendChild(iframe);
+  triggerDirectDownload(templateInfo.fileBase64, templateInfo.mimeType, templateInfo.fileName, templateInfo.directDownloadUrl);
   
   // Check if download started
   setTimeout(() => {
-    document.body.removeChild(iframe);
     downloadingSwal.close();
     
     // Show success message
@@ -23407,14 +23391,7 @@ function setupDeveloperModal() {
 
 // Function to force download marks template
 function forceDownloadMarksTemplate(templateInfo) {
-    const link = document.createElement('a');
-    link.href = templateInfo.directDownloadUrl;
-    link.download = templateInfo.fileName;
-    link.style.display = 'none';
-    
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+    triggerDirectDownload(templateInfo.fileBase64, templateInfo.mimeType, templateInfo.fileName, templateInfo.directDownloadUrl);
     
     setTimeout(() => {
         Swal.fire({
