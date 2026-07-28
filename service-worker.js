@@ -1,16 +1,40 @@
 // Ongeza namba hii kila unapofanya deploy mpya (hiari - husaidia kusafisha
 // cache za zamani, lakini si lazima tena kwa sababu fetch sasa ni "network-first").
-const CACHE_VERSION = 'results-v2';
+const CACHE_VERSION = 'results-v3';
 const CACHE = CACHE_VERSION;
 const OFFLINE = '/offline.html';
-const PRECACHE_URLS = ['/', OFFLINE];
 
-// INSTALL: hifadhi ukurasa wa offline, kisha "skipWaiting" ili service
-// worker mpya isubiri kutumika mara moja badala ya kungoja tabs zote zifungwe.
+// MUHIMU: Maktaba hizi za nje (Notiflix, SweetAlert2, FontAwesome) ndizo
+// zinazotumika kuonyesha KILA ujumbe/loading kwenye app (hata ujumbe wa
+// "hakuna mtandao"). Kabla, hazikuwa zime-cache kabisa - kwa hivyo mtumiaji
+// akiwa offline, maktaba hizi zilikosekana, na app "iliganda" (button
+// zikakosa kufanya kazi kimya kimya) kila zilipoitwa. Sasa zinahifadhiwa
+// tangu mwanzo ili zipatikane hata bila mtandao.
+const PRECACHE_URLS = [
+  '/',
+  OFFLINE,
+  'https://cdn.jsdelivr.net/npm/notiflix@3.2.6/dist/notiflix-3.2.6.min.css',
+  'https://cdn.jsdelivr.net/npm/notiflix@3.2.6/dist/notiflix-aio-3.2.6.min.js',
+  'https://cdn.jsdelivr.net/npm/sweetalert2@11',
+  'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css',
+  'https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap'
+];
+
+// INSTALL: hifadhi ukurasa muhimu + maktaba za nje. Kila URL inajaribiwa
+// KIVYAKE (si kwa pamoja) - ikiwa moja itashindikana (mfano mtandao mbovu
+// wakati wa install), zingine zote bado zitahifadhiwa kikamilifu.
 self.addEventListener('install', (event) => {
   self.skipWaiting();
   event.waitUntil(
-    caches.open(CACHE).then((cache) => cache.addAll(PRECACHE_URLS))
+    caches.open(CACHE).then((cache) =>
+      Promise.allSettled(
+        PRECACHE_URLS.map((url) =>
+          cache.add(url).catch((err) => {
+            console.warn('Imeshindikana kuhifadhi mapema:', url, err);
+          })
+        )
+      )
+    )
   );
 });
 
@@ -36,14 +60,27 @@ self.addEventListener('fetch', (event) => {
   event.respondWith(
     fetch(event.request)
       .then((response) => {
-        // Hifadhi nakala mpya kwenye cache kwa matumizi ya offline baadaye
-        const responseClone = response.clone();
-        caches.open(CACHE).then((cache) => cache.put(event.request, responseClone));
+        // Cache API inaruhusu kuhifadhi maombi ya GET pekee (siyo POST,
+        // kama yale yanayotumwa kwa Google Apps Script backend).
+        if (event.request.method === 'GET' && response && response.ok) {
+          const responseClone = response.clone();
+          caches.open(CACHE).then((cache) => cache.put(event.request, responseClone));
+        }
         return response;
       })
-      .catch(() =>
-        // Hakuna mtandao: tumia cache iliyopo, au ukurasa wa offline
-        caches.match(event.request).then((cached) => cached || caches.match(OFFLINE))
-      )
+      .catch(() => {
+        // Hakuna mtandao. Tumia cache iliyopo ikiwepo.
+        return caches.match(event.request).then((cached) => {
+          if (cached) return cached;
+          // Onyesha ukurasa wa "offline" KWA UFUNGUZI WA UKURASA PEKEE
+          // (siyo kwa POST/API calls - hizo ziache kushindwa kwa kawaida
+          // ili app ionyeshe ujumbe sahihi wa "hakuna mtandao" badala ya
+          // kujaribu ku-parse HTML kama JSON).
+          if (event.request.mode === 'navigate') {
+            return caches.match(OFFLINE);
+          }
+          return Response.error();
+        });
+      })
   );
 });
