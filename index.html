@@ -5742,7 +5742,7 @@ body.modal-open {
 </div>
   <script>
 //AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
-    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycby2_cOZVAk7RChgooRJ9TWSiTVO63NQBvzt8kSKhEDIjsWCrIxm-dUyiD3OwHYqDCB-/exec";
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwWm2nFcGBf6fWuJ9IFzEsYywEm_QWkecIMcmzeBwnQZb2GMbsvkUUFpXQBuFapqDZf/exec";
 
     // ============================================
     // DIRECT DOWNLOAD HELPER (fixes Google account
@@ -23748,7 +23748,7 @@ function withButtonLoading(button, asyncFunction) {
 
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
-    navigator.serviceWorker.register('/service-worker.js')
+    navigator.serviceWorker.register('/service-worker.js', { updateViaCache: 'none' })
       .then(reg => console.log('Service Worker Registered'))
       .catch(err => console.error(err));
   });
