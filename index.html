@@ -5742,7 +5742,7 @@ body.modal-open {
 </div>
   <script>
 //AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
-    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyYQik_FotbL7lVmcA68Mh85bObbJuPmzJO7KN1ESTez-3GyC0j3BZO3mIq-uUFDwKE/exec";
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycby2_cOZVAk7RChgooRJ9TWSiTVO63NQBvzt8kSKhEDIjsWCrIxm-dUyiD3OwHYqDCB-/exec";
 
     // ============================================
     // DIRECT DOWNLOAD HELPER (fixes Google account
@@ -5776,7 +5776,10 @@ body.modal-open {
           document.body.removeChild(link);
 
           setTimeout(() => URL.revokeObjectURL(blobUrl), 15000);
+          console.log('✅ Direct blob download used for:', fileName);
           return true;
+        } else {
+          console.warn('⚠️ fileBase64 haikupatikana kwenye jibu la server kwa:', fileName, '— Backend (Code.gs) inaonekana bado haijasasishwa/ku-deploy upya. Inatumia link ya Drive kama njia mbadala.');
         }
       } catch (err) {
         console.warn('Direct blob download failed, falling back to URL download:', err);
@@ -5784,6 +5787,9 @@ body.modal-open {
 
       // Fallback: old behavior (Drive link) if base64 wasn't provided
       if (fallbackUrl) {
+        if (typeof Notiflix !== 'undefined' && Notiflix.Notify) {
+          Notiflix.Notify.warning('Backend haijasasishwa bado — inatumia njia ya zamani (inaweza kuomba Google account). Tafadhali hakikisha Code.gs mpya ime-deploy kama "New version".', { timeout: 6000, position: 'right-top' });
+        }
         const link = document.createElement('a');
         link.href = fallbackUrl;
         link.download = fileName;
