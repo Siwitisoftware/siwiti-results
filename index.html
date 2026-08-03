@@ -4457,10 +4457,280 @@ body.modal-open {
     padding: 20px;
   }
 }
+
+/* ============================================
+   PWA INSTALL WIDGET (Sakinisha App)
+   ============================================ */
+#pwaInstallBtn {
+  position: fixed;
+  right: 20px;
+  bottom: 20px;
+  z-index: 99999;
+  display: none;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 22px;
+  border: none;
+  border-radius: 50px;
+  background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+  color: #fff;
+  font-family: 'Inter', sans-serif;
+  font-weight: 600;
+  font-size: 0.9375rem;
+  cursor: pointer;
+  box-shadow: 0 10px 25px -5px rgba(67, 97, 238, 0.5), 0 8px 10px -6px rgba(0,0,0,0.15);
+  transition: var(--transition);
+  animation: pwaFadeInUp 0.4s ease-out, pwaPulse 2.4s ease-in-out infinite;
+}
+#pwaInstallBtn:hover {
+  transform: translateY(-3px) scale(1.03);
+  box-shadow: 0 15px 30px -5px rgba(67, 97, 238, 0.6);
+}
+#pwaInstallBtn:active { transform: translateY(0) scale(0.98); }
+#pwaInstallBtn:disabled { opacity: 0.7; cursor: not-allowed; animation: none; }
+#pwaInstallBtn i { font-size: 1.05rem; }
+#pwaInstallBtn.pwa-hide { display: none !important; }
+
+@keyframes pwaFadeInUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes pwaPulse {
+  0%, 100% { box-shadow: 0 10px 25px -5px rgba(67, 97, 238, 0.5), 0 0 0 0 rgba(67,97,238,0.35); }
+  50% { box-shadow: 0 10px 25px -5px rgba(67, 97, 238, 0.5), 0 0 0 10px rgba(67,97,238,0); }
+}
+
+/* Banner ya "Open" / "Close" baada ya usakinishaji kukamilika */
+#pwaInstalledBanner {
+  position: fixed;
+  right: 20px;
+  bottom: 20px;
+  z-index: 99999;
+  display: none;
+  flex-direction: column;
+  gap: 14px;
+  width: min(320px, calc(100vw - 40px));
+  padding: 20px;
+  border-radius: var(--radius-lg);
+  background: var(--white);
+  box-shadow: var(--shadow-xl);
+  border: 1px solid var(--border);
+  animation: pwaFadeInUp 0.4s ease-out;
+}
+#pwaInstalledBanner.pwa-show { display: flex; }
+.pwa-banner-head { display: flex; align-items: center; gap: 12px; }
+.pwa-banner-icon {
+  width: 42px; height: 42px; flex-shrink: 0;
+  border-radius: 12px;
+  background: linear-gradient(135deg, var(--success) 0%, var(--success-dark) 100%);
+  display: flex; align-items: center; justify-content: center;
+  color: var(--dark); font-size: 1.15rem;
+}
+.pwa-banner-title { font-weight: 700; color: var(--dark); font-size: 0.95rem; }
+.pwa-banner-sub { font-size: 0.8rem; color: var(--gray); margin-top: 2px; }
+.pwa-banner-actions { display: flex; gap: 10px; }
+.pwa-banner-actions button {
+  flex: 1;
+  padding: 10px 14px;
+  border: none;
+  border-radius: var(--radius);
+  font-weight: 600;
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: var(--transition);
+  display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+}
+#pwaOpenBtn {
+  background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+  color: #fff;
+}
+#pwaOpenBtn:hover { transform: translateY(-2px); box-shadow: var(--shadow-md); }
+#pwaCloseBtn {
+  background: var(--light);
+  color: var(--dark);
+  border: 1px solid var(--border) !important;
+}
+#pwaCloseBtn:hover { background: var(--border); }
+
+@media (max-width: 480px) {
+  #pwaInstallBtn span { display: none; }
+  #pwaInstallBtn { padding: 14px 16px; }
+}
+
+/* ============================================
+   ULINZI WA SKRINI (Installed App) - best effort
+   Vivinjari haviruhusu kuzuia screenshot 100%;
+   haya ni matumizi ya ziada tu ya kupunguza wepesi
+   wa kunakili/kuiba maudhui pindi app ikiwa
+   imesakinishwa (standalone).
+   ============================================ */
+html.pwa-protected,
+html.pwa-protected body {
+  -webkit-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+html.pwa-protected input,
+html.pwa-protected textarea,
+html.pwa-protected select,
+html.pwa-protected [contenteditable="true"] {
+  -webkit-user-select: text;
+  user-select: text;
+}
+#pwaSecureOverlay {
+  position: fixed; inset: 0; z-index: 999999;
+  display: none;
+  align-items: center; justify-content: center;
+  background: var(--dark);
+  color: #fff;
+  text-align: center;
+  padding: 24px;
+  font-family: 'Inter', sans-serif;
+}
+#pwaSecureOverlay.pwa-show { display: flex; }
+#pwaSecureOverlay i { font-size: 2rem; margin-bottom: 10px; display: block; }
   </style>
 </head>
 <body>
 
+<!-- ============================================
+     PWA INSTALL WIDGET (auto-injected)
+     ============================================ -->
+<button id="pwaInstallBtn" type="button" aria-label="Sakinisha App">
+  <i class="fas fa-download"></i>
+  <span>Sakinisha App</span>
+</button>
+
+<div id="pwaInstalledBanner" role="status">
+  <div class="pwa-banner-head">
+    <div class="pwa-banner-icon"><i class="fas fa-check"></i></div>
+    <div>
+      <div class="pwa-banner-title">Umefanikiwa kusakinisha!</div>
+      <div class="pwa-banner-sub">App iko tayari kutumika kwenye kifaa chako.</div>
+    </div>
+  </div>
+  <div class="pwa-banner-actions">
+    <button id="pwaOpenBtn" type="button"><i class="fas fa-arrow-up-right-from-square"></i> Fungua</button>
+    <button id="pwaCloseBtn" type="button"><i class="fas fa-xmark"></i> Funga</button>
+  </div>
+</div>
+
+<div id="pwaSecureOverlay">
+  <div>
+    <i class="fas fa-shield-halved"></i>
+    <div style="font-weight:700; font-size:1.05rem;">Skrini imefichwa kwa usalama</div>
+    <div style="font-size:0.85rem; opacity:0.8; margin-top:6px;">Rudi kwenye App ili kuendelea.</div>
+  </div>
+</div>
+
+<script>
+(function() {
+  var deferredPrompt = null;
+  var installBtn = document.getElementById('pwaInstallBtn');
+  var banner = document.getElementById('pwaInstalledBanner');
+  var openBtn = document.getElementById('pwaOpenBtn');
+  var closeBtn = document.getElementById('pwaCloseBtn');
+  var secureOverlay = document.getElementById('pwaSecureOverlay');
+
+  function isStandalone() {
+    return window.matchMedia('(display-mode: standalone)').matches ||
+           window.matchMedia('(display-mode: window-controls-overlay)').matches ||
+           window.navigator.standalone === true; // Safari/iOS
+  }
+  function isIOS() {
+    return /iphone|ipad|ipod/i.test(navigator.userAgent) && !window.MSStream;
+  }
+
+  // Ikiwa app tayari inaendeshwa ikiwa imesakinishwa, usionyeshe button ya install.
+  if (!isStandalone()) {
+    if (isIOS()) {
+      // Safari/iOS haitoi 'beforeinstallprompt' - onyesha button, mwongozo utaonekana wakati wa click.
+      installBtn.classList.remove('pwa-hide');
+    }
+  }
+
+  window.addEventListener('beforeinstallprompt', function(e) {
+    e.preventDefault();
+    deferredPrompt = e;
+    if (!isStandalone()) {
+      installBtn.classList.remove('pwa-hide');
+    }
+  });
+
+  installBtn.addEventListener('click', function() {
+    if (deferredPrompt) {
+      installBtn.disabled = true;
+      deferredPrompt.prompt();
+      deferredPrompt.userChoice.then(function(choice) {
+        installBtn.disabled = false;
+        if (choice.outcome === 'accepted') {
+          installBtn.classList.add('pwa-hide');
+        }
+        deferredPrompt = null;
+      });
+      return;
+    }
+    // Hakuna prompt ya moja kwa moja (mfano iOS Safari, au kivinjari kisichoiunga mkono) - toa mwongozo.
+    var msg = isIOS()
+      ? 'Bonyeza kitufe cha <b>Share</b> chini ya kivinjari, kisha chagua <b>"Ongeza kwenye Skrini ya Mwanzo"</b> (Add to Home Screen).'
+      : 'Tumia menyu ya kivinjari chako (⋮ au Share) kisha uchague <b>"Sakinisha App"</b> au <b>"Ongeza kwenye Skrini ya Mwanzo"</b>.';
+    if (window.Swal) {
+      Swal.fire({ title: 'Sakinisha App', html: msg, icon: 'info', confirmButtonText: 'Sawa' });
+    } else {
+      alert(msg.replace(/<[^>]+>/g, ''));
+    }
+  });
+
+  window.addEventListener('appinstalled', function() {
+    installBtn.classList.add('pwa-hide');
+    deferredPrompt = null;
+    banner.classList.add('pwa-show');
+    if (typeof Notiflix !== 'undefined' && Notiflix.Notify) {
+      Notiflix.Notify.success('App imesakinishwa kikamilifu!');
+    }
+  });
+
+  openBtn.addEventListener('click', function() {
+    banner.classList.remove('pwa-show');
+    window.location.href = '/';
+  });
+
+  closeBtn.addEventListener('click', function() {
+    banner.classList.remove('pwa-show');
+  });
+
+  // ============================================
+  // ULINZI DHIDI YA SCREENSHOT (best-effort tu)
+  // MUHIMU: Kivinjari/PWA haitoi API rasmi ya
+  // kuzuia screenshot 100% ya OS. Hatua hizi
+  // zinapunguza tu urahisi wa kunakili maudhui na
+  // kuficha skrini pindi app inapokwenda nyuma.
+  // ============================================
+  function applyScreenshotDeterrents() {
+    if (!isStandalone()) return;
+
+    document.documentElement.classList.add('pwa-protected');
+
+    document.addEventListener('contextmenu', function(e) { e.preventDefault(); });
+    document.addEventListener('dragstart', function(e) { e.preventDefault(); });
+    document.addEventListener('keydown', function(e) {
+      var k = (e.key || '').toLowerCase();
+      if ((e.ctrlKey || e.metaKey) && (k === 's' || k === 'p')) e.preventDefault();
+    });
+
+    // Ficha maudhui pindi app inapokwenda nyuma (recent-apps preview, kubadili app n.k.)
+    document.addEventListener('visibilitychange', function() {
+      if (document.hidden) {
+        secureOverlay.classList.add('pwa-show');
+      } else {
+        secureOverlay.classList.remove('pwa-show');
+      }
+    });
+  }
+
+  applyScreenshotDeterrents();
+})();
+</script>
 
 <!-- Sidebar -->
 <div class="sidebar hidden" id="sidebar">
