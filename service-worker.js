@@ -1,6 +1,6 @@
 // Ongeza namba hii kila unapofanya deploy mpya (hiari - husaidia kusafisha
 // cache za zamani, lakini si lazima tena kwa sababu fetch sasa ni "network-first").
-const CACHE_VERSION = 'results-v3';
+const CACHE_VERSION = 'results-v4';
 const CACHE = CACHE_VERSION;
 const OFFLINE = '/offline.html';
 
