@@ -1,18 +1,10 @@
-// Ongeza namba hii kila unapofanya deploy mpya (hiari - husaidia kusafisha
-// cache za zamani, lakini si lazima tena kwa sababu fetch sasa ni "network-first").
-const CACHE_VERSION = 'results-v4';
+// Results System Service Worker — offline refresh-safe cache strategy.
+// Keep the last working app shell available for browser refreshes and installed PWA launches.
+const CACHE_VERSION = 'results-v5-offline-shell';
 const CACHE = CACHE_VERSION;
-const OFFLINE = '/offline.html';
-
-// MUHIMU: Maktaba hizi za nje (Notiflix, SweetAlert2, FontAwesome) ndizo
-// zinazotumika kuonyesha KILA ujumbe/loading kwenye app (hata ujumbe wa
-// "hakuna mtandao"). Kabla, hazikuwa zime-cache kabisa - kwa hivyo mtumiaji
-// akiwa offline, maktaba hizi zilikosekana, na app "iliganda" (button
-// zikakosa kufanya kazi kimya kimya) kila zilipoitwa. Sasa zinahifadhiwa
-// tangu mwanzo ili zipatikane hata bila mtandao.
+const APP_SHELL_URLS = ['/', '/index.html', '/offline.html'];
 const PRECACHE_URLS = [
-  '/',
-  OFFLINE,
+  ...APP_SHELL_URLS,
   'https://cdn.jsdelivr.net/npm/notiflix@3.2.6/dist/notiflix-3.2.6.min.css',
   'https://cdn.jsdelivr.net/npm/notiflix@3.2.6/dist/notiflix-aio-3.2.6.min.js',
   'https://cdn.jsdelivr.net/npm/sweetalert2@11',
@@ -20,67 +12,99 @@ const PRECACHE_URLS = [
   'https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap'
 ];
 
-// INSTALL: hifadhi ukurasa muhimu + maktaba za nje. Kila URL inajaribiwa
-// KIVYAKE (si kwa pamoja) - ikiwa moja itashindikana (mfano mtandao mbovu
-// wakati wa install), zingine zote bado zitahifadhiwa kikamilifu.
 self.addEventListener('install', (event) => {
-  self.skipWaiting();
-  event.waitUntil(
-    caches.open(CACHE).then((cache) =>
-      Promise.allSettled(
-        PRECACHE_URLS.map((url) =>
-          cache.add(url).catch((err) => {
-            console.warn('Imeshindikana kuhifadhi mapema:', url, err);
-          })
-        )
-      )
-    )
-  );
+  event.waitUntil((async () => {
+    const cache = await caches.open(CACHE);
+    // Cache each resource independently so a failed CDN request never blocks the app shell.
+    await Promise.allSettled(PRECACHE_URLS.map(async (url) => {
+      try {
+        const response = await fetch(url, { cache: 'reload' });
+        if (response && response.ok) await cache.put(url, response.clone());
+      } catch (err) {
+        // Expected when install occurs on a weak connection or without network.
+        console.warn('Precache skipped:', url, err);
+      }
+    }));
+    await self.skipWaiting();
+  })());
 });
 
-// ACTIVATE: futa cache za zamani (matoleo ya nyuma) na chukua udhibiti wa
-// tabs zote zilizo wazi mara moja, bila kusubiri reload.
 self.addEventListener('activate', (event) => {
-  event.waitUntil(
-    caches.keys()
-      .then((keys) =>
-        Promise.all(
-          keys.filter((key) => key !== CACHE).map((key) => caches.delete(key))
-        )
-      )
-      .then(() => self.clients.claim())
-  );
+  event.waitUntil((async () => {
+    const keys = await caches.keys();
+    await Promise.all(keys.filter((key) => key.startsWith('results-') && key !== CACHE).map((key) => caches.delete(key)));
+    await self.clients.claim();
+  })());
 });
 
-// FETCH: NETWORK-FIRST. Jaribu kupata toleo jipya kutoka kwenye server
-// KILA WAKATI mtumiaji akiwa na mtandao (hii ndiyo inayohakikisha kila
-// update unayofanya inafika kwa watumiaji moja kwa moja). Tumia cache
-// PEKEE endapo mtandao haupatikani (offline mode).
+async function findCachedAppShell(request) {
+  const cache = await caches.open(CACHE);
+  // First try the exact request (including its path), then fall back to the app shell.
+  let response = await cache.match(request, { ignoreSearch: true });
+  if (response) return response;
+  response = await cache.match('/');
+  if (response) return response;
+  response = await cache.match('/index.html');
+  if (response) return response;
+  return null;
+}
+
+async function networkFirstNavigation(request) {
+  const cache = await caches.open(CACHE);
+  try {
+    const response = await fetch(request);
+    if (response && response.ok) {
+      // Keep the successful latest app page available for the next offline refresh.
+      await cache.put('/', response.clone());
+      await cache.put('/index.html', response.clone());
+      return response;
+    }
+    throw new Error('Navigation returned HTTP ' + response.status);
+  } catch (err) {
+    const cached = await findCachedAppShell(request);
+    if (cached) return cached;
+    // Only show the offline notice when no saved app shell exists at all.
+    return (await cache.match('/offline.html')) || new Response(
+      '<!doctype html><html><head><meta name="viewport" content="width=device-width,initial-scale=1"><title>Results System</title></head><body><h2>Results System</h2><p>You are offline. Open the app once while connected to the internet to save it for offline use.</p></body></html>',
+      { headers: { 'Content-Type': 'text/html; charset=utf-8' }, status: 200 }
+    );
+  }
+}
+
 self.addEventListener('fetch', (event) => {
-  event.respondWith(
-    fetch(event.request)
-      .then((response) => {
-        // Cache API inaruhusu kuhifadhi maombi ya GET pekee (siyo POST,
-        // kama yale yanayotumwa kwa Google Apps Script backend).
-        if (event.request.method === 'GET' && response && response.ok) {
-          const responseClone = response.clone();
-          caches.open(CACHE).then((cache) => cache.put(event.request, responseClone));
-        }
+  const request = event.request;
+  if (request.method !== 'GET') return;
+
+  const url = new URL(request.url);
+  if (url.origin !== self.location.origin) {
+    // External libraries: use cached copy offline; refresh cache after successful network response.
+    event.respondWith((async () => {
+      const cache = await caches.open(CACHE);
+      try {
+        const response = await fetch(request);
+        if (response && response.ok) cache.put(request, response.clone()).catch(() => {});
         return response;
-      })
-      .catch(() => {
-        // Hakuna mtandao. Tumia cache iliyopo ikiwepo.
-        return caches.match(event.request).then((cached) => {
-          if (cached) return cached;
-          // Onyesha ukurasa wa "offline" KWA UFUNGUZI WA UKURASA PEKEE
-          // (siyo kwa POST/API calls - hizo ziache kushindwa kwa kawaida
-          // ili app ionyeshe ujumbe sahihi wa "hakuna mtandao" badala ya
-          // kujaribu ku-parse HTML kama JSON).
-          if (event.request.mode === 'navigate') {
-            return caches.match(OFFLINE);
-          }
-          return Response.error();
-        });
-      })
-  );
+      } catch (err) {
+        return (await cache.match(request)) || Response.error();
+      }
+    })());
+    return;
+  }
+
+  if (request.mode === 'navigate') {
+    // Key fix: offline refreshes use the saved app shell, not offline.html.
+    event.respondWith(networkFirstNavigation(request));
+    return;
+  }
+
+  event.respondWith((async () => {
+    const cache = await caches.open(CACHE);
+    try {
+      const response = await fetch(request);
+      if (response && response.ok) cache.put(request, response.clone()).catch(() => {});
+      return response;
+    } catch (err) {
+      return (await cache.match(request, { ignoreSearch: true })) || Response.error();
+    }
+  })());
 });
