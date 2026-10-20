@@ -4783,6 +4783,7 @@ body.modal-open {
 #pwaInstallBtn:active { transform: translateY(0) scale(0.98); }
 #pwaInstallBtn:disabled { opacity: 0.7; cursor: not-allowed; animation: none; }
 #pwaInstallBtn i { font-size: 1.05rem; }
+#pwaInstallBtn.pwa-ready { display: flex; }
 #pwaInstallBtn.pwa-hide { display: none !important; }
 
 @keyframes pwaFadeInUp {
@@ -5217,9 +5218,9 @@ html[data-school-level="primary"] #secondaryDivisionSettingsSection { display:no
 <!-- ============================================
      PWA INSTALL WIDGET (auto-injected)
      ============================================ -->
-<button id="pwaInstallBtn" type="button" aria-label="Sakinisha App">
-  <i class="fas fa-download"></i>
-  <span>Sakinisha App</span>
+<button id="pwaInstallBtn" type="button" aria-label="Install App" lang="en" data-no-translate="true">
+  <i class="fas fa-download" aria-hidden="true"></i>
+  <span>Install App</span>
 </button>
 
 <div id="pwaInstalledBanner" role="status">
@@ -5256,29 +5257,57 @@ html[data-school-level="primary"] #secondaryDivisionSettingsSection { display:no
   function isStandalone() {
     return window.matchMedia('(display-mode: standalone)').matches ||
            window.matchMedia('(display-mode: window-controls-overlay)').matches ||
-           window.navigator.standalone === true; // Safari/iOS
+           window.navigator.standalone === true;
   }
   function isIOS() {
-    return /iphone|ipad|ipod/i.test(navigator.userAgent) && !window.MSStream;
+    return /iphone|ipad|ipod/i.test(navigator.userAgent) ||
+           (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
   }
-
-  // Ikiwa app tayari inaendeshwa ikiwa imesakinishwa, usionyeshe button ya install.
-  if (!isStandalone()) {
-    if (isIOS()) {
-      // Safari/iOS haitoi 'beforeinstallprompt' - onyesha button, mwongozo utaonekana wakati wa click.
-      installBtn.classList.remove('pwa-hide');
+  // Show only on mobile browsers. Never show on desktop/computer.
+  function isMobileDevice() {
+    var ua = navigator.userAgent || '';
+    return /android|iphone|ipod|ipad/i.test(ua) ||
+           (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+  }
+  function hideInstallButton() {
+    installBtn.classList.remove('pwa-ready');
+    installBtn.classList.add('pwa-hide');
+    installBtn.setAttribute('aria-hidden', 'true');
+  }
+  function showInstallButton() {
+    if (!isMobileDevice() || isStandalone()) {
+      hideInstallButton();
+      return;
     }
+    installBtn.classList.remove('pwa-hide');
+    installBtn.classList.add('pwa-ready');
+    installBtn.removeAttribute('aria-hidden');
+    // Keep the button label English-only, regardless of the selected site language.
+    var label = installBtn.querySelector('span');
+    if (label) label.textContent = 'Install App';
+    installBtn.setAttribute('aria-label', 'Install App');
   }
+  hideInstallButton();
+  if (isMobileDevice() && !isStandalone()) showInstallButton();
+
+  // Hide when the browser reports that this PWA is already installed.
+  if (navigator.getInstalledRelatedApps && isMobileDevice()) {
+    navigator.getInstalledRelatedApps().then(function(apps) {
+      if (apps && apps.length) hideInstallButton();
+    }).catch(function() {});
+  }
+  window.matchMedia('(display-mode: standalone)').addEventListener?.('change', function() {
+    if (isStandalone()) hideInstallButton(); else showInstallButton();
+  });
 
   window.addEventListener('beforeinstallprompt', function(e) {
     e.preventDefault();
     deferredPrompt = e;
-    if (!isStandalone()) {
-      installBtn.classList.remove('pwa-hide');
-    }
+    showInstallButton();
   });
 
   installBtn.addEventListener('click', function() {
+    if (!isMobileDevice() || isStandalone()) { hideInstallButton(); return; }
     if (deferredPrompt) {
       installBtn.disabled = true;
       deferredPrompt.prompt();
@@ -5296,14 +5325,14 @@ html[data-school-level="primary"] #secondaryDivisionSettingsSection { display:no
       ? 'Bonyeza kitufe cha <b>Share</b> chini ya kivinjari, kisha chagua <b>"Ongeza kwenye Skrini ya Mwanzo"</b> (Add to Home Screen).'
       : 'Tumia menyu ya kivinjari chako (⋮ au Share) kisha uchague <b>"Sakinisha App"</b> au <b>"Ongeza kwenye Skrini ya Mwanzo"</b>.';
     if (window.Swal) {
-      Swal.fire({ title: 'Sakinisha App', html: msg, icon: 'info', confirmButtonText: 'Sawa' });
+      Swal.fire({ title: 'Install App', html: msg, icon: 'info', confirmButtonText: 'OK' });
     } else {
       alert(msg.replace(/<[^>]+>/g, ''));
     }
   });
 
   window.addEventListener('appinstalled', function() {
-    installBtn.classList.add('pwa-hide');
+    hideInstallButton();
     deferredPrompt = null;
     banner.classList.add('pwa-show');
     if (typeof Notiflix !== 'undefined' && Notiflix.Notify) {
