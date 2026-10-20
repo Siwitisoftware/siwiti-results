@@ -1,10 +1,14 @@
 // Results System Service Worker — offline refresh-safe cache strategy.
 // Keep the last working app shell available for browser refreshes and installed PWA launches.
-const CACHE_VERSION = 'results-v5-offline-shell';
+const CACHE_VERSION = 'results-v6-results-branding';
 const CACHE = CACHE_VERSION;
 const APP_SHELL_URLS = ['/', '/index.html', '/offline.html'];
 const PRECACHE_URLS = [
   ...APP_SHELL_URLS,
+  '/favicon.png?v=20261020',
+  '/icons/icon-192.png?v=20261020',
+  '/icons/icon-512.png?v=20261020',
+  '/images/results-system-logo.png',
   'https://cdn.jsdelivr.net/npm/notiflix@3.2.6/dist/notiflix-3.2.6.min.css',
   'https://cdn.jsdelivr.net/npm/notiflix@3.2.6/dist/notiflix-aio-3.2.6.min.js',
   'https://cdn.jsdelivr.net/npm/sweetalert2@11',
