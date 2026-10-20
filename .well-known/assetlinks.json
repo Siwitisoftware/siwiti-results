@@ -1,1 +1,8 @@
-
+[{
+      "relation": ["delegate_permission/common.handle_all_urls"],
+      "target": {
+        "namespace": "android_app",
+        "package_name": "com.siwitisoftware.results.twa",
+        "sha256_cert_fingerprints": ["19:1D:70:5D:0A:84:21:84:4F:36:AD:A3:6C:95:4B:5B:F0:94:5C:B8:7C:0F:09:D8:F4:D0:59:65:04:80:79:1C"]
+      }
+    }]
