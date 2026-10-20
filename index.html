@@ -4783,7 +4783,6 @@ body.modal-open {
 #pwaInstallBtn:active { transform: translateY(0) scale(0.98); }
 #pwaInstallBtn:disabled { opacity: 0.7; cursor: not-allowed; animation: none; }
 #pwaInstallBtn i { font-size: 1.05rem; }
-#pwaInstallBtn.pwa-ready { display: flex; }
 #pwaInstallBtn.pwa-hide { display: none !important; }
 
 @keyframes pwaFadeInUp {
@@ -5181,30 +5180,6 @@ html[data-school-level="primary"] #secondaryDivisionSettingsSection { display:no
 <style id="school-number-example-red-style">
 #schoolNumberInput::placeholder { color: #dc2626 !important; opacity: 1 !important; font-weight: 700 !important; }
 </style>
-
-<style id="ratiba-timetable-copy-protection">
-/* Timetable UI protection: prevent drag-selection/highlight and casual copy. This is a UI deterrent, not a replacement for server authorization. */
-#timetableDashboard, #timetableDashboard *, #staffTimetableDashboard, #staffTimetableDashboard *,
-#timetableDashboard table, #timetableDashboard th, #timetableDashboard td,
-#staffTimetableDashboard table, #staffTimetableDashboard th, #staffTimetableDashboard td {
-  -webkit-user-select:none !important; user-select:none !important; -webkit-touch-callout:none;
-}
-#timetableDashboard input, #timetableDashboard textarea, #timetableDashboard select,
-#staffTimetableDashboard input, #staffTimetableDashboard textarea, #staffTimetableDashboard select {
-  -webkit-user-select:text !important; user-select:text !important; -webkit-touch-callout:default;
-}
-#timetableDashboard .tt-table-wrap, #staffTimetableDashboard .tt-table-wrap,
-#timetableDashboard .tt-weekly-summary, #staffTimetableDashboard .tt-weekly-summary { -webkit-user-select:none !important; user-select:none !important; }
-#timetableDashboard.ratiba-plan-expired-locked, #staffTimetableDashboard.ratiba-plan-expired-locked { position:relative; }
-#timetableDashboard.ratiba-plan-expired-locked .tt-table-wrap,
-#timetableDashboard.ratiba-plan-expired-locked .tt-weekly-summary,
-#staffTimetableDashboard.ratiba-plan-expired-locked .tt-table-wrap,
-#staffTimetableDashboard.ratiba-plan-expired-locked .tt-weekly-summary,
-#timetableDashboard.ratiba-plan-expired-locked #ttScheduleContainer,
-#timetableDashboard.ratiba-plan-expired-locked #ttOwnScheduleContainer,
-#timetableDashboard.ratiba-plan-expired-locked #ttPendingRequests,
-#staffTimetableDashboard.ratiba-plan-expired-locked #staffTimetableContainer { display:none !important; }
-</style>
 </head>
 <body>
 
@@ -5218,9 +5193,9 @@ html[data-school-level="primary"] #secondaryDivisionSettingsSection { display:no
 <!-- ============================================
      PWA INSTALL WIDGET (auto-injected)
      ============================================ -->
-<button id="pwaInstallBtn" type="button" aria-label="Install App" lang="en" data-no-translate="true">
-  <i class="fas fa-download" aria-hidden="true"></i>
-  <span>Install App</span>
+<button id="pwaInstallBtn" type="button" aria-label="Sakinisha App">
+  <i class="fas fa-download"></i>
+  <span>Sakinisha App</span>
 </button>
 
 <div id="pwaInstalledBanner" role="status">
@@ -5257,57 +5232,29 @@ html[data-school-level="primary"] #secondaryDivisionSettingsSection { display:no
   function isStandalone() {
     return window.matchMedia('(display-mode: standalone)').matches ||
            window.matchMedia('(display-mode: window-controls-overlay)').matches ||
-           window.navigator.standalone === true;
+           window.navigator.standalone === true; // Safari/iOS
   }
   function isIOS() {
-    return /iphone|ipad|ipod/i.test(navigator.userAgent) ||
-           (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+    return /iphone|ipad|ipod/i.test(navigator.userAgent) && !window.MSStream;
   }
-  // Show only on mobile browsers. Never show on desktop/computer.
-  function isMobileDevice() {
-    var ua = navigator.userAgent || '';
-    return /android|iphone|ipod|ipad/i.test(ua) ||
-           (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
-  }
-  function hideInstallButton() {
-    installBtn.classList.remove('pwa-ready');
-    installBtn.classList.add('pwa-hide');
-    installBtn.setAttribute('aria-hidden', 'true');
-  }
-  function showInstallButton() {
-    if (!isMobileDevice() || isStandalone()) {
-      hideInstallButton();
-      return;
-    }
-    installBtn.classList.remove('pwa-hide');
-    installBtn.classList.add('pwa-ready');
-    installBtn.removeAttribute('aria-hidden');
-    // Keep the button label English-only, regardless of the selected site language.
-    var label = installBtn.querySelector('span');
-    if (label) label.textContent = 'Install App';
-    installBtn.setAttribute('aria-label', 'Install App');
-  }
-  hideInstallButton();
-  if (isMobileDevice() && !isStandalone()) showInstallButton();
 
-  // Hide when the browser reports that this PWA is already installed.
-  if (navigator.getInstalledRelatedApps && isMobileDevice()) {
-    navigator.getInstalledRelatedApps().then(function(apps) {
-      if (apps && apps.length) hideInstallButton();
-    }).catch(function() {});
+  // Ikiwa app tayari inaendeshwa ikiwa imesakinishwa, usionyeshe button ya install.
+  if (!isStandalone()) {
+    if (isIOS()) {
+      // Safari/iOS haitoi 'beforeinstallprompt' - onyesha button, mwongozo utaonekana wakati wa click.
+      installBtn.classList.remove('pwa-hide');
+    }
   }
-  window.matchMedia('(display-mode: standalone)').addEventListener?.('change', function() {
-    if (isStandalone()) hideInstallButton(); else showInstallButton();
-  });
 
   window.addEventListener('beforeinstallprompt', function(e) {
     e.preventDefault();
     deferredPrompt = e;
-    showInstallButton();
+    if (!isStandalone()) {
+      installBtn.classList.remove('pwa-hide');
+    }
   });
 
   installBtn.addEventListener('click', function() {
-    if (!isMobileDevice() || isStandalone()) { hideInstallButton(); return; }
     if (deferredPrompt) {
       installBtn.disabled = true;
       deferredPrompt.prompt();
@@ -5325,14 +5272,14 @@ html[data-school-level="primary"] #secondaryDivisionSettingsSection { display:no
       ? 'Bonyeza kitufe cha <b>Share</b> chini ya kivinjari, kisha chagua <b>"Ongeza kwenye Skrini ya Mwanzo"</b> (Add to Home Screen).'
       : 'Tumia menyu ya kivinjari chako (⋮ au Share) kisha uchague <b>"Sakinisha App"</b> au <b>"Ongeza kwenye Skrini ya Mwanzo"</b>.';
     if (window.Swal) {
-      Swal.fire({ title: 'Install App', html: msg, icon: 'info', confirmButtonText: 'OK' });
+      Swal.fire({ title: 'Sakinisha App', html: msg, icon: 'info', confirmButtonText: 'Sawa' });
     } else {
       alert(msg.replace(/<[^>]+>/g, ''));
     }
   });
 
   window.addEventListener('appinstalled', function() {
-    hideInstallButton();
+    installBtn.classList.add('pwa-hide');
     deferredPrompt = null;
     banner.classList.add('pwa-show');
     if (typeof Notiflix !== 'undefined' && Notiflix.Notify) {
@@ -6413,9 +6360,12 @@ html[data-school-level="primary"] #secondaryDivisionSettingsSection { display:no
         </div>
         <div class="tt-actions">
           <button class="btn btn-primary" onclick="ttSaveSettings()"><i class="fas fa-save"></i> Hifadhi Settings</button>
+          <div class="input-group tt-download-class-after-save" style="flex:1 1 100%;margin:8px 0 4px;min-width:0"><label id="ttDownloadClassLabel" for="ttDownloadClass">Darasa la kupakua</label><select id="ttDownloadClass" onchange="ttHandleDownloadClassChange_()" style="width:100%"></select></div>
+          <div id="ttDownloadStreamGroup" class="input-group" style="flex:1 1 100%;margin:0 0 8px;min-width:0" hidden><label id="ttDownloadStreamLabel" for="ttDownloadStream">Mkondo wa kupakua</label><select id="ttDownloadStream" style="width:100%"><option value="">Chagua Mkondo</option></select><small id="ttDownloadStreamHint" style="display:block;color:#64748b;margin-top:5px">Chagua mkondo wa darasa hili.</small></div>
           <div id="ttGroupAction_awali" class="tt-group-action"><div class="tt-group-action-title"><i class="fas fa-child"></i> Ratiba ya Awali</div><div class="tt-group-action-buttons"><button class="btn btn-success tt-single-action" data-tt-generate-group="awali" onclick="ttGenerateGroup(this,'awali')"><i class="fas fa-wand-magic-sparkles"></i> Tengeneza Ratiba</button></div></div>
           <div id="ttGroupAction_lower" class="tt-group-action"><div class="tt-group-action-title"><i class="fas fa-layer-group"></i> Ratiba ya Lower Classes</div><div class="tt-group-action-buttons"><button class="btn btn-success tt-single-action" data-tt-generate-group="lower" onclick="ttGenerateGroup(this,'lower')"><i class="fas fa-wand-magic-sparkles"></i> Tengeneza Ratiba</button></div></div>
           <div id="ttGroupAction_upper" class="tt-group-action"><div class="tt-group-action-title"><i class="fas fa-school"></i> Ratiba ya Upper Classes</div><div class="tt-group-action-buttons"><button class="btn btn-success tt-single-action" data-tt-generate-group="upper" onclick="ttGenerateGroup(this,'upper')"><i class="fas fa-wand-magic-sparkles"></i> Tengeneza Ratiba</button></div></div>
+          <button id="ttDownloadCurrentBtn" class="btn btn-warning" onclick="ttDownloadCurrent()"><i class="fas fa-download"></i> Pakua Ratiba ya Darasa</button>
         </div>
       </div>
       <div id="ttOwnerPdfActions" style="margin-top:14px;display:flex;gap:10px;flex-wrap:wrap;justify-content:flex-end">
@@ -6423,18 +6373,9 @@ html[data-school-level="primary"] #secondaryDivisionSettingsSection { display:no
         <button type="button" class="btn btn-primary" id="ttOwnerLowerPdfBtn" onclick="ttDownloadOwnerGroupPDF('lower',this)"><i class="fas fa-file-pdf"></i> Pakua Ratiba ya Lower Classes (PDF)</button>
         <button type="button" class="btn btn-primary" id="ttOwnerUpperPdfBtn" onclick="ttDownloadOwnerGroupPDF('upper',this)"><i class="fas fa-file-pdf"></i> Pakua Ratiba ya Upper Classes (PDF)</button>
       </div>
-      <div class="tt-card tt-class-download-panel" id="ttClassDownloadPanel" style="margin-top:14px">
-        <h4><i class="fas fa-file-arrow-down"></i> Pakua Ratiba ya Darasa</h4>
-        <div class="tt-class-download-grid">
-          <div class="input-group" style="min-width:0;margin:0"><label id="ttDownloadClassLabel" for="ttDownloadClass">Darasa la kupakua</label><select id="ttDownloadClass" onchange="ttHandleDownloadClassChange_()" style="width:100%"></select></div>
-          <div id="ttDownloadStreamGroup" class="input-group" style="min-width:0;margin:0" hidden><label id="ttDownloadStreamLabel" for="ttDownloadStream">Mkondo wa kupakua</label><select id="ttDownloadStream" style="width:100%"><option value="">Chagua Mkondo</option></select><small id="ttDownloadStreamHint" style="display:block;color:#64748b;margin-top:5px">Chagua mkondo wa darasa hili.</small></div>
-        </div>
-        <button id="ttDownloadCurrentBtn" class="btn btn-warning" style="width:100%;margin-top:12px" onclick="ttDownloadCurrent()"><i class="fas fa-download"></i> Pakua Ratiba ya Darasa</button>
       </div>
       <div class="tt-card" style="margin-top:16px"><h4><i class="fas fa-table"></i> Ratiba Kuu</h4><div id="ttScheduleContainer"><div class="tt-message">Chagua “Tengeneza Ratiba ya Awali”, “Tengeneza Ratiba ya Lower Classes” au “Tengeneza Ratiba ya Upper Classes” baada ya kuweka Settings.</div></div></div>
     </div>
-  </div>
-
   </div>
 
   <!-- Staff Read-only Timetable Dashboard -->
@@ -6932,6 +6873,10 @@ html[data-school-level="primary"] #secondaryDivisionSettingsSection { display:no
       UMEFIKA MWISHO WA MATUMIZI YAKO
     </h2>
     <p>Ili kuendelea kutumia mfumo, tafadhali lipia:</p>
+    <div style="background: #f8f9fa; padding: 20px; border-radius: 12px; margin: 20px 0;">
+      <p><i class="fas fa-money-bill-wave"></i> <strong>Ada ya Mwezi:</strong> <span id="expiredMonthlyFee">TSh 2,500</span></p>
+      <p><i class="fas fa-money-bill-wave"></i> <strong>Ada ya Mwaka:</strong> <span id="expiredYearlyFee">TSh 30,000</span></p>
+    </div>
     <p><strong><i class="fas fa-mobile-alt"></i> Malipo Kupitia:</strong></p>
     <p><i class="fab fa-m-pesa"></i> M-Pesa: <strong>+255750183275</strong></p>
     <p><i class="fas fa-phone-alt"></i> Mix By Yas: <strong>+255652343371</strong></p>
@@ -6948,7 +6893,7 @@ html[data-school-level="primary"] #secondaryDivisionSettingsSection { display:no
 </div>
   <script>
 //AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
-    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwuLfWJVqjZAm5MxOgSTE3Bcw__F-a9A2WG2-CXu_ZtZXLazZzUpxf467DT4tZt5hME/exec';
+    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxZw40jN6vKbV6BnDfvn-742YSzd435x_IiPQh12X0kV19U2UwWcnHqhT0FCshai0Ds/exec';
 
 
     // ============================================
@@ -8857,111 +8802,153 @@ function showPreExpiryWarning(minutes, seconds) {
   }
 }
 
-// === REAL-TIME SUBSCRIPTION SYNC: 3-SECOND ONLINE POLLING ===
-// One request at a time; the next poll is driven by a single interval below.
-window.__siwitiPlanCheckInFlight = window.__siwitiPlanCheckInFlight || false;
-window.__siwitiLastPlanSnapshot = window.__siwitiLastPlanSnapshot || null;
-window.__siwitiPlanPollStarted = window.__siwitiPlanPollStarted || false;
-function siwitiPlanSnapshot_(s) {
-  s=s||{};
-  return JSON.stringify({
-    status:String(s.status||''), plan:String(s.plan||s.type||''),
-    trialEndDate:String(s.trialEndDate||''), subscriptionEndDate:String(s.subscriptionEndDate||''),
-    isPremium:!!s.isPremium, paymentStatus:String(s.paymentStatus||''),
-    accountStatus:String(s.accountStatus||''), expiresAt:String(s.expiresAt||'')
-  });
-}
-function siwitiPlanChangeNotice_(oldS,newS) {
-  var lang='sw';
-  try { var l=(window.siwitiCurrentLanguage&&window.siwitiCurrentLanguage())||localStorage.getItem('siwitiUserLanguage')||localStorage.getItem('siwitiLanguage')||localStorage.getItem('language')||'sw'; lang=String(l).toLowerCase().indexOf('en')===0?'en':'sw'; } catch(e){}
-  var wasExpired=oldS && (String(oldS.status||'').toLowerCase()==='expired' || String(oldS.accountStatus||'').toLowerCase().indexOf('expired')>=0);
-  var isExpired=String(newS.status||'').toLowerCase()==='expired' || String(newS.accountStatus||'').toLowerCase().indexOf('expired')>=0;
-  var oldPlan=String(oldS&&(oldS.plan||oldS.type)||'').toUpperCase(), newPlan=String(newS.plan||newS.type||'').toUpperCase();
-  var oldEnd=String(oldS&&(oldS.subscriptionEndDate||oldS.trialEndDate||oldS.expiresAt)||''), newEnd=String(newS.subscriptionEndDate||newS.trialEndDate||newS.expiresAt||'');
-  if(!oldS || (!wasExpired && !isExpired && oldPlan===newPlan && oldEnd===newEnd && String(oldS.paymentStatus||'')===String(newS.paymentStatus||''))) return;
-  var title, message, kind='info';
-  if(wasExpired && !isExpired){
-    title=lang==='en'?'Subscription renewed':'Kifurushi kimehuishwa';
-    message=lang==='en'?'Your subscription has been updated. Expired notices have been removed and access is being restored.':'Kifurushi chako kimehuishwa. Ujumbe wa muda kuisha umeondolewa na mfumo unafungua huduma zako.';
-    kind='success';
-  } else if(!wasExpired && isExpired){
-    title=lang==='en'?'Subscription expired':'Muda wa kifurushi umeisha';
-    message=lang==='en'?'Your plan has expired. Restricted features are now locked.':'Muda wa kifurushi umeisha. Vipengele vilivyofungwa vimefungwa sasa.';
-    kind='warning';
-  } else {
-    title=lang==='en'?'Plan updated':'Plan imebadilishwa';
-    var planLabel=newPlan.replace(/_/g,' ');
-    message=lang==='en'?'The Developer updated your plan ('+planLabel+'). The change is now applied.':'Developer amebadilisha Plan yako ('+planLabel+'). Mabadiliko yametumika sasa.';
-    kind='success';
-  }
-  try {
-    if(typeof window.ratibaShowProfessionalNotification_==='function') window.ratibaShowProfessionalNotification_({kind:kind,title:title,message:message,lang:lang});
-    else if(window.Notiflix&&Notiflix.Notify){ (kind==='warning'?Notiflix.Notify.warning:Notiflix.Notify.success)(title+': '+message,{timeout:5000,position:'right-top'}); }
-    else if(typeof Swal!=='undefined'&&Swal.fire) Swal.fire({icon:kind==='warning'?'warning':'success',title:title,text:message,timer:4500,showConfirmButton:false});
-  } catch(e){}
-}
+// === UPDATED: checkSubscriptionStatus - SILENT BACKGROUND UPDATES ===
 function checkSubscriptionStatus(showLoading = false) {
-  if (!userEmail || window.__siwitiPlanCheckInFlight || !navigator.onLine) return;
-  window.__siwitiPlanCheckInFlight=true;
-  if (showLoading && window.Notiflix) Notiflix.Loading.standard('Checking subscription status...');
-  var oldStatus=subscriptionStatus ? JSON.parse(JSON.stringify(subscriptionStatus)) : null;
+  if (!userEmail) {
+    console.log("checkSubscriptionStatus: No user email found");
+    return;
+  }
+  
+  // Don't show loading indicator for background updates
+  if (showLoading) {
+    Notiflix.Loading.standard('Checking subscription status...');
+  }
+  
+  console.log("🔍 Silent subscription check for:", userEmail);
+  
   fetchWithServerRetry(SCRIPT_URL, {
-    method:'POST', headers:{'Content-Type':'text/plain;charset=utf-8'},
-    body:JSON.stringify({action:'getUserSubscriptionStatus',email:userEmail,silent:true})
-  }).then(function(res){ if(!res.ok) throw new Error('HTTP '+res.status); return res.json(); })
-  .then(function(data){
-    if(showLoading && window.Notiflix) Notiflix.Loading.remove();
-    if(data && data.status==='success' && data.subscription){
-      var fresh=data.subscription;
-      var oldSnapshot=window.__siwitiLastPlanSnapshot || (oldStatus?siwitiPlanSnapshot_(oldStatus):null);
-      var newSnapshot=siwitiPlanSnapshot_(fresh);
-      var changed=!!oldSnapshot && oldSnapshot!==newSnapshot;
-      subscriptionStatus=fresh;
-      var expiryRaw=(fresh.plan==='FREE'||fresh.plan==='FREE_PLAN')?fresh.trialEndDate:(fresh.subscriptionEndDate||fresh.trialEndDate||fresh.expiresAt);
-      var expiryMs=expiryRaw?new Date(expiryRaw).getTime():0;
-      if(expiryMs>0 && isFinite(expiryMs)) localStorage.setItem('ratibaPlanExpiryAt',String(expiryMs));
-      else localStorage.removeItem('ratibaPlanExpiryAt');
-      if(fresh.plan||fresh.type){localStorage.setItem('ratibaPlan',fresh.plan||fresh.type);localStorage.setItem('subscriptionPlan',fresh.plan||fresh.type);}
-      localStorage.setItem('subscriptionStatus',JSON.stringify(fresh));
-      if(fresh.trialEndDate){trialEndTime=new Date(fresh.trialEndDate);if(!isNaN(trialEndTime.getTime()))localStorage.setItem('trialEndTime',trialEndTime.toISOString());}
-      else if(fresh.subscriptionEndDate){trialEndTime=new Date(fresh.subscriptionEndDate);if(!isNaN(trialEndTime.getTime()))localStorage.setItem('trialEndTime',trialEndTime.toISOString());}
-      var timer=document.getElementById('sidebarTimer'); if(timer)timer.classList.remove('hidden');
-      try{if(typeof updateSidebarPlanDisplay_==='function')updateSidebarPlanDisplay_(fresh);}catch(e){}
-      try{if(typeof updateExpiredPlanMessage_==='function')updateExpiredPlanMessage_(localStorage.getItem('schoolLevel'),fresh.plan||fresh.type);}catch(e){}
-      try{if(typeof updateTimerDisplay==='function')updateTimerDisplay();}catch(e){}
-      if(typeof secondsCountdownInterval!=='undefined' && secondsCountdownInterval){clearInterval(secondsCountdownInterval);}
-      try{if(typeof startSecondsCountdown==='function')startSecondsCountdown();}catch(e){}
-      var expired=String(fresh.status||'').toLowerCase()==='expired' || String(fresh.accountStatus||'').toLowerCase().indexOf('expired')>=0 || String(fresh.accountStatus||'').toLowerCase()==='closed' || String(fresh.paymentStatus||'').toLowerCase()==='closed' || (expiryMs>0 && Date.now()>=expiryMs && !fresh.isPremium);
-      if(expired){
-        try{if(typeof ratibaSetTimetablePlanLock_==='function')ratibaSetTimetablePlanLock_(true);}catch(e){}
-        try{if(typeof ratibaShowPlanExpiredGate_==='function')ratibaShowPlanExpiredGate_();}catch(e){}
-        try{if(typeof disableReportButtonsImmediately==='function')disableReportButtonsImmediately();}catch(e){}
-        if(localStorage.getItem('userType')==='staff')try{if(typeof disableStaffReportAccess==='function')disableStaffReportAccess();}catch(e){}
-      } else {
-        // A paid/extended plan removes expired UI immediately, without a refresh.
-        try{if(typeof ratibaSetTimetablePlanLock_==='function')ratibaSetTimetablePlanLock_(false);}catch(e){}
-        try{if(typeof ratibaHidePlanExpiredGate_==='function')ratibaHidePlanExpiredGate_();}catch(e){}
-        try{if(typeof enableReportButtonsImmediately==='function')enableReportButtonsImmediately();}catch(e){}
-        document.querySelectorAll('#timetableDashboard,#staffTimetableDashboard').forEach(function(el){el.classList.remove('ratiba-plan-expired-locked');el.removeAttribute('aria-disabled');});
-      }
-      if(changed) siwitiPlanChangeNotice_(oldStatus||{},fresh);
-      window.__siwitiLastPlanSnapshot=newSnapshot;
-      window.dispatchEvent(new CustomEvent('siwiti:subscription-updated',{detail:{subscription:fresh,changed:changed,expired:expired}}));
-    } else if(data && data.status==='error' && data.code==='PLAN_EXPIRED'){
-      var current=subscriptionStatus||{};current.status='expired';subscriptionStatus=current;localStorage.setItem('subscriptionStatus',JSON.stringify(current));
-      try{if(typeof ratibaSetTimetablePlanLock_==='function')ratibaSetTimetablePlanLock_(true);}catch(e){}
-      try{if(typeof ratibaShowPlanExpiredGate_==='function')ratibaShowPlanExpiredGate_();}catch(e){}
+    method: "POST",
+    body: JSON.stringify({
+      action: "getUserSubscriptionStatus",
+      email: userEmail,
+      silent: true // Add silent flag for server
+    })
+  })
+  .then(res => {
+    if (!res.ok) {
+      throw new Error(`HTTP error! status: ${res.status}`);
     }
-  }).catch(function(err){ if(showLoading&&window.Notiflix)Notiflix.Loading.remove(); console.log('Subscription sync deferred; cached state retained.',err); })
-  .finally(function(){window.__siwitiPlanCheckInFlight=false;});
+    return res.json();
+  })
+  .then(data => {
+    if (showLoading) {
+      Notiflix.Loading.remove();
+    }
+    
+    if (data.status === "success") {
+      console.log("✅ Subscription data received:", {
+        status: data.subscription.status,
+        timeRemaining: data.subscription.timeRemaining,
+        isPremium: data.subscription.isPremium
+      });
+      
+      // Always refresh the absolute deadline even when remaining minutes differ only slightly.
+      var freshSub=data.subscription||{};
+      var freshExpiry=freshSub.plan==='FREE'?freshSub.trialEndDate:(freshSub.subscriptionEndDate||freshSub.trialEndDate);
+      if(freshExpiry && !isNaN(new Date(freshExpiry).getTime())) localStorage.setItem('ratibaPlanExpiryAt',String(new Date(freshExpiry).getTime()));
+      if(freshSub.plan){localStorage.setItem('ratibaPlan',freshSub.plan);localStorage.setItem('subscriptionPlan',freshSub.plan);}
+      // Only update if data is different (to avoid unnecessary UI updates)
+      const shouldUpdate = !subscriptionStatus || 
+                          subscriptionStatus.status !== data.subscription.status ||
+                          subscriptionStatus.timeRemaining !== data.subscription.timeRemaining ||
+                          subscriptionStatus.isPremium !== data.subscription.isPremium;
+      
+      if (shouldUpdate) {
+        subscriptionStatus = data.subscription;
+        
+        // Save to localStorage for offline use
+        if (subscriptionStatus.trialEndDate) {
+          trialEndTime = new Date(subscriptionStatus.trialEndDate);
+          localStorage.setItem('trialEndTime', trialEndTime.toISOString());
+        } else if (subscriptionStatus.subscriptionEndDate) {
+          trialEndTime = new Date(subscriptionStatus.subscriptionEndDate);
+          localStorage.setItem('trialEndTime', trialEndTime.toISOString());
+        }
+        
+        // Update localStorage
+        localStorage.setItem('subscriptionStatus', JSON.stringify(subscriptionStatus));
+        
+        // SHOW SIDEBAR TIMER
+        const sidebarTimer = document.getElementById('sidebarTimer');
+        if (sidebarTimer) {
+          sidebarTimer.classList.remove('hidden');
+        }
+        
+        // Update timer display silently
+        updateTimerDisplay();
+        
+        // Restart countdown with new time
+        if (secondsCountdownInterval) {
+          clearInterval(secondsCountdownInterval);
+        }
+        startSecondsCountdown();
+        
+        // CHECK IF EXPIRED - DISABLE IMMEDIATELY
+        if (subscriptionStatus.status === "expired") {
+          console.log("⚠️ Subscription expired - disabling features");
+          
+          // Silent disable (no alerts)
+          setTimeout(() => {
+            disableReportButtonsImmediately();
+            
+            // For staff, disable access silently
+            const userType = localStorage.getItem('userType');
+            if (userType === 'staff') {
+              disableStaffReportAccess();
+            }
+          }, 100);
+        }
+        
+        // Show subtle notification only if status changed significantly
+        if (showLoading) {
+          if (subscriptionStatus.status === "expired") {
+            Notiflix.Notify.warning('Trial/subscription period has ended', {
+              timeout: 3000,
+              position: 'right-top'
+            });
+          } else if (subscriptionStatus.timeRemaining < 60) {
+            Notiflix.Notify.info(`Trial ends in ${subscriptionStatus.timeRemaining} minutes`, {
+              timeout: 3000,
+              position: 'right-top'
+            });
+          }
+        }
+      } else {
+        console.log("ℹ️ No subscription changes detected");
+      }
+    } else {
+      console.log("❌ Subscription check failed:", data.message);
+    }
+  })
+  .catch(error => {
+    if (showLoading) {
+      Notiflix.Loading.remove();
+    }
+    
+    console.log("🌐 Offline mode - using cached data", error);
+    useCachedSubscriptionData();
+    
+    // Still show sidebar timer in offline mode
+    const sidebarTimer = document.getElementById('sidebarTimer');
+    if (sidebarTimer) {
+      sidebarTimer.classList.remove('hidden');
+    }
+  });
+  
+  // Schedule next silent check (every 1 minute)
+  setTimeout(() => {
+    checkSubscriptionStatus(false); // Silent check
+  }, 60000);
 }
-// Poll only while online. Three seconds is the maximum interval; overlapping requests are prevented.
-if(!window.__siwitiPlanPollStarted){
-  window.__siwitiPlanPollStarted=true;
-  setInterval(function(){if(navigator.onLine && localStorage.getItem('userEmail') && localStorage.getItem('isDeveloper')!=='true')checkSubscriptionStatus(false);},3000);
-  window.addEventListener('online',function(){checkSubscriptionStatus(false);});
-  document.addEventListener('visibilitychange',function(){if(!document.hidden&&navigator.onLine)checkSubscriptionStatus(false);});
-}
+
+
+
+
+
+
+
+
+
 // === UPDATE: logout - Safisha sidebar timer pia ===
 function logout() {
   // Close the navigation drawer immediately so it can never cover the confirmation.
@@ -9059,6 +9046,8 @@ function performRatibaLogout_() {
   document.querySelectorAll('.container').forEach(function (container) {
     if (container.id !== 'auth') container.classList.add('hidden');
   });
+  setResultsRouteVisibility_('auth');
+  ['developerDashboard','studentDashboard','subjectDashboard','resultsDashboard','reportDashboard','staffDashboard','systemSettingsDashboard','timetableDashboard','staffTimetableDashboard','register','forgotPasswordModal'].forEach(function(id){ var el=document.getElementById(id); if(el) el.classList.add('hidden'); });
   const sidebar = document.getElementById('sidebar');
   if (sidebar) sidebar.classList.add('hidden');
   if (sidebar) sidebar.classList.remove('active');
@@ -9107,6 +9096,14 @@ function performRatibaLogout_() {
 
 // === NEW: Toggle sidebar with timer ===
 function toggleSidebar() {
+  const body = document.body;
+  if (body.classList.contains('auth-screen-active') || body.classList.contains('developer-dashboard-active') || !localStorage.getItem('currentUserEmail')) {
+    const guardedSidebar = document.getElementById('sidebar');
+    if (guardedSidebar) { guardedSidebar.classList.add('hidden'); guardedSidebar.classList.remove('active'); }
+    const guardedToggle = document.getElementById('sidebarHeadingToggle');
+    if (guardedToggle) { guardedToggle.style.setProperty('display','none','important'); guardedToggle.style.setProperty('pointer-events','none','important'); }
+    return;
+  }
   if (typeof refreshSidebarStaffIdentity === 'function') refreshSidebarStaffIdentity();
   const sidebar = document.getElementById('sidebar');
   const mainContent = document.getElementById('mainContent');
@@ -9123,6 +9120,7 @@ function toggleSidebar() {
 
 
 function showDeveloperDashboard() {
+  setResultsRouteVisibility_('developer');
   console.log("🔧 Opening Developer Dashboard...");
   
   // Hide everything
@@ -14691,7 +14689,35 @@ function refreshSidebarStaffIdentity() {
   }
 }
 
+function setResultsRouteVisibility_(dashboard) {
+  const route = String(dashboard || 'auth');
+  const body = document.body;
+  const isDeveloperRoute = route === 'developer';
+  const isAuthRoute = ['auth', 'register', 'forgotPassword'].includes(route);
+  const isSchoolDashboard = !isDeveloperRoute && !isAuthRoute;
+  body.classList.toggle('developer-dashboard-active', isDeveloperRoute);
+  body.classList.toggle('auth-screen-active', isAuthRoute);
+  body.classList.toggle('school-dashboard-active', isSchoolDashboard);
+  const toggle = document.getElementById('sidebarHeadingToggle');
+  const sidebar = document.getElementById('sidebar');
+  if (toggle) {
+    const showToggle = isSchoolDashboard && !!localStorage.getItem('currentUserEmail') && localStorage.getItem('userType') !== 'developer';
+    toggle.style.setProperty('display', showToggle ? 'flex' : 'none', 'important');
+    toggle.style.setProperty('visibility', showToggle ? 'visible' : 'hidden', 'important');
+    toggle.style.setProperty('pointer-events', showToggle ? 'auto' : 'none', 'important');
+  }
+  if (isDeveloperRoute || isAuthRoute) {
+    if (sidebar) { sidebar.classList.add('hidden'); sidebar.classList.remove('active'); }
+    const main = document.getElementById('mainContent');
+    if (main) main.classList.remove('shifted');
+    document.body.classList.remove('sidebar-open');
+    const overlay = document.querySelector('.sidebar-overlay');
+    if (overlay) overlay.classList.remove('active');
+  }
+}
+
 function showDashboard(dashboard) {
+  setResultsRouteVisibility_(dashboard);
   refreshSidebarStaffIdentity();
   // Hide all containers first
   const containers = [
@@ -14749,6 +14775,7 @@ function showDashboard(dashboard) {
 
   // Save current dashboard to localStorage
   localStorage.setItem('currentDashboard', dashboard);
+  setResultsRouteVisibility_(dashboard);
 
   // Show/hide sidebar based on dashboard type
   const sidebar = document.getElementById("sidebar");
@@ -15573,30 +15600,27 @@ function register() {
     window._registrationInProgress = false;
     
     if (data.status === "success") {
-      var regLang='sw';try{var _rl=(window.siwitiCurrentLanguage&&window.siwitiCurrentLanguage())||localStorage.getItem('siwitiUserLanguage')||localStorage.getItem('siwitiLanguage')||localStorage.getItem('language')||document.documentElement.lang||'sw';regLang=String(_rl).toLowerCase().indexOf('en')===0?'en':'sw';}catch(e){}
-      var regLevel=String(schoolLevel||'primary').toLowerCase();
-      var regIsSecondary=regLevel.indexOf('secondary')>=0||regLevel.indexOf('sekondari')>=0||regLevel.indexOf('o-level')>=0;
-      var regPlanGuide=ratibaBuildPlanGuideHtml_(regIsSecondary?'secondary':'primary',regLang,true);
       Swal.fire({
         icon: 'success',
-        title: regLang==='en'?'Account Created Successfully':'Akaunti Imefunguliwa!',
+        title: '✅ Akaunti Imefunguliwa!',
         html: `
           <div style="text-align: center;">
-            <div style="font-size: 42px; margin-bottom: 10px;">🎉</div>
-            <p style="font-size: 15px; margin-bottom: 12px;">${data.message}</p>
-            <div style="background: #f0f9ff; padding: 10px; border-radius: 10px; margin: 12px 0;">
-              <p style="font-size: 13px; margin: 4px 0;">${regLang==='en'?'<strong>Free trial:</strong> 1 hour':'<strong>Muda wa majaribio:</strong> Saa 1'}</p>
-              <p style="font-size: 13px; margin: 4px 0;">${regLang==='en'?'You can continue with Basic or upgrade to Gold for timetable features.':'Unaweza kuendelea na Basic au kuchagua Gold ili kupata vipengele vya ratiba.'}</p>
+            <div style="font-size: 48px; margin-bottom: 15px;">🎉</div>
+            <p style="font-size: 16px; margin-bottom: 15px;">${data.message}</p>
+            <div style="background: #f0f9ff; padding: 12px; border-radius: 10px; margin: 15px 0;">
+              <p style="font-size: 14px; margin: 5px 0;">
+                <i class="fas fa-clock"></i> <strong>Muda wa Majaribio:</strong> Dakika 30
+              </p>
+              <p style="font-size: 14px; margin: 5px 0;">
+                <i class="fas fa-shield-alt"></i> <strong>Usalama:</strong> Imara
+              </p>
             </div>
           </div>
-          ${regPlanGuide}
         `,
         confirmButtonColor: '#4361ee',
-        confirmButtonText: regLang==='en'?'Continue to Login':'Endelea Kuingia',
-        width: '760px',
-        timer: undefined,
-        timerProgressBar: false,
-        allowOutsideClick: false
+        confirmButtonText: 'Ingia Sasa',
+        timer: 3000,
+        timerProgressBar: true
       }).then(() => {
         // Clear form
         document.getElementById("schoolName").value = "";
@@ -20805,28 +20829,6 @@ function startCountdownTimer() {
 // ============================================
 // SHOW PAYMENT OVERLAY - Full screen modal
 // ============================================
-function ratibaEnablePaymentAcknowledgeButton_() {
-  var overlay = document.getElementById('paymentOverlay');
-  if (!overlay) return;
-  var message = overlay.querySelector('.payment-message');
-  if (message) { message.style.setProperty('pointer-events','auto','important'); }
-  var buttons = overlay.querySelectorAll('button');
-  buttons.forEach(function(button) {
-    if (/i understand|nimeelewa/i.test(String(button.textContent || '').trim()) || /hidePaymentOverlay/.test(String(button.getAttribute('onclick') || ''))) {
-      button.disabled = false;
-      button.removeAttribute('disabled');
-      button.removeAttribute('aria-disabled');
-      button.style.setProperty('pointer-events','auto','important');
-      button.style.setProperty('position','relative','important');
-      button.style.setProperty('z-index','2147483647','important');
-      button.style.setProperty('opacity','1','important');
-      button.style.setProperty('filter','none','important');
-      button.style.setProperty('cursor','pointer','important');
-      button.setAttribute('type','button');
-    }
-  });
-}
-
 function showPaymentOverlay() {
   const overlay = document.getElementById('paymentOverlay');
   if (window.__ratibaLoggedOut === true ||
@@ -20837,20 +20839,7 @@ function showPaymentOverlay() {
     overlay.classList.remove('hidden');
     overlay.style.display = 'flex';
     overlay.style.visibility = 'visible';
-    overlay.style.pointerEvents = 'auto';
-    overlay.removeAttribute('inert');
-    // Keep the acknowledgement button usable even after an expired-plan overlay was hidden.
-    var acknowledgeButton = overlay.querySelector('button[onclick*="hidePaymentOverlay"]');
-    if (acknowledgeButton) {
-      acknowledgeButton.disabled = false;
-      acknowledgeButton.removeAttribute('aria-disabled');
-      acknowledgeButton.style.pointerEvents = 'auto';
-      acknowledgeButton.style.opacity = '';
-    }
     document.body.style.overflow = '';
-    ratibaEnablePaymentAcknowledgeButton_();
-    setTimeout(ratibaEnablePaymentAcknowledgeButton_, 0);
-    setTimeout(ratibaEnablePaymentAcknowledgeButton_, 150);
     document.addEventListener('keydown', handleEscapeKey);
   }
 }
@@ -20858,31 +20847,6 @@ function showPaymentOverlay() {
 // ============================================
 // HIDE PAYMENT OVERLAY
 // ============================================
-
-function ratibaBuildPlanGuideHtml_(schoolLevel,lang,includeTrial){
- var en=String(lang||'sw').toLowerCase().indexOf('en')===0;
- var sec=String(schoolLevel||'').toLowerCase().indexOf('secondary')>=0||String(schoolLevel||'').toLowerCase().indexOf('sekondari')>=0||String(schoolLevel||'').toLowerCase().indexOf('o-level')>=0;
- var basicMonthly=sec?5000:2500, goldMonthly=sec?10000:5000;
- var money=function(n){return 'TSh '+Number(n).toLocaleString('en-US');};
- var title=en?'Choose the package that fits your school':'Chagua kifurushi kinachofaa shule yako';
- var basicTitle=en?'BASIC PACKAGE':'KIFURUSHI CHA BASIC';
- var goldTitle=en?'GOLD PACKAGE':'KIFURUSHI CHA GOLD';
- var basicDesc=en?'Core school management without timetable tools.':'Usimamizi wa taarifa za shule bila zana za ratiba.';
- var goldDesc=en?'Everything in Basic, plus timetable tools.':'Kila kilichopo Basic, pamoja na zana za ratiba.';
- var basicFeatures=en?['Manage students and school records','Manage subjects and staff','Enter and manage marks','View and generate results and reports','Timetable generation/download is not included']:['Kusimamia wanafunzi na taarifa za shule','Kusimamia masomo na Staff','Kuingiza na kusimamia alama','Kuona na kutengeneza matokeo na ripoti','Haina utengenezaji/upakuaji wa ratiba'];
- var goldFeatures=en?['All Basic Package features','Create and manage timetables','Submit timetables for approval where supported','Access timetable views and downloads']:['Vipengele vyote vya Kifurushi cha Basic','Kutengeneza na kusimamia ratiba','Kutuma ratiba kwa ajili ya idhini pale inapohusika','Kuona na kupakua ratiba'];
- var trial=en?'New accounts start with a 1-hour free trial.':'Akaunti mpya huanza na jaribio la bure la saa 1.';
- var h='<section style="font-family:inherit;color:#172033;text-align:left">'+
- '<div style="font-size:17px;font-weight:800;margin:8px 0 12px">'+title+'</div>'+
- '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px">'+
- '<article style="border:1px solid #d7deea;border-radius:14px;padding:14px;background:#f8fafc">'+
- '<div style="font-size:15px;font-weight:800;color:#2453b8">'+basicTitle+'</div><div style="font-size:20px;font-weight:800;margin:7px 0">'+money(basicMonthly)+'<span style="font-size:12px;font-weight:500"> / '+(en?'month':'mwezi')+'</span></div><div style="font-size:12px;color:#5b6474;margin-bottom:8px">'+money(basicMonthly*12)+' / '+(en?'year':'mwaka')+'</div><p style="font-size:13px;margin:6px 0 8px">'+basicDesc+'</p><ul style="padding-left:18px;margin:8px 0;font-size:12px;line-height:1.55">'+basicFeatures.map(function(x){return '<li>'+x+'</li>';}).join('')+'</ul></article>'+
- '<article style="border:2px solid #2563eb;border-radius:14px;padding:14px;background:#eff6ff">'+
- '<div style="font-size:15px;font-weight:800;color:#1d4ed8">'+goldTitle+' <span style="font-size:10px;background:#dbeafe;padding:3px 6px;border-radius:8px">'+(en?'WITH TIMETABLE':'INA RATIBA')+'</span></div><div style="font-size:20px;font-weight:800;margin:7px 0">'+money(goldMonthly)+'<span style="font-size:12px;font-weight:500"> / '+(en?'month':'mwezi')+'</span></div><div style="font-size:12px;color:#5b6474;margin-bottom:8px">'+money(goldMonthly*12)+' / '+(en?'year':'mwaka')+'</div><p style="font-size:13px;margin:6px 0 8px">'+goldDesc+'</p><ul style="padding-left:18px;margin:8px 0;font-size:12px;line-height:1.55">'+goldFeatures.map(function(x){return '<li>'+x+'</li>';}).join('')+'</ul></article></div>'+
- (includeTrial?'<div style="margin-top:12px;padding:10px 12px;background:#f1f5f9;border-radius:10px;font-size:12px;color:#475569"><b>'+(en?'Free trial':'Jaribio la bure')+':</b> '+trial+'</div>':'')+
- '<p style="font-size:12px;color:#64748b;margin:10px 0 0">'+(en?'Prices shown are for the selected school level.':'Bei zinaonyeshwa kulingana na kiwango cha shule kilichochaguliwa.')+'</p></section>';
- return h;
-}
 
 function updateExpiredPlanMessage_(schoolLevel,plan){
  var lang='sw';try{var _l=(window.siwitiCurrentLanguage&&window.siwitiCurrentLanguage())||localStorage.getItem('siwitiUserLanguage')||localStorage.getItem('siwitiLanguage')||localStorage.getItem('language')||document.documentElement.lang||'sw';lang=String(_l).toLowerCase().indexOf('en')===0?'en':'sw';}catch(e){}
@@ -20897,10 +20861,7 @@ function updateExpiredPlanMessage_(schoolLevel,plan){
  if(heading)heading.innerHTML='<i class="fas fa-exclamation-triangle"></i> '+(lang==='en'?(secondary?'SECONDARY SCHOOL ACCOUNT: SUBSCRIPTION EXPIRED':'PRIMARY SCHOOL ACCOUNT: SUBSCRIPTION EXPIRED'):(secondary?'AKAUNTI YA SEKONDARI: MUDA WA KIFURUSHI UMEISHA':'AKAUNTI YA MSINGI: MUDA WA KIFURUSHI UMEISHA'));
  var planName=lang==='en'?(isFree?'Free Package (1-hour trial)':(isGold?'Gold Package (with timetable)':'Basic Package (without timetable)')):(isFree?'Kifurushi cha Bure (jaribio la saa 1)':(isGold?'Kifurushi cha Gold (chenye ratiba)':'Kifurushi cha Basic (kisicho na ratiba)'));
  var pnodes=document.querySelectorAll('#paymentOverlay .payment-message > p');
- if(pnodes.length)pnodes[0].textContent=lang==='en'?'Your '+planName+' has expired. Compare the available packages below and choose the one that fits your '+(secondary?'secondary school':'primary school')+'.':'Muda wa '+planName+' umeisha. Linganisha vifurushi vilivyopo hapa chini, kisha chagua kinachofaa shule yako ya '+(secondary?'sekondari':'msingi')+'.';
- var guide=document.getElementById('ratibaExpiredPlanComparison');
- if(!guide){guide=document.createElement('div');guide.id='ratibaExpiredPlanComparison';guide.style.cssText='margin:16px 0;padding:0;';if(pnodes.length&&pnodes[0].parentNode)pnodes[0].insertAdjacentElement('afterend',guide);else{var pm=document.querySelector('#paymentOverlay .payment-message');if(pm)pm.appendChild(guide);}}
- if(guide)guide.innerHTML=ratibaBuildPlanGuideHtml_(secondary?'secondary':'primary',lang,false);
+ if(pnodes.length)pnodes[0].textContent=lang==='en'?'Your '+planName+' has expired. To continue using the system, renew your subscription for the '+(secondary?'secondary school':'primary school')+'.':'Kifurushi chako cha '+planName+' kimeisha muda. Ili kuendelea kutumia mfumo, lipia kifurushi cha shule ya '+(secondary?'sekondari':'msingi')+'.';
  var labels=document.querySelectorAll('#paymentOverlay .payment-message label, #paymentOverlay .payment-message .payment-label');
  labels.forEach(function(el){var t=(el.textContent||'').trim();if(lang==='en'){if(/ada ya mwezi|monthly fee/i.test(t))el.textContent='Monthly fee:';else if(/ada ya mwaka|yearly fee/i.test(t))el.textContent='Yearly fee:';else if(/malipo kupitia|payment via/i.test(t))el.textContent='Payment method:';}else{if(/monthly fee|ada ya mwezi/i.test(t))el.textContent='Ada ya mwezi:';else if(/yearly fee|ada ya mwaka/i.test(t))el.textContent='Ada ya mwaka:';else if(/payment method|malipo kupitia/i.test(t))el.textContent='Njia ya malipo:';}});
  var understand=document.querySelector('#paymentOverlay button');if(understand){var bt=(understand.textContent||'').trim();if(/nimeelewa|i understand/i.test(bt))understand.textContent=lang==='en'?'I Understand':'Nimeelewa';}
@@ -31179,41 +31140,11 @@ window.SIWITI_LANG_KEY='siwitiUserLanguage';
     var msg=document.getElementById('expiredPlanMessage');
     if(msg){var en=false;try{var _l=(window.siwitiCurrentLanguage&&window.siwitiCurrentLanguage())||localStorage.getItem('siwitiUserLanguage')||localStorage.getItem('siwitiLanguage')||localStorage.getItem('language')||document.documentElement.lang||'sw';en=String(_l).toLowerCase().indexOf('en')===0;}catch(e){} msg.textContent=en?'Your package has expired. Results, reports and restricted features are unavailable until the package is renewed. Open the sidebar to view available sections and payment instructions.':'Muda wa kifurushi umeisha. Matokeo, ripoti na vipengele vilivyofungwa haviwezi kutumika hadi kifurushi kiongezwe muda. Fungua menyu ya pembeni kuona sehemu zinazopatikana na maelekezo ya malipo.';}
   };
-  window.ratibaSetTimetablePlanLock_ = function(locked){
-    ['timetableDashboard','staffTimetableDashboard'].forEach(function(id){
-      var root=document.getElementById(id); if(!root)return;
-      if(locked){
-        root.classList.add('ratiba-plan-expired-locked');
-        root.setAttribute('aria-disabled','true');
-        root.querySelectorAll('button,input,select,textarea,[role="button"]').forEach(function(el){
-          if(el.dataset.ratibaPrevDisabled===undefined)el.dataset.ratibaPrevDisabled=el.disabled?'1':'0';
-          el.disabled=true; el.setAttribute('tabindex','-1');
-        });
-        var idMsg=id==='timetableDashboard'?'ratibaExpiredTimetableNotice':'ratibaExpiredStaffTimetableNotice';
-        if(!document.getElementById(idMsg)){
-          var en=false;try{var l=(window.siwitiCurrentLanguage&&window.siwitiCurrentLanguage())||localStorage.getItem('siwitiUserLanguage')||localStorage.getItem('language')||'sw';en=String(l).toLowerCase().indexOf('en')===0;}catch(e){}
-          var box=document.createElement('div');box.id=idMsg;box.setAttribute('role','alert');
-          box.style.cssText='margin:12px 0;padding:16px;border:1px solid #f3b4b4;border-radius:12px;background:#fff1f2;color:#9f1239;font-weight:700;text-align:center';
-          box.textContent=en?'Your plan has expired. Timetable data and actions are locked until the school plan is renewed.':'Muda wa kifurushi umeisha. Data na vitendo vya Ratiba vimefungwa hadi kifurushi cha shule kiongezwe muda.';
-          var fc=root.querySelector('.form-container');if(fc)fc.insertBefore(box,fc.firstChild);else root.insertBefore(box,root.firstChild);
-        }
-      } else {
-        root.classList.remove('ratiba-plan-expired-locked');root.removeAttribute('aria-disabled');
-        root.querySelectorAll('button,input,select,textarea,[role="button"]').forEach(function(el){
-          if(el.dataset.ratibaPrevDisabled!==undefined){el.disabled=el.dataset.ratibaPrevDisabled==='1';delete el.dataset.ratibaPrevDisabled;}
-          el.removeAttribute('tabindex');
-        });
-        var a=document.getElementById('ratibaExpiredTimetableNotice');if(a)a.remove();
-        var b=document.getElementById('ratibaExpiredStaffTimetableNotice');if(b)b.remove();
-      }
-    });
-  };
   window.ratibaEnforceOfflinePlanExpiry_ = function(){
     if(!ratibaHasAuthenticatedDashboard_()){ratibaHidePlanExpiredGate_();return;}
     window.__ratibaLoggedOut = false;
-    if(ratibaPlanExpiredOffline_()) { ratibaSetTimetablePlanLock_(true); ratibaShowPlanExpiredGate_(); }
+    if(ratibaPlanExpiredOffline_()) ratibaShowPlanExpiredGate_();
     else {
-      ratibaSetTimetablePlanLock_(false);
       var exp=ratibaPlanExpiryMs_();
       if(exp>0){var remain=exp-Date.now(); if(remain>0){var st={};try{st=JSON.parse(localStorage.getItem('subscriptionStatus')||'{}');}catch(e){} st.timeRemaining=Math.max(0,Math.floor(remain/60000)); if(st.status==='expired')st.status='active'; localStorage.setItem('subscriptionStatus',JSON.stringify(st));}}
     }
@@ -31245,7 +31176,7 @@ window.SIWITI_LANG_KEY='siwitiUserLanguage';
     } else if(window.Notiflix&&Notiflix.Notify){Notiflix.Notify.warning(message);}
   };
   // Re-check frequently without depending on a server connection.
-  setInterval(function(){try{ratibaEnforceOfflinePlanExpiry_();ratibaMaybeShowPlanExpiryReminder_();}catch(e){}},3000);
+  setInterval(function(){try{ratibaEnforceOfflinePlanExpiry_();ratibaMaybeShowPlanExpiryReminder_();}catch(e){}},15000);
   document.addEventListener('visibilitychange',function(){if(!document.hidden){ratibaEnforceOfflinePlanExpiry_();ratibaMaybeShowPlanExpiryReminder_();}});
   window.addEventListener('online',function(){try{if(typeof checkSubscriptionStatus==='function')checkSubscriptionStatus(false);}catch(e){}});
   document.addEventListener('click',function(e){
@@ -31617,129 +31548,16 @@ window.SIWITI_LANG_KEY='siwitiUserLanguage';
 #sidebarHeadingToggle:focus-visible{outline:3px solid #fff!important;outline-offset:2px!important}
 /* The original drawer button remains responsible for closing the open sidebar. */
 body.sidebar-open #sidebarHeadingToggle{display:none!important}
+/* Explicit route-based visibility: the floating menu is only for regular school dashboards. */
+#sidebarHeadingToggle{display:none!important;visibility:hidden!important;pointer-events:none!important}
+body.school-dashboard-active:not(.developer-dashboard-active) #sidebarHeadingToggle{display:flex!important;visibility:visible!important;pointer-events:auto!important}
+body.auth-screen-active #sidebarHeadingToggle,
+body.developer-dashboard-active #sidebarHeadingToggle,
+body.auth-screen-active #sidebar,
+body.developer-dashboard-active #sidebar{display:none!important;visibility:hidden!important;pointer-events:none!important}
 #sidebar.active .menu-toggle{z-index:2147483003!important}
 @media(max-width:768px){#sidebarHeadingToggle{top:10px!important;left:0!important}}
 @media print{#sidebarHeadingToggle{display:none!important}}
 </style>
-
-<style id="tt-class-download-panel-layout-v11">
-  .tt-class-download-panel{width:100%;box-sizing:border-box;overflow:visible;}
-  .tt-class-download-panel .tt-class-download-grid{display:grid;grid-template-columns:minmax(0,1fr);gap:12px;align-items:start;width:100%;}
-  .tt-class-download-panel .input-group{width:100%;box-sizing:border-box;}
-  .tt-class-download-panel select{min-height:46px;box-sizing:border-box;}
-  .tt-class-download-panel #ttDownloadStreamGroup[hidden]{display:none!important;}
-  @media(min-width:680px){.tt-class-download-panel .tt-class-download-grid{grid-template-columns:minmax(0,1fr) minmax(0,1fr);}}
-</style>
-
-<script id="ratiba-timetable-copy-guard">
-(function(){
-  ['copy','cut','dragstart'].forEach(function(type){document.addEventListener(type,function(e){var t=e.target;if(t&&t.closest&&t.closest('#timetableDashboard .tt-table-wrap, #timetableDashboard .tt-weekly-summary, #staffTimetableDashboard .tt-table-wrap, #staffTimetableDashboard .tt-weekly-summary')){e.preventDefault();}},true);});
-  document.addEventListener('contextmenu',function(e){var t=e.target;if(t&&t.closest&&t.closest('#timetableDashboard .tt-table-wrap, #timetableDashboard .tt-weekly-summary, #staffTimetableDashboard .tt-table-wrap, #staffTimetableDashboard .tt-weekly-summary'))e.preventDefault();},true);
-})();
-</script>
-
-
-<!-- SIWITI HOTFIX: reliable I Understand acknowledgement and global plan expiry UI -->
-<style id="siwiti-payment-acknowledge-final-fix">
-#paymentOverlay { z-index: 2147483005 !important; }
-#paymentOverlay .payment-message { pointer-events: auto !important; position: relative !important; }
-#paymentOverlay .payment-message button[onclick*="hidePaymentOverlay"] { pointer-events: auto !important; opacity: 1 !important; filter: none !important; cursor: pointer !important; position: relative !important; z-index: 2147483647 !important; }
-#paymentOverlay.hidden { display: none !important; }
-</style>
-<script id="siwiti-payment-acknowledge-final-fix-script">
-(function(){
-  'use strict';
-  function repair(){
-    var overlay=document.getElementById('paymentOverlay');
-    if(!overlay || overlay.classList.contains('hidden') || getComputedStyle(overlay).display==='none') return;
-    if(typeof window.ratibaEnablePaymentAcknowledgeButton_==='function') window.ratibaEnablePaymentAcknowledgeButton_();
-    var btn=overlay.querySelector('button[onclick*="hidePaymentOverlay"]');
-    if(btn){btn.disabled=false;btn.removeAttribute('disabled');btn.removeAttribute('aria-disabled');btn.style.setProperty('pointer-events','auto','important');btn.style.setProperty('opacity','1','important');btn.style.setProperty('z-index','2147483647','important');}
-  }
-  document.addEventListener('click',function(ev){
-    var btn=ev.target&&ev.target.closest?ev.target.closest('#paymentOverlay button'):null;
-    if(!btn || !(/i understand|nimeelewa/i.test(String(btn.textContent||'')) || /hidePaymentOverlay/.test(String(btn.getAttribute('onclick')||''))))return;
-    ev.preventDefault();ev.stopPropagation();if(ev.stopImmediatePropagation)ev.stopImmediatePropagation();
-    if(typeof window.hidePaymentOverlay==='function')window.hidePaymentOverlay();
-  },true);
-  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',function(){repair();setInterval(repair,500);},{once:true});
-  else {repair();setInterval(repair,500);}
-})();
-</script>
-
-
-<!-- FINAL FIX: dismissible plan notifications, language toggle and Subscribe Now -->
-<style id="siwiti-plan-overlay-interaction-fix">
-  #siwitiLanguageToggle, .language-toggle, #langSwBtn, #langEnBtn {
-    position: relative !important; z-index: 2147483000 !important;
-    pointer-events: auto !important; touch-action: manipulation !important;
-  }
-  #siwitiLanguageToggle button, #langSwBtn, #langEnBtn {
-    pointer-events: auto !important; cursor: pointer !important;
-  }
-  .siwiti-plan-notice-dismissed { display:none !important; visibility:hidden !important; pointer-events:none !important; }
-</style>
-<script id="siwiti-plan-overlay-interaction-fix-js">
-(function(){
-  if(window.__siwitiPlanOverlayInteractionFixInstalled)return;
-  window.__siwitiPlanOverlayInteractionFixInstalled=true;
-  function dismissNoticeFrom(target){
-    if(!target)return false;
-    var close=target.closest('button,[role="button"],a');
-    if(!close)return false;
-    var label=((close.getAttribute('aria-label')||'')+' '+(close.getAttribute('title')||'')+' '+(close.textContent||'')).trim().toLowerCase();
-    var isClose= /close|dismiss|funga|ondoa|×|✕|✖/.test(label) || close.classList.contains('swal2-close') || close.classList.contains('notiflix-notify-close');
-    if(!isClose)return false;
-    var card=close.closest('.notiflix-notify,.notiflix-notify-content,.swal2-toast,.toast,.toast-container .toast,.notification,.notification-card,.plan-notification,.professional-notification,[data-notification],.alert-toast');
-    if(!card){
-      var n=close;
-      for(var i=0;i<6&&n&&n!==document.body;i++,n=n.parentElement){
-        var st='';try{st=getComputedStyle(n).position;}catch(e){}
-        var txt=(n.innerText||'').toLowerCase();
-        if((st==='fixed'||st==='absolute') && txt.length<900 && (/plan updated|package expired|subscription expired|kifurushi|muda wa kifurushi|plan imebadilishwa/.test(txt))){card=n;break;}
-      }
-    }
-    if(!card)return false;
-    // Only dismiss transient notification cards; never hide the actual subscription/payment modal.
-    if(card.id==='paymentOverlay'||card.closest('#paymentOverlay')||card.id==='ratibaPlanExpiredGate')return false;
-    card.classList.add('siwiti-plan-notice-dismissed');
-    card.style.setProperty('display','none','important');
-    card.style.setProperty('pointer-events','none','important');
-    return true;
-  }
-  document.addEventListener('click',function(ev){
-    if(dismissNoticeFrom(ev.target)){ev.preventDefault();ev.stopPropagation();if(ev.stopImmediatePropagation)ev.stopImmediatePropagation();return;}
-    var langButton=ev.target&&ev.target.closest('#langSwBtn,#langEnBtn,#siwitiLanguageToggle [data-lang],#siwitiLanguageToggle button,.language-toggle [data-lang]');
-    if(langButton){
-      var targetLang=(langButton.id==='langEnBtn'||String(langButton.getAttribute('data-lang')||'').toLowerCase()==='en'||/\beng/i.test(langButton.textContent||''))?'en':'sw';
-      if(typeof window.setAppLanguage==='function'){ev.preventDefault();window.setAppLanguage(targetLang);}
-      return;
-    }
-    var subscribe=ev.target&&ev.target.closest('#reportDashboard button, #resultsDashboard button, button');
-    if(subscribe && /subscribe now|jiunge sasa|jisajili sasa/i.test((subscribe.textContent||'').trim())){
-      ev.preventDefault();ev.stopPropagation();
-      // Dismiss temporary notices that can sit above and block the payment guide.
-      document.querySelectorAll('.notiflix-notify,.notiflix-notify-content,.swal2-toast,.toast,.notification,.notification-card,.plan-notification,.professional-notification,[data-notification],.alert-toast').forEach(function(card){
-        var t=(card.innerText||'').toLowerCase();
-        if(/plan updated|package expired|subscription expired|kifurushi|muda wa kifurushi|plan imebadilishwa/.test(t) && !card.closest('#paymentOverlay')){card.classList.add('siwiti-plan-notice-dismissed');card.style.setProperty('display','none','important');}
-      });
-      if(typeof window.updateExpiredPlanMessage_==='function'){
-        try{window.updateExpiredPlanMessage_(localStorage.getItem('schoolLevel')||localStorage.getItem('schoolType')||'primary',localStorage.getItem('ratibaPlan')||localStorage.getItem('subscriptionPlan')||'BASIC_PLAN');}catch(e){}
-      }
-      if(typeof window.showPaymentOverlay==='function')window.showPaymentOverlay();
-      var overlay=document.getElementById('paymentOverlay');
-      if(overlay){overlay.classList.remove('hidden');overlay.style.setProperty('display','flex','important');overlay.style.setProperty('visibility','visible','important');overlay.style.setProperty('pointer-events','auto','important');overlay.style.setProperty('z-index','2147482000','important');overlay.removeAttribute('inert');document.body.style.overflow='auto';}
-      setTimeout(function(){var guide=document.getElementById('ratibaExpiredPlanComparison')||document.querySelector('#paymentOverlay .payment-message');if(guide&&guide.scrollIntoView)guide.scrollIntoView({behavior:'smooth',block:'start'});},80);
-    }
-  },true);
-  function keepLanguageAccessible(){
-    ['siwitiLanguageToggle','langSwBtn','langEnBtn'].forEach(function(id){var el=document.getElementById(id);if(el){el.style.setProperty('pointer-events','auto','important');el.style.setProperty('z-index','2147483000','important');}});
-    var toggle=document.getElementById('siwitiLanguageToggle');if(toggle)toggle.style.setProperty('position','fixed','important');
-  }
-  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',keepLanguageAccessible);else keepLanguageAccessible();
-  window.addEventListener('resize',keepLanguageAccessible);
-})();
-</script>
-
 </body>
 </html>
