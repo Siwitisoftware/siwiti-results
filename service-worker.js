@@ -1,6 +1,6 @@
 // Results System Service Worker — offline refresh-safe cache strategy.
 // Keep the last working app shell available for browser refreshes and installed PWA launches.
-const CACHE_VERSION = 'results-v6-results-branding';
+const CACHE_VERSION = 'results-v7-results-branding';
 const CACHE = CACHE_VERSION;
 const APP_SHELL_URLS = ['/', '/index.html', '/offline.html'];
 const PRECACHE_URLS = [
