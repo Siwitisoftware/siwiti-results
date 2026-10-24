@@ -5329,16 +5329,13 @@ html[data-school-level="primary"] #secondaryDivisionSettingsSection { display:no
 })();
 </script>
 
-<!-- Fixed dashboard menu toggle: aligned with the page heading, outside the transformed sidebar. -->
+<!-- Sidebar uses a single menu toggle button inside the drawer. -->
+<!-- Single movable sidebar toggle: stays at the drawer edge -->
 <button type="button" id="sidebarHeadingToggle" aria-label="Fungua menyu" title="Fungua menyu" onclick="toggleSidebar()"><i class="fas fa-bars" aria-hidden="true"></i></button>
 
 <!-- Sidebar -->
 <div class="sidebar hidden" id="sidebar">
-  <button class="menu-toggle" onclick="toggleSidebar()">
-    <i class="fas fa-bars"></i>
-  </button>
-  
-  <div class="sidebar-scrollable">
+<div class="sidebar-scrollable">
     <div class="school-heading" id="sidebarSchoolName">
       <i class="fas fa-school"></i>
       <span id="schoolNameDisplay"></span>
@@ -9109,6 +9106,12 @@ function toggleSidebar() {
   const mainContent = document.getElementById('mainContent');
   
   sidebar.classList.toggle('active');
+  body.classList.toggle('sidebar-open', sidebar.classList.contains('active'));
+  const singleToggle = document.getElementById('sidebarHeadingToggle');
+  if (singleToggle) {
+    singleToggle.setAttribute('aria-label', sidebar.classList.contains('active') ? 'Funga menyu' : 'Fungua menyu');
+    singleToggle.setAttribute('title', sidebar.classList.contains('active') ? 'Funga menyu' : 'Fungua menyu');
+  }
   
   // On mobile, don't shift content
   if (window.innerWidth > 768) {
@@ -14711,6 +14714,8 @@ function setResultsRouteVisibility_(dashboard) {
     const main = document.getElementById('mainContent');
     if (main) main.classList.remove('shifted');
     document.body.classList.remove('sidebar-open');
+    const singleToggle = document.getElementById('sidebarHeadingToggle');
+    if (singleToggle) singleToggle.setAttribute('aria-label', 'Fungua menyu');
     const overlay = document.querySelector('.sidebar-overlay');
     if (overlay) overlay.classList.remove('active');
   }
@@ -31522,41 +31527,21 @@ window.SIWITI_LANG_KEY='siwitiUserLanguage';
 .swal2-container button { pointer-events: auto !important; }
 </style>
 
-<style id="ratiba-sidebar-heading-toggle-position-fix">
-/* Keep the closed-state menu button at the top beside the dashboard heading. */
+<style id="single-sidebar-menu-toggle-fix">
+/* Exactly one movable toggle: outside the drawer, positioned on its exposed edge. */
 #sidebarHeadingToggle{
-  position:fixed!important;
-  top:12px!important;
-  left:0!important;
-  z-index:2147483002!important;
-  display:flex!important;
-  align-items:center!important;
-  justify-content:center!important;
-  width:46px!important;
-  height:52px!important;
-  padding:0!important;
-  border:0!important;
-  border-radius:0 10px 10px 0!important;
-  background:var(--primary,#405be8)!important;
-  color:#fff!important;
-  box-shadow:0 4px 14px rgba(20,35,80,.24)!important;
-  font-size:21px!important;
-  line-height:1!important;
-  cursor:pointer!important;
-  touch-action:manipulation!important;
+  position:fixed!important;top:8px!important;left:0!important;
+  width:40px!important;height:44px!important;display:none;align-items:center!important;justify-content:center!important;
+  padding:0!important;border:0!important;border-radius:0 8px 8px 0!important;background:#4361ee!important;color:#fff!important;
+  font-size:19px!important;box-shadow:0 3px 9px rgba(0,0,0,.2)!important;
+  z-index:2147483003!important;cursor:pointer!important;pointer-events:auto!important;
+  transition:left .25s ease!important;
 }
-#sidebarHeadingToggle:focus-visible{outline:3px solid #fff!important;outline-offset:2px!important}
-/* The original drawer button remains responsible for closing the open sidebar. */
-body.sidebar-open #sidebarHeadingToggle{display:none!important}
-/* Explicit route-based visibility: the floating menu is only for regular school dashboards. */
-#sidebarHeadingToggle{display:none!important;visibility:hidden!important;pointer-events:none!important}
-body.school-dashboard-active:not(.developer-dashboard-active) #sidebarHeadingToggle{display:flex!important;visibility:visible!important;pointer-events:auto!important}
+body.sidebar-open #sidebarHeadingToggle{left:245px!important;border-radius:0 10px 10px 0!important}
+#sidebar .menu-toggle{display:none!important}
 body.auth-screen-active #sidebarHeadingToggle,
-body.developer-dashboard-active #sidebarHeadingToggle,
-body.auth-screen-active #sidebar,
-body.developer-dashboard-active #sidebar{display:none!important;visibility:hidden!important;pointer-events:none!important}
-#sidebar.active .menu-toggle{z-index:2147483003!important}
-@media(max-width:768px){#sidebarHeadingToggle{top:10px!important;left:0!important}}
+body.developer-dashboard-active #sidebarHeadingToggle{display:none!important;visibility:hidden!important;pointer-events:none!important}
+@media(max-width:768px){#sidebarHeadingToggle{top:8px!important}body.sidebar-open #sidebarHeadingToggle{left:min(245px, calc(100vw - 55px))!important}}
 @media print{#sidebarHeadingToggle{display:none!important}}
 </style>
 </body>
