@@ -3521,6 +3521,18 @@ body:has(#forgotPasswordModal.container:not(.hidden)) {
   padding-top: 8px;
   border-top: 1px solid rgba(255, 255, 255, 0.1);
 }
+.sidebar-plan-name {
+  margin-top: 10px;
+  text-align: center;
+  font-size: 0.8125rem;
+  font-weight: 700;
+  line-height: 1.3;
+  color: #fff;
+  background: rgba(255, 255, 255, 0.14);
+  border-radius: 999px;
+  padding: 7px 10px;
+}
+.sidebar-plan-name:empty { display: none; }
 
 /* Pakia Upya button */
 .btn-reload-sidebar {
@@ -5437,6 +5449,7 @@ html[data-school-level="primary"] #secondaryDivisionSettingsSection { display:no
         <i class="fas fa-info-circle"></i>
         <span>Inahesabu muda...</span>
       </div>
+      <div id="sidebarPlanName" class="sidebar-plan-name"></div>
     </div>
 
   </div>
@@ -7002,46 +7015,104 @@ html[data-school-level="primary"] #secondaryDivisionSettingsSection { display:no
     // it safely falls back to the old link-based
     // download (same behavior as before).
     // ============================================
+    /*
+     * WebView-aware download bridge for browser-generated and server-returned files.
+     * A website cannot force an Android WebView wrapper to save files unless the
+     * wrapper enables its native DownloadListener/download handling. We therefore
+     * try the standard download first and provide an in-app open/preview fallback
+     * for PDF and a share/open fallback for files where supported.
+     */
+    function siwitiIsWebView() {
+      var ua = navigator.userAgent || '';
+      return /(; wv\)|\bwv\b|WebView|AppCreator24)/i.test(ua) ||
+        (!!window.Android && typeof window.Android === 'object');
+    }
+
+    function siwitiSafeFileName(name) {
+      return String(name || 'download').replace(/[\\/:*?"<>|]+/g, '_').trim() || 'download';
+    }
+
+    function siwitiDownloadBlob(blob, fileName) {
+      if (!blob || typeof Blob === 'undefined') return false;
+      fileName = siwitiSafeFileName(fileName);
+      var url = '';
+      try {
+        url = URL.createObjectURL(blob);
+        var a = document.createElement('a');
+        a.href = url;
+        a.download = fileName;
+        a.setAttribute('download', fileName);
+        a.style.display = 'none';
+        a.rel = 'noopener';
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+
+        // Keep the object URL alive longer; WebViews sometimes start processing
+        // a download after the click handler has returned.
+        setTimeout(function () {
+          try { URL.revokeObjectURL(url); } catch (_) {}
+        }, siwitiIsWebView() ? 120000 : 30000);
+
+        if (siwitiIsWebView() && /application\/pdf/i.test(blob.type || '')) {
+          // A PDF viewer fallback is useful when the wrapper blocks download
+          // attributes. It does not replace native download support for XLSX.
+          setTimeout(function () {
+            try {
+              if (document.visibilityState === 'visible') {
+                var fallback = document.createElement('a');
+                fallback.href = url;
+                fallback.target = '_blank';
+                fallback.rel = 'noopener';
+                fallback.style.display = 'none';
+                document.body.appendChild(fallback);
+                fallback.click();
+                fallback.remove();
+              }
+            } catch (e) { console.warn('PDF WebView fallback failed', e); }
+          }, 700);
+        }
+        return true;
+      } catch (e) {
+        console.warn('Blob download failed:', e);
+        if (url && /application\/pdf/i.test(blob.type || '')) {
+          try { window.open(url, '_blank'); return true; } catch (_) {}
+        }
+        return false;
+      }
+    }
+
     function triggerDirectDownload(base64Data, mimeType, fileName, fallbackUrl) {
       try {
         if (base64Data) {
-          const byteChars = atob(base64Data);
-          const byteNumbers = new Array(byteChars.length);
-          for (let i = 0; i < byteChars.length; i++) {
-            byteNumbers[i] = byteChars.charCodeAt(i);
-          }
-          const byteArray = new Uint8Array(byteNumbers);
-          const blob = new Blob([byteArray], { type: mimeType || 'application/octet-stream' });
-          const blobUrl = URL.createObjectURL(blob);
-
-          const link = document.createElement('a');
-          link.href = blobUrl;
-          link.download = fileName;
-          document.body.appendChild(link);
-          link.click();
-          document.body.removeChild(link);
-
-          setTimeout(() => URL.revokeObjectURL(blobUrl), 15000);
-          console.log('✅ Direct blob download used for:', fileName);
-          return true;
-        } else {
-          console.warn('⚠️ fileBase64 haikupatikana kwenye jibu la server kwa:', fileName, '— Backend (Code.gs) inaonekana bado haijasasishwa/ku-deploy upya. Inatumia link ya Drive kama njia mbadala.');
+          var binary = atob(String(base64Data).replace(/\s/g, ''));
+          var bytes = new Uint8Array(binary.length);
+          for (var i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+          return siwitiDownloadBlob(new Blob([bytes], {
+            type: mimeType || 'application/octet-stream'
+          }), fileName);
         }
       } catch (err) {
-        console.warn('Direct blob download failed, falling back to URL download:', err);
+        console.warn('Base64 download failed; trying fallback URL:', err);
       }
 
-      // Fallback: old behavior (Drive link) if base64 wasn't provided
       if (fallbackUrl) {
-        if (typeof Notiflix !== 'undefined' && Notiflix.Notify) {
-          Notiflix.Notify.warning('Backend haijasasishwa bado — inatumia njia ya zamani (inaweza kuomba Google account). Tafadhali hakikisha Code.gs mpya ime-deploy kama "New version".', { timeout: 6000, position: 'right-top' });
+        try {
+          var link = document.createElement('a');
+          link.href = fallbackUrl;
+          link.download = siwitiSafeFileName(fileName);
+          link.rel = 'noopener';
+          link.target = siwitiIsWebView() ? '_blank' : '_self';
+          document.body.appendChild(link);
+          link.click();
+          link.remove();
+          return true;
+        } catch (e) {
+          try { window.open(fallbackUrl, '_blank'); return true; } catch (_) {}
         }
-        const link = document.createElement('a');
-        link.href = fallbackUrl;
-        link.download = fileName;
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
+      }
+      if (typeof Notiflix !== 'undefined' && Notiflix.Notify) {
+        Notiflix.Notify.failure('Imeshindikana kupakua faili. Hakikisha AppCreator24 imeruhusu Downloads au fungua link kwenye browser.', {timeout: 6000, position: 'right-top'});
       }
       return false;
     }
@@ -8420,6 +8491,7 @@ function updateTimerDisplay() {
     } else {
       updateActiveDisplay(sidebarTimer);
     }
+    updateSidebarPlanDisplay_(subscriptionStatus);
   });
 }
 
@@ -8712,6 +8784,7 @@ function updateSidebarTimerDisplay(days, hours, minutes, seconds) {
     statusElement.innerHTML = `${statusIcon}<span>${statusText}</span>`;
   }
   refreshTrialRemainingBanner_(days, hours, minutes, seconds);
+  updateSidebarPlanDisplay_(subscriptionStatus);
   
   // Visual effects for low time
   if (minutes === 0 && seconds <= 30) {
@@ -13199,8 +13272,13 @@ function pdfMakeDocument(pageContents,landscape){
   const bytes=unescape(encodeURIComponent(out)); const arr=new Uint8Array(bytes.length); for(let i=0;i<bytes.length;i++)arr[i]=bytes.charCodeAt(i); return new Blob([arr],{type:'application/pdf'});
 }
 function pdfDownload(blob,fileName){
-  const url=URL.createObjectURL(blob); const a=document.createElement('a'); a.href=url; a.download=fileName; a.style.display='none'; document.body.appendChild(a); a.click(); a.remove(); setTimeout(()=>URL.revokeObjectURL(url),15000);
-  Notiflix.Notify.success(`✅ PDF imehifadhiwa: ${fileName}`,{timeout:3500,position:'right-top'}); return true;
+  var ok = (typeof siwitiDownloadBlob === 'function')
+    ? siwitiDownloadBlob(blob, fileName)
+    : false;
+  if (ok && typeof Notiflix !== 'undefined' && Notiflix.Notify) {
+    Notiflix.Notify.success('PDF imeandaliwa: ' + fileName + '. Ikiwa haijahifadhiwa, tumia chaguo la kufungua PDF au ruhusu Downloads kwenye WebView.', {timeout:4500,position:'right-top'});
+  }
+  return ok;
 }
 function offlineBuildResultsPDFBlob(darasa,termId,streamName){
   streamName = String(streamName || '');
@@ -21602,8 +21680,25 @@ function saveAccountPlanChoice(){
 }
 
 function updateSidebarPlanDisplay_(subscription){
-  // The sidebar clock already shows remaining time. Do not replace it, and do not add another timer.
-  return;
+  var timer = document.getElementById('sidebarTimer');
+  if (!timer) return;
+  var raw = '';
+  try { raw = (subscription && (subscription.plan || subscription.type || subscription.subscriptionType)) || ''; } catch (e) {}
+  if (!raw) {
+    try { raw = localStorage.getItem('ratibaPlan') || localStorage.getItem('subscriptionPlan') || ''; } catch (e) {}
+  }
+  var p = String(raw || '').trim().toUpperCase().replace(/[\s-]+/g, '_');
+  var label = '';
+  if (p.indexOf('GOLD') >= 0 || p === 'PREMIUM' || p === 'UNLIMITED' || (subscription && subscription.isPremium)) label = 'Gold Plan';
+  else if (p.indexOf('BASIC') >= 0 || p === 'FREE' || p === 'FREE_PLAN' || p === 'TRIAL' || p.indexOf('TRIAL') >= 0) label = 'Basic Plan';
+  var el = document.getElementById('sidebarPlanName');
+  if (!el || el.parentNode !== timer) {
+    el = document.createElement('div');
+    el.id = 'sidebarPlanName';
+    el.className = 'sidebar-plan-name';
+    timer.appendChild(el);
+  }
+  if (label) el.textContent = label;
 }
 
 function applyAuthenticatedSchoolName_(name) {
@@ -30719,7 +30814,7 @@ window.SIWITI_LANG_KEY='siwitiUserLanguage';
   var textMeta=new WeakMap(),attrMeta=new WeakMap(),currentLang='sw',applying=false,observer=null,observerTimer=null,queue=[];
   function captureText(t,sourceLang){var m=textMeta.get(t);if(!m){m={source:String(t.nodeValue||''),sourceLang:sourceLang};textMeta.set(t,m);}return m;}
   function captureAttr(el,name,sourceLang){var m=attrMeta.get(el);if(!m){m={};attrMeta.set(el,m);}if(!m[name])m[name]={source:el.getAttribute(name)||'',sourceLang:sourceLang};return m[name];}
-  function canTranslateText(t){if(!t||!t.parentElement||!String(t.nodeValue||'').trim())return false;var p=t.parentElement,tag=(p.tagName||'').toLowerCase();if(['script','style','noscript','template'].indexOf(tag)>=0)return false;if(p.closest('#siwitiLanguageToggle'))return false;/* Modal phrase translation is handled as a complete phrase to prevent language flipping. */if(p.closest('.swal2-container,[role=dialog]'))return false;return true;}
+  function canTranslateText(t){if(!t||!t.parentElement||!String(t.nodeValue||'').trim())return false;var p=t.parentElement,tag=(p.tagName||'').toLowerCase();if(['script','style','noscript','template'].indexOf(tag)>=0)return false;if(p.closest('#siwitiLanguageToggle,#sidebarPlanName'))return false;/* Modal phrase translation is handled as a complete phrase to prevent language flipping. */if(p.closest('.swal2-container,[role=dialog]'))return false;return true;}
   function translateTextNode(t,target,source){if(!canTranslateText(t))return;var m=captureText(t,source||currentLang),out=translateString(m.source,target);if(t.nodeValue!==out)t.nodeValue=out;}
   function translateAttrs(el,target,source){if(!el||el.nodeType!==1||el.id==='siwitiLanguageToggle')return;['placeholder','title','aria-label','data-placeholder'].forEach(function(a){if(!el.hasAttribute(a))return;var m=captureAttr(el,a,source||currentLang),out=translateString(m.source,target);if(el.getAttribute(a)!==out)el.setAttribute(a,out);});}
   function translateElement(root,target,source){if(!root)return;if(root.nodeType===3){translateTextNode(root,target,source);return;}if(root.nodeType!==1||root.id==='siwitiLanguageToggle')return;translateAttrs(root,target,source);var w=document.createTreeWalker(root,NodeFilter.SHOW_TEXT,null,false),t;while((t=w.nextNode()))translateTextNode(t,target,source);}
