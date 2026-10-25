@@ -6946,7 +6946,7 @@ html[data-school-level="primary"] #secondaryDivisionSettingsSection { display:no
 </div>
   <script>
 //AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
-    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycby8duqVvueit9WBxqpxnLQV8xnHLeuMdxZJIx_0y7udCePBO9B5fW46hI_AZKnRAGEa/exec';
+    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycby9LsrX6NI-AKP8OayzgGEwa6Fpk9wveYa3Q4sNvpi33j6MbrqAwFLBFPjTmABiZcJH/exec';
 
 
     // ============================================
@@ -6962,9 +6962,15 @@ html[data-school-level="primary"] #secondaryDivisionSettingsSection { display:no
       var bodyText = '';
       try { bodyText = typeof options.body === 'string' ? options.body : ''; } catch (ignore) {}
       var action = '';
+      var parsedBody = {};
       try {
-        var parsedBody = bodyText ? JSON.parse(bodyText) : {};
+        parsedBody = bodyText ? JSON.parse(bodyText) : {};
         action = String(parsedBody.action || '');
+        if (bodyText && isAndroidWebView_()) {
+          parsedBody.webViewDownload = true;
+          options.body = JSON.stringify(parsedBody);
+          bodyText = options.body;
+        }
       } catch (ignore2) {}
 
       // Only retry operations that are safe to repeat. Registration, password
@@ -7004,115 +7010,107 @@ html[data-school-level="primary"] #secondaryDivisionSettingsSection { display:no
     }
 
     // ============================================
-    // DIRECT DOWNLOAD HELPER (fixes Google account
-    // sign-in prompt on the website by downloading
-    // the actual file bytes as a Blob instead of
-    // navigating to a drive.google.com link).
-    //
-    // Pass the base64 file data returned by the
-    // backend (fileBase64/pdfBase64) plus its mime
-    // type. If base64 isn't available for any reason,
-    // it safely falls back to the old link-based
-    // download (same behavior as before).
+    // WEBVIEW-SAFE FILE DELIVERY
+    // Android WebView can crash or silently reject a synthetic click on a
+    // large blob URL, especially after decoding a large Base64 PDF into several
+    // simultaneous in-memory copies. In Android WebViews we therefore ask the
+    // backend to omit Base64 payloads and present a real HTTPS download link
+    // for the user to tap. Native DownloadListener support remains a wrapper
+    // responsibility; the website must not pretend that an automatic click
+    // guarantees a device download.
     // ============================================
-    /*
-     * WebView-aware download bridge for browser-generated and server-returned files.
-     * A website cannot force an Android WebView wrapper to save files unless the
-     * wrapper enables its native DownloadListener/download handling. We therefore
-     * try the standard download first and provide an in-app open/preview fallback
-     * for PDF and a share/open fallback for files where supported.
-     */
-    function siwitiIsWebView() {
-      var ua = navigator.userAgent || '';
-      return /(; wv\)|\bwv\b|WebView|AppCreator24)/i.test(ua) ||
-        (!!window.Android && typeof window.Android === 'object');
-    }
-
-    function siwitiSafeFileName(name) {
-      return String(name || 'download').replace(/[\\/:*?"<>|]+/g, '_').trim() || 'download';
-    }
-
-    function siwitiDownloadBlob(blob, fileName) {
-      if (!blob || typeof Blob === 'undefined') return false;
-      fileName = siwitiSafeFileName(fileName);
-      var url = '';
+    function isAndroidWebView_() {
       try {
-        url = URL.createObjectURL(blob);
-        var a = document.createElement('a');
-        a.href = url;
-        a.download = fileName;
-        a.setAttribute('download', fileName);
-        a.style.display = 'none';
-        a.rel = 'noopener';
-        document.body.appendChild(a);
-        a.click();
-        a.remove();
+        var ua = String((navigator && navigator.userAgent) || '');
+        var android = /Android/i.test(ua);
+        // Some app builders replace the WebView user-agent, so relying only on
+        // the literal 'wv' token misses real wrapped apps. Use the safer file
+        // delivery path for every Android client; normal Android Chrome also
+        // supports the explicit HTTPS link flow.
+        return android;
+      } catch (e) { return false; }
+    }
 
-        // Keep the object URL alive longer; WebViews sometimes start processing
-        // a download after the click handler has returned.
-        setTimeout(function () {
-          try { URL.revokeObjectURL(url); } catch (_) {}
-        }, siwitiIsWebView() ? 120000 : 30000);
-
-        if (siwitiIsWebView() && /application\/pdf/i.test(blob.type || '')) {
-          // A PDF viewer fallback is useful when the wrapper blocks download
-          // attributes. It does not replace native download support for XLSX.
-          setTimeout(function () {
-            try {
-              if (document.visibilityState === 'visible') {
-                var fallback = document.createElement('a');
-                fallback.href = url;
-                fallback.target = '_blank';
-                fallback.rel = 'noopener';
-                fallback.style.display = 'none';
-                document.body.appendChild(fallback);
-                fallback.click();
-                fallback.remove();
-              }
-            } catch (e) { console.warn('PDF WebView fallback failed', e); }
-          }, 700);
-        }
-        return true;
-      } catch (e) {
-        console.warn('Blob download failed:', e);
-        if (url && /application\/pdf/i.test(blob.type || '')) {
-          try { window.open(url, '_blank'); return true; } catch (_) {}
-        }
+    function showWebViewDownloadLink_(url, fileName, mimeType) {
+      if (!url || typeof url !== 'string' || !/^https:\/\//i.test(url)) {
+        if (typeof Swal !== 'undefined') Swal.fire({
+          icon: 'error', title: 'Upakuaji haujakamilika',
+          text: 'WebView haijapokea kiungo salama cha faili. Tafadhali sasisha WebView/Code.gs na ujaribu tena.',
+          confirmButtonColor: '#4361ee'
+        });
+        else if (typeof Notiflix !== 'undefined') Notiflix.Notify.failure('Kiungo salama cha kupakua faili hakijapatikana.');
         return false;
       }
+      var safeName = String(fileName || 'Faili').replace(/[<>"']/g, '');
+      var html = '<div style="text-align:left;line-height:1.55">' +
+        '<p>Faili limetengenezwa. Ili kuzuia WebView kujifunga wakati wa kushughulikia faili kubwa, bonyeza kiungo hapa chini ili kuanza upakuaji kupitia HTTPS.</p>' +
+        '<p style="font-size:13px;color:#475569;overflow-wrap:anywhere"><b>Faili:</b> ' + safeName + '</p>' +
+        '<a id="siwitiWebViewDownloadLink" href="' + url.replace(/&/g,'&amp;').replace(/"/g,'&quot;') + '" style="display:flex;align-items:center;justify-content:center;gap:8px;background:#2457d6;color:#fff;text-decoration:none;font-weight:700;border-radius:10px;padding:14px;margin-top:14px">⬇ Pakua ndani ya App</a>' +
+        '<a href="' + url.replace(/&/g,'&amp;').replace(/"/g,'&quot;') + '" target="_blank" rel="noopener noreferrer" style="display:flex;align-items:center;justify-content:center;gap:8px;background:#eef2ff;color:#2449bd;text-decoration:none;font-weight:700;border-radius:10px;padding:12px;margin-top:8px">Fungua kiungo kwenye browser</a>' +
+        '<p style="font-size:12px;color:#64748b;margin-top:12px">Ikiwa chaguo la ndani ya App halianzi upakuaji, tumia browser au ruhusu Downloads/External links kwenye mipangilio ya AppCreator24.</p>' +
+        '</div>';
+      if (typeof Swal !== 'undefined') {
+        Swal.fire({ title: 'Faili liko tayari', html: html, showConfirmButton: false, showCloseButton: true, width: 430, customClass: { popup: 'siwiti-webview-download-popup' } });
+      } else {
+        var w = window.open(url, '_blank');
+        if (!w) window.location.href = url;
+      }
+      return true;
     }
 
     function triggerDirectDownload(base64Data, mimeType, fileName, fallbackUrl) {
-      try {
-        if (base64Data) {
-          var binary = atob(String(base64Data).replace(/\s/g, ''));
-          var bytes = new Uint8Array(binary.length);
-          for (var i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
-          return siwitiDownloadBlob(new Blob([bytes], {
-            type: mimeType || 'application/octet-stream'
-          }), fileName);
+      // In Android WebView, never decode a large Base64 response or auto-click
+      // a blob URL after an asynchronous request. A user-initiated HTTPS link
+      // avoids the extra Base64 -> string -> number[] -> Uint8Array memory spike.
+      if (isAndroidWebView_()) {
+        if (fallbackUrl && /^https:\/\//i.test(String(fallbackUrl))) {
+          return showWebViewDownloadLink_(String(fallbackUrl), fileName, mimeType);
         }
-      } catch (err) {
-        console.warn('Base64 download failed; trying fallback URL:', err);
+        // Offline files have no server URL. Offer the blob download as an
+        // explicit user action rather than an automatic synthetic click.
+        if (fallbackUrl && /^blob:/i.test(String(fallbackUrl))) {
+          var blobLink = String(fallbackUrl);
+          var safeBlobName = String(fileName || 'Faili').replace(/[<>"']/g, '');
+          if (typeof Swal !== 'undefined') {
+            Swal.fire({title:'Faili liko tayari',html:'<p>Bonyeza hapa kujaribu kuhifadhi faili lililotengenezwa kwenye kifaa.</p><a href="'+blobLink+'" download="'+safeBlobName+'" style="display:block;background:#2457d6;color:#fff;padding:14px;border-radius:10px;text-decoration:none;font-weight:700">⬇ Hifadhi faili</a><p style="font-size:12px;color:#64748b;margin-top:10px">Upakuaji wa Blob unategemea uwezo wa WebView. Ikiwa hauanzi, tumia website kwenye Chrome au wezesha upakuaji wa faili katika AppCreator24.</p>',showConfirmButton:false,showCloseButton:true,width:430});
+            return true;
+          }
+        }
+        if (typeof Notiflix !== 'undefined') Notiflix.Notify.failure('WebView haijapokea kiungo cha HTTPS cha kupakua faili.');
+        return false;
       }
 
-      if (fallbackUrl) {
-        try {
+      // Normal browsers retain the existing direct Blob download, but decode
+      // in chunks and avoid allocating a JavaScript number[] the size of file.
+      try {
+        if (base64Data) {
+          var cleanBase64 = String(base64Data).replace(/^data:[^,]*,/, '').replace(/\s/g, '');
+          var binary = atob(cleanBase64);
+          var chunkSize = 1024 * 1024;
+          var parts = [];
+          for (var offset = 0; offset < binary.length; offset += chunkSize) {
+            var end = Math.min(offset + chunkSize, binary.length);
+            var chunk = new Uint8Array(end - offset);
+            for (var i = offset; i < end; i++) chunk[i - offset] = binary.charCodeAt(i);
+            parts.push(chunk);
+          }
+          var blob = new Blob(parts, { type: mimeType || 'application/octet-stream' });
+          var blobUrl = URL.createObjectURL(blob);
           var link = document.createElement('a');
-          link.href = fallbackUrl;
-          link.download = siwitiSafeFileName(fileName);
-          link.rel = 'noopener';
-          link.target = siwitiIsWebView() ? '_blank' : '_self';
-          document.body.appendChild(link);
-          link.click();
-          link.remove();
+          link.href = blobUrl; link.download = fileName || 'download'; link.style.display = 'none';
+          document.body.appendChild(link); link.click(); link.remove();
+          setTimeout(function(){ try { URL.revokeObjectURL(blobUrl); } catch (_) {} }, 60000);
           return true;
-        } catch (e) {
-          try { window.open(fallbackUrl, '_blank'); return true; } catch (_) {}
         }
+      } catch (err) {
+        console.warn('Direct Blob download failed:', err);
       }
-      if (typeof Notiflix !== 'undefined' && Notiflix.Notify) {
-        Notiflix.Notify.failure('Imeshindikana kupakua faili. Hakikisha AppCreator24 imeruhusu Downloads au fungua link kwenye browser.', {timeout: 6000, position: 'right-top'});
+      if (fallbackUrl) {
+        var fallbackLink = document.createElement('a');
+        fallbackLink.href = fallbackUrl; fallbackLink.download = fileName || 'download';
+        fallbackLink.rel = 'noopener'; fallbackLink.style.display = 'none';
+        document.body.appendChild(fallbackLink); fallbackLink.click(); fallbackLink.remove();
+        return true;
       }
       return false;
     }
@@ -13272,13 +13270,8 @@ function pdfMakeDocument(pageContents,landscape){
   const bytes=unescape(encodeURIComponent(out)); const arr=new Uint8Array(bytes.length); for(let i=0;i<bytes.length;i++)arr[i]=bytes.charCodeAt(i); return new Blob([arr],{type:'application/pdf'});
 }
 function pdfDownload(blob,fileName){
-  var ok = (typeof siwitiDownloadBlob === 'function')
-    ? siwitiDownloadBlob(blob, fileName)
-    : false;
-  if (ok && typeof Notiflix !== 'undefined' && Notiflix.Notify) {
-    Notiflix.Notify.success('PDF imeandaliwa: ' + fileName + '. Ikiwa haijahifadhiwa, tumia chaguo la kufungua PDF au ruhusu Downloads kwenye WebView.', {timeout:4500,position:'right-top'});
-  }
-  return ok;
+  const url=URL.createObjectURL(blob); const a=document.createElement('a'); a.href=url; a.download=fileName; a.style.display='none'; document.body.appendChild(a); a.click(); a.remove(); setTimeout(()=>URL.revokeObjectURL(url),15000);
+  Notiflix.Notify.success(`✅ PDF imehifadhiwa: ${fileName}`,{timeout:3500,position:'right-top'}); return true;
 }
 function offlineBuildResultsPDFBlob(darasa,termId,streamName){
   streamName = String(streamName || '');
