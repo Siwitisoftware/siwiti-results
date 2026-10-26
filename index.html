@@ -7032,51 +7032,60 @@ html[data-school-level="primary"] #secondaryDivisionSettingsSection { display:no
     }
 
     function showWebViewDownloadLink_(url, fileName, mimeType) {
+      // Start the real HTTPS download automatically. AppCreator24/WebView must
+      // have a native DownloadListener enabled to hand this response to Android.
       if (!url || typeof url !== 'string' || !/^https:\/\//i.test(url)) {
         if (typeof Swal !== 'undefined') Swal.fire({
           icon: 'error', title: 'Upakuaji haujakamilika',
-          text: 'WebView haijapokea kiungo salama cha faili. Tafadhali sasisha WebView/Code.gs na ujaribu tena.',
+          text: 'Kiungo salama cha faili hakijapatikana. Tafadhali jaribu tena.',
           confirmButtonColor: '#4361ee'
         });
         else if (typeof Notiflix !== 'undefined') Notiflix.Notify.failure('Kiungo salama cha kupakua faili hakijapatikana.');
         return false;
       }
-      var safeName = String(fileName || 'Faili').replace(/[<>"']/g, '');
-      var html = '<div style="text-align:left;line-height:1.55">' +
-        '<p>Faili limetengenezwa. Ili kuzuia WebView kujifunga wakati wa kushughulikia faili kubwa, bonyeza kiungo hapa chini ili kuanza upakuaji kupitia HTTPS.</p>' +
-        '<p style="font-size:13px;color:#475569;overflow-wrap:anywhere"><b>Faili:</b> ' + safeName + '</p>' +
-        '<a id="siwitiWebViewDownloadLink" href="' + url.replace(/&/g,'&amp;').replace(/"/g,'&quot;') + '" style="display:flex;align-items:center;justify-content:center;gap:8px;background:#2457d6;color:#fff;text-decoration:none;font-weight:700;border-radius:10px;padding:14px;margin-top:14px">⬇ Pakua ndani ya App</a>' +
-        '<a href="' + url.replace(/&/g,'&amp;').replace(/"/g,'&quot;') + '" target="_blank" rel="noopener noreferrer" style="display:flex;align-items:center;justify-content:center;gap:8px;background:#eef2ff;color:#2449bd;text-decoration:none;font-weight:700;border-radius:10px;padding:12px;margin-top:8px">Fungua kiungo kwenye browser</a>' +
-        '<p style="font-size:12px;color:#64748b;margin-top:12px">Ikiwa chaguo la ndani ya App halianzi upakuaji, tumia browser au ruhusu Downloads/External links kwenye mipangilio ya AppCreator24.</p>' +
-        '</div>';
-      if (typeof Swal !== 'undefined') {
-        Swal.fire({ title: 'Faili liko tayari', html: html, showConfirmButton: false, showCloseButton: true, width: 430, customClass: { popup: 'siwiti-webview-download-popup' } });
-      } else {
-        var w = window.open(url, '_blank');
-        if (!w) window.location.href = url;
+      try {
+        var link = document.createElement('a');
+        link.href = url;
+        link.download = String(fileName || 'Faili').replace(/[<>"']/g, '');
+        link.rel = 'noopener';
+        link.style.display = 'none';
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+        return true;
+      } catch (e) {
+        // A direct navigation is the last automatic fallback. DownloadListener
+        // intercepts attachment responses in a correctly configured WebView.
+        try { window.location.href = url; return true; } catch (e2) {}
+        if (typeof Notiflix !== 'undefined') Notiflix.Notify.failure('Imeshindikana kuanzisha upakuaji moja kwa moja.');
+        return false;
       }
-      return true;
     }
 
     function triggerDirectDownload(base64Data, mimeType, fileName, fallbackUrl) {
-      // In Android WebView, never decode a large Base64 response or auto-click
-      // a blob URL after an asynchronous request. A user-initiated HTTPS link
-      // avoids the extra Base64 -> string -> number[] -> Uint8Array memory spike.
+      // Android/WebView: automatically initiate the HTTPS download without a
+      // modal. Avoid Base64 decoding for large online files to prevent memory
+      // spikes that can close the WebView. For offline Blob files, try a direct
+      // download anchor as well; Blob downloads depend on WebView capabilities.
       if (isAndroidWebView_()) {
         if (fallbackUrl && /^https:\/\//i.test(String(fallbackUrl))) {
           return showWebViewDownloadLink_(String(fallbackUrl), fileName, mimeType);
         }
-        // Offline files have no server URL. Offer the blob download as an
-        // explicit user action rather than an automatic synthetic click.
         if (fallbackUrl && /^blob:/i.test(String(fallbackUrl))) {
-          var blobLink = String(fallbackUrl);
-          var safeBlobName = String(fileName || 'Faili').replace(/[<>"']/g, '');
-          if (typeof Swal !== 'undefined') {
-            Swal.fire({title:'Faili liko tayari',html:'<p>Bonyeza hapa kujaribu kuhifadhi faili lililotengenezwa kwenye kifaa.</p><a href="'+blobLink+'" download="'+safeBlobName+'" style="display:block;background:#2457d6;color:#fff;padding:14px;border-radius:10px;text-decoration:none;font-weight:700">⬇ Hifadhi faili</a><p style="font-size:12px;color:#64748b;margin-top:10px">Upakuaji wa Blob unategemea uwezo wa WebView. Ikiwa hauanzi, tumia website kwenye Chrome au wezesha upakuaji wa faili katika AppCreator24.</p>',showConfirmButton:false,showCloseButton:true,width:430});
+          try {
+            var offlineLink = document.createElement('a');
+            offlineLink.href = String(fallbackUrl);
+            offlineLink.download = String(fileName || 'Faili').replace(/[<>"']/g, '');
+            offlineLink.style.display = 'none';
+            document.body.appendChild(offlineLink);
+            offlineLink.click();
+            offlineLink.remove();
             return true;
+          } catch (offlineError) {
+            console.warn('WebView Blob download failed:', offlineError);
           }
         }
-        if (typeof Notiflix !== 'undefined') Notiflix.Notify.failure('WebView haijapokea kiungo cha HTTPS cha kupakua faili.');
+        if (typeof Notiflix !== 'undefined') Notiflix.Notify.failure('Upakuaji haukuanzishwa: kiungo cha faili hakijapatikana.');
         return false;
       }
 
