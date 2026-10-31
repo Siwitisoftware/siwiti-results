@@ -7112,7 +7112,7 @@ html[data-school-level="primary"] #secondaryDivisionSettingsSection { display:no
 </div>
   <script>
 //AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
-    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyhA12khydFwtWQPGaEuLgLKyf3183h487Bzi1NBfhCQTFgLJam7E1VENIp_Ev2gLJV/exec';
+    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzUVMrE6b2jxZ9kzIJrGWwnXHxXMPQxaaghUFFGJM5HbBmkQCjAda1HvIydoX-_gYGp/exec';
 
 
     // ============================================
@@ -12962,32 +12962,28 @@ function offlineGetReportSettings(darasa, streamName){
     const dbId = currentDbId || localStorage.getItem('currentDbId') || '';
     const cache = JSON.parse(localStorage.getItem('reportSettingsCache')) || {};
     const scopeKey = reportStreamScopeKey_(darasa, streamName);
-
-    // New canonical shape: reportSettingsCache[dbId][class+stream]
+    let s=null;
     if(cache[dbId] && (cache[dbId][scopeKey] || (!streamName && cache[dbId][darasa]))){
-      const s=cache[dbId][scopeKey] || cache[dbId][darasa] || {};
-      return {
-        classTeacherName:s.classTeacherName || '',
-        headTeacherName:s.headTeacherName || '',
-        principalMessage:s.principalMessage || '',
-        termStartDate:s.termStartDate || '',
-        termEndDate:s.termEndDate || ''
-      };
+      s=cache[dbId][scopeKey] || cache[dbId][darasa] || {};
+    }else if(!streamName && cache[darasa] && typeof cache[darasa]==='object' && !Array.isArray(cache[darasa])){
+      s=cache[darasa] || {};
     }
-
-    // Backward compatibility for existing installations.
-    if(!streamName && cache[darasa] && typeof cache[darasa]==='object' && !Array.isArray(cache[darasa])){
-      const s=cache[darasa] || {};
-      return {
-        classTeacherName:s.classTeacherName || '',
-        headTeacherName:s.headTeacherName || '',
-        principalMessage:s.principalMessage || '',
-        termStartDate:s.termStartDate || '',
-        termEndDate:s.termEndDate || ''
-      };
-    }
+    if(!s)return {classTeacherName:'',headTeacherName:'',principalMessage:'',termStartDate:'',termEndDate:'',branding:{}};
+    // Preserve every cached report setting instead of reducing the offline copy
+    // to five text fields. Branding is read from its own per-school offline cache.
+    const result=Object.assign({},s);
+    result.classTeacherName=s.classTeacherName || '';
+    result.headTeacherName=s.headTeacherName || '';
+    result.principalMessage=s.principalMessage || '';
+    result.termStartDate=s.termStartDate || '';
+    result.termEndDate=s.termEndDate || '';
+    try{
+      const branding=JSON.parse(localStorage.getItem('reportBrandingCache_'+dbId)||'{}')||{};
+      result.branding=Object.assign({},result.branding||{},branding);
+    }catch(brandingError){}
+    return result;
   }catch(e){}
-  return {classTeacherName:'',headTeacherName:'',principalMessage:'',termStartDate:'',termEndDate:''};
+  return {classTeacherName:'',headTeacherName:'',principalMessage:'',termStartDate:'',termEndDate:'',branding:{}};
 }
 
 function cacheOfflineReportGradeSettings_(darasa, streamName, gradeSettings, subjectGradeSettings) {
@@ -13772,341 +13768,6 @@ function offlineGeneratePDFResults(darasa,termId,streamName){
   return pdfDownload(offlineBuildResultsPDFBlob(darasa,termId,streamName),fileName);
 }
 
-function offlineBuildStudentReportPDFBlob(darasa,termId,studentNames,streamName){
-  /*
-   * OFFLINE STUDENT REPORTS — SAME DATA RULES AS generateStudentReportPDF()
-   * ONLINE:
-   *  1) read only darasa_<termId>
-   *  2) subjects come from Masomo order cached while online
-   *  3) validSubjects are subjects with at least one mark among selected students
-   *  4) ranking uses all students in the selected term
-   *  5) only selected students who have at least one mark are rendered
-   *  6) report settings come from the saved Report_Settings cache
-   *  7) visual text uses UTF-8 canvas so characters such as Ā are preserved
-   */
-  const subjectGradeSettings=offlineGetSubjectGradeSettings(darasa,streamName);
-  const ds=offlineGetDataset(darasa,termId,streamName);
-  const allStudents=Array.isArray(ds.results)?ds.results:[];
-  const subjects=Array.isArray(ds.subjects)?ds.subjects:[];
-  if(!allStudents.length || !subjects.length) return null;
-
-  const wanted=new Set((studentNames||[]).map(String));
-  const selectedStudents=allStudents.filter(s=>wanted.has(String(s.jina)));
-  if(!selectedStudents.length) return null;
-
-  // Same validSubjects algorithm as online generateStudentReportPDF().
-  const validSubjects=subjects.filter(subject=>selectedStudents.some(student=>{
-    const v=student.scores && student.scores[subject];
-    return v!=='' && v!==undefined && v!==null && !isNaN(parseFloat(v));
-  }));
-  if(!validSubjects.length) return null;
-
-  function gradeForScore(v){
-    const n=parseFloat(v);
-    if(isNaN(n)) return '-';
-    const a=subjectGradeSettings?.a_min ?? 75;
-    const b=subjectGradeSettings?.b_min ?? 60;
-    const c=subjectGradeSettings?.c_min ?? 50;
-    const d=subjectGradeSettings?.d_min ?? 40;
-    return n>=a?'A':n>=b?'B':n>=c?'C':n>=d?'D':'E';
-  }
-
-  // Same allStudentsWithStats/ranking algorithm as online.
-  const allStats=allStudents.map(student=>{
-    let total=0, count=0, hasAny=false;
-    validSubjects.forEach(subject=>{
-      const v=student.scores && student.scores[subject];
-      if(v!=='' && v!==undefined && v!==null && !isNaN(parseFloat(v))){
-        total+=parseFloat(v); count++; hasAny=true;
-      }
-    });
-    const average=validSubjects.length ? total/validSubjects.length : 0;
-    return {
-      name:student.jina,
-      gender:student.jinsi||'',
-      total, average,
-      grade:hasAny?gradeForScore(average):'-',
-      hasScores:hasAny,
-      countSubjectsWithMarks:count
-    };
-  });
-  const studentsWithScores=allStats.filter(s=>s.hasScores);
-  const sorted=studentsWithScores.slice().sort((a,b)=>b.total-a.total);
-  const rankMap={};
-  let rank=1,lastTotal=null;
-  sorted.forEach((s,i)=>{
-    if(i===0){rankMap[s.name]=rank;lastTotal=s.total;}
-    else if(s.total===lastTotal){rankMap[s.name]=rank;}
-    else {rank=i+1;rankMap[s.name]=rank;lastTotal=s.total;}
-  });
-
-  // Online createPDFContent() only renders selected students that have marks.
-  const renderStudents=selectedStudents.map(student=>{
-    const stats=allStats.find(s=>s.name===student.jina);
-    return {student,stats};
-  }).filter(x=>x.stats && x.stats.countSubjectsWithMarks>0);
-  if(!renderStudents.length) return null;
-
-  const cfg=offlineGetReportSettings(darasa,streamName);
-  const studentReportLang=offlineStudentReportLanguage_();
-  const school=offlineReportSchoolName_(offlineGetSchoolName() || '',studentReportLang);
-  const classHeading=offlineReportClassName_(darasa,studentReportLang);
-  const term=offlineReportTermName_(offlineGetTermName(termId) || '',studentReportLang);
-  const openingDate=cfg.termStartDate||'';
-  const closingDate=cfg.termEndDate||'';
-  const hasDates=openingDate!=='' && closingDate!=='';
-  const hasPrincipalMessage=(cfg.principalMessage||'')!=='';
-  const hasClassTeacher=(cfg.classTeacherName||'')!=='';
-  const hasHeadTeacher=(cfg.headTeacherName||'')!=='';
-
-  function fmtDate(v){
-    if(!v) return '';
-    const d=new Date(v);
-    return isNaN(d.getTime())?String(v):`${d.getDate()}/${d.getMonth()+1}/${d.getFullYear()}`;
-  }
-
-  // Draw one A4 page to canvas. This mirrors the ONLINE createPDFContent()
-  // CSS structure: Arial, A4 portrait, 0.5cm page margin, 10px body padding.
-  function drawPage(item){
-    // Keep the PDF visually sharp while avoiding multi-megabyte raster pages.
-    // 1.35x A4 raster + JPEG quality 0.78 is substantially smaller than the
-    // previous 2x/0.94 combination, without changing the report layout.
-    const scale=1.55, W=595, H=842;
-    const c=document.createElement('canvas'); c.width=W*scale; c.height=H*scale;
-    const ctx=c.getContext('2d'); ctx.scale(scale,scale);
-    ctx.fillStyle='#fff'; ctx.fillRect(0,0,W,H);
-    ctx.fillStyle='#333'; ctx.textBaseline='alphabetic';
-
-    const left=18.9+10, right=W-(18.9+10), width=right-left;
-    let y=20;
-
-    function font(size,bold=false){ctx.font=`${bold?'700 ':'400 '}${size}px Arial, sans-serif`;}
-    function text(t,x,yy,size=11,bold=false,color='#333',align='left'){
-      font(size,bold);ctx.fillStyle=color;ctx.textAlign=align;
-      ctx.fillText(String(t??''),x,yy);
-    }
-    function line(x1,y1,x2,y2,color='#333',lw=1){
-      ctx.strokeStyle=color;ctx.lineWidth=lw;ctx.beginPath();ctx.moveTo(x1,y1);ctx.lineTo(x2,y2);ctx.stroke();
-    }
-    function rect(x1,y1,w,h,fill=null,stroke='#ddd',lw=1){
-      if(fill){ctx.fillStyle=fill;ctx.fillRect(x1,y1,w,h);}
-      if(stroke){ctx.strokeStyle=stroke;ctx.lineWidth=lw;ctx.strokeRect(x1,y1,w,h);}
-    }
-    function wrap(t,maxWidth,size=11,bold=false){
-      font(size,bold);
-      const words=String(t??'').split(/\s+/);const lines=[];let cur='';
-      words.forEach(word=>{
-        const test=cur?cur+' '+word:word;
-        if(ctx.measureText(test).width>maxWidth && cur){lines.push(cur);cur=word;} else cur=test;
-      });
-      if(cur||!lines.length)lines.push(cur);return lines;
-    }
-
-    // ONLINE .header
-    text(String(school).toUpperCase(),W/2,y+14,18,true,'#2c3e50','center'); y+=17;
-    text(offlineReportText_('RIPOTI YA MAENDELEO YA MWANAFUNZI','STUDENT PROGRESS REPORT'),W/2,y+13,15,true,'#34495e','center'); y+=17;
-    text(`${(classHeading + (streamName ? ' - ' + String(streamName).replace(/^\s*mkondo\b\s*/i, '').trim() : '')).toUpperCase()} | ${String(term).toUpperCase()}`,W/2,y+12,13,true,'#7f8c8d','center'); y+=15;
-    line(left,y,right,y,'#333',2); y+=12;
-
-    // ONLINE .student-info
-    const infoH=48;
-    rect(left,y,width,infoH,'#f0f7ff','#3498db',1);
-    ctx.fillStyle='#3498db';ctx.fillRect(left,y,4,infoH);
-    text(offlineReportText_('Mzazi/Mlezi wa:','Parent/Guardian of:'),left+10,y+16,11,true);
-    text(item.student.jina,left+115,y+16,11,false);
-    text(offlineReportText_('Jinsi:','Gender:'),left+10,y+34,11,true);
-    text(item.student.jinsi==='M'?'MVULANA':'MSICHANA',left+115,y+34,11,false);
-    y+=infoH+15;
-
-    // ONLINE table: width 100%, collapse, 10px font.
-    const cols=[32,width-32-90-80,80,90];
-    // Make subject table flexible: S/N, SOMO, ALAMA, DARAJA.
-    const snW=35, scoreW=70, gradeW=70, subjW=width-snW-scoreW-gradeW;
-    const xs=[left,left+snW,left+snW+subjW,left+snW+subjW+scoreW,right];
-    const secondaryReport = typeof getActiveSchoolLevel_ === 'function' && getActiveSchoolLevel_() === 'secondary';
-    const rowH=secondaryReport?Math.max(8,Math.min(20,Math.floor(440/Math.max(1,validSubjects.length)))):20;
-    const rowFont=secondaryReport?(rowH<=10?6.5:(rowH<=13?7.5:9)):10;
-    const headerH=Math.max(15,Math.min(25,rowH+5));
-    rect(left,y,width,headerH,'#2c3e50','#ddd',1);
-    text('S/N',xs[0]+snW/2,y+17,10,true,'#fff','center');
-    text(offlineReportText_('SOMO','SUBJECT'),xs[1]+subjW/2,y+17,10,true,'#fff','center');
-    text(offlineReportText_('ALAMA','SCORE'),xs[2]+scoreW/2,y+17,10,true,'#fff','center');
-    text(offlineReportText_('DARAJA','GRADE'),xs[3]+gradeW/2,y+17,10,true,'#fff','center');
-    y+=headerH;
-
-    let total=0,countMarks=0;
-    validSubjects.forEach((subject,i)=>{
-      const raw=item.student.scores && item.student.scores[subject];
-      const has=raw!==''&&raw!==undefined&&raw!==null&&!isNaN(parseFloat(raw));
-      const score=has?parseFloat(raw):'-';
-      const g=has?gradeForScore(score):'-';
-      if(has){total+=score;countMarks++;}
-      rect(left,y,width,rowH,'#fff','#ddd',1);
-      text(i+1,xs[0]+snW/2,y+Math.min(rowH-2,14),rowFont,false,'#333','center');
-      text(subject,xs[1]+5,y+Math.min(rowH-2,14),rowFont,false,'#333','left');
-      text(score,xs[2]+scoreW/2,y+Math.min(rowH-2,14),rowFont,false,'#333','center');
-      const gc={A:'#27ae60',B:'#2980b9',C:'#f39c12',D:'#e67e22',E:'#e74c3c'}[g]||'#2c3e50';
-      text(g,xs[3]+gradeW/2,y+Math.min(rowH-2,14),rowFont,true,gc,'center');
-      y+=rowH;
-    });
-
-    const avg=validSubjects.length?total/validSubjects.length:0;
-    const overallGrade=gradeForScore(avg);
-    const pos=rankMap[item.student.jina]||'-';
-
-    function summaryRow(label,value,grade,fill){
-      const sh=secondaryReport?Math.max(14,Math.min(21,rowH+1)):21;
-      rect(left,y,width,sh,fill,'#ddd',1);
-      text(label,xs[2]-8,y+Math.min(sh-2,14),secondaryReport?Math.min(10,rowFont+1):10,true,'#333','right');
-      text(value,xs[2]+scoreW/2,y+Math.min(sh-2,14),secondaryReport?Math.min(10,rowFont+1):10,true,'#333','center');
-      if(grade) text(grade,xs[3]+gradeW/2,y+Math.min(sh-2,14),secondaryReport?Math.min(10,rowFont+1):10,true,{A:'#27ae60',B:'#2980b9',C:'#f39c12',D:'#e67e22',E:'#e74c3c'}[grade]||'#333','center');
-      y+=sh;
-    }
-    summaryRow(offlineReportText_('JUMLA ALAMA:','TOTAL MARKS:'),total.toFixed(2),'','#f8f9fa');
-    summaryRow(offlineReportText_('WASTANI:','AVERAGE:'),avg.toFixed(2),overallGrade,'#f0f7ff');
-    rect(left,y,width,21,'#e8f4fc','#ddd',1);
-    text(offlineReportText_('NAFASI DARASANI:','CLASS POSITION:'),xs[2]-8,y+14,10,true,'#333','right');
-    text(offlineReportText_(`${pos} kati ya ${studentsWithScores.length}`,`${pos} out of ${studentsWithScores.length}`),xs[2]+(scoreW+gradeW)/2,y+14,10,true,'#333','center');
-    y+=21;
-
-    // ONLINE .performance-comment
-    const perf=overallGrade!=='-'?
-      (offlineReportText_(`${item.student.jina} ameshika nafasi ya ${pos} kati ya wanafunzi ${studentsWithScores.length} waliofanya mtihani. `,`${item.student.jina} ranked ${pos} out of ${studentsWithScores.length} students who sat the examination. `))+
-      (overallGrade==='A'?offlineReportText_('Amefaulu kwa kiwango cha juu sana.','Excellent performance.'):
-       overallGrade==='B'?offlineReportText_('Amefaulu kwa kiwango cha juu.','Very good performance.'):
-       overallGrade==='C'?offlineReportText_('Amefaulu kwa kiwango cha wastani.','Satisfactory performance.'):
-       overallGrade==='D'?offlineReportText_('Amefaulu kwa kiwango cha chini.','Basic performance; improvement is needed.'):
-       offlineReportText_('Ufaulu wake hauridhishi.','Performance is below expectations.')):'';
-    y+=secondaryReport?5:15;
-    const pl=wrap(perf,width-30,secondaryReport?rowFont:11,false), ph=secondaryReport?20+pl.length*(rowFont+3):28+pl.length*15;
-    rect(left,y,width,ph,'#f8f9fa','#3498db',1);
-    ctx.fillStyle='#3498db';ctx.fillRect(left,y,4,ph);
-    text(offlineReportText_(secondaryReport?'Muhtasari wa Ufaulu:':'Ufaulu na Maoni:',secondaryReport?'Academic Performance Summary:':'Performance and Comments:'),left+(secondaryReport?7:10),y+(secondaryReport?13:18),secondaryReport?rowFont:11,true);
-    pl.forEach((ln,i)=>text(ln,left+(secondaryReport?7:10),y+(secondaryReport?25+i*(rowFont+3):34+i*15),secondaryReport?rowFont:11,false));
-    y+=ph;
-
-    if(secondaryReport){
-      const behaviorText = overallGrade==='A' ? offlineReportText_('Anaonyesha bidii na mwitikio mzuri katika kujifunza; aendelee kudumisha juhudi na kuwasaidia wengine kujifunza.','Shows strong learning commitment and engagement; should maintain this effort and support collaborative learning.') : overallGrade==='B' ? offlineReportText_('Anaonyesha juhudi nzuri katika kujifunza; aendelee kuwa makini na kuongeza mazoezi ili kufikia kiwango cha juu zaidi.','Shows good learning effort; should remain focused and practise more to reach a higher level.') : overallGrade==='C' ? offlineReportText_('Anaendelea kujifunza kwa kiwango cha wastani; anashauriwa kuongeza ushiriki, marudio na mazoezi katika masomo.','Is progressing at a satisfactory level; more participation, revision and practice are recommended.') : overallGrade==='D' ? offlineReportText_('Anahitaji kuongeza bidii, kufanya mazoezi ya mara kwa mara na kutafuta msaada wa walimu katika mada ngumu.','Needs to increase effort, practise regularly and seek teachers’ help with difficult topics.') : offlineReportText_('Anahitaji ufuatiliaji wa karibu wa kitaaluma, kuhudhuria vipindi kwa umakini, kufanya marudio ya kila siku na kupata msaada wa walimu.','Needs close academic support, focused participation, daily revision and regular help from teachers.');
-      y+=5; const bl=wrap(behaviorText,width-24,rowFont,false), bh=22+bl.length*(rowFont+3);
-      rect(left,y,width,bh,'#f2f8f2','#47835a',1);
-      text(offlineReportText_('TABIA YA KUJIFUNZA NA MWELEKEO WA KITAALUMA:','LEARNING ATTITUDE AND ACADEMIC CONDUCT:'),left+7,y+Math.min(13,rowFont+3),rowFont,true,'#2f6840');
-      bl.forEach((ln,i)=>text(ln,left+7,y+Math.min(25,rowFont+15)+i*(rowFont+3),rowFont,false,'#333'));
-      y+=bh;
-    }
-
-    if(hasPrincipalMessage){
-      y+=secondaryReport?4:12;
-      const ml=wrap(offlineInstructionText_(cfg.principalMessage),width-(secondaryReport?24:30),secondaryReport?rowFont:11,false), mh=secondaryReport?20+ml.length*(rowFont+3):28+ml.length*15;
-      rect(left,y,width,mh,'#fff3cd','#ffc107',1);ctx.fillStyle='#ffc107';ctx.fillRect(left,y,4,mh);
-      text(offlineReportText_('AGIZO:','INSTRUCTIONS:'),left+(secondaryReport?7:10),y+(secondaryReport?13:18),secondaryReport?rowFont:11,true);
-      ml.forEach((ln,i)=>text(ln,left+(secondaryReport?7:10),y+(secondaryReport?25+i*(rowFont+3):34+i*15),secondaryReport?rowFont:11,false));
-      y+=mh;
-    }
-
-    if(hasDates){
-      y+=secondaryReport?4:12; const dh=secondaryReport?36:48;
-      rect(left,y,width,dh,'#f9f9f9','#eee',1);
-      text(offlineReportText_('TAARIFA ZA TAREHE:','IMPORTANT DATES:'),left+(secondaryReport?7:10),y+(secondaryReport?13:18),secondaryReport?rowFont:11,true,'#2c3e50');
-      text(offlineReportText_(`Shule imefungwa leo tarehe ${fmtDate(closingDate)} na itafunguliwa tarehe ${fmtDate(openingDate)}.`,`The school closes on ${fmtDate(closingDate)} and reopens on ${fmtDate(openingDate)}.`),left+(secondaryReport?7:10),y+(secondaryReport?27:36),secondaryReport?rowFont:11,false);
-      y+=dh;
-    }
-
-    if(hasClassTeacher||hasHeadTeacher){
-      y+=secondaryReport?6:22;
-      if(hasClassTeacher){
-        text(cfg.classTeacherName,left+10,y,11,true);
-        line(left+10,y+(secondaryReport?24:55),left+width*0.40,y+(secondaryReport?24:55),'#333',1);
-        text(offlineReportText_('Mwalimu wa Darasa','Class Teacher'),left+10,y+(secondaryReport?36:72),secondaryReport?8:10,false,'#666');
-      }
-      if(hasHeadTeacher){
-        text(cfg.headTeacherName,right-10,y,11,true,'#333','right');
-        line(right-width*0.40,y+(secondaryReport?24:55),right-10,y+(secondaryReport?24:55),'#333',1);
-        text(offlineReportText_('Mwalimu Mkuu','Head Teacher'),right-10,y+(secondaryReport?36:72),secondaryReport?8:10,false,'#666','right');
-      }
-    }
-
-    // Footer from ONLINE.
-    line(left,804,right,804,'#ccc',1);
-    text(offlineReportText_(secondaryReport?'Ripoti hii imetengenezwa na MFUMO WA MATOKEO YA SHULE':'Ripoti hii imetengenezwa na MFUMO WA MATOKEO SHULE ZA MSINGI',secondaryReport?'This report was generated by the SCHOOL RESULTS SYSTEM':'This report was generated by the PRIMARY SCHOOL RESULTS SYSTEM'),W/2,817,9,false,'#7f8c8d','center');
-    text(offlineReportText_('Simu: +255750183275 / +255652343371 | Barua pepe: daxsystems.tz@gmail.com','Phone: +255750183275 / +255652343371 | Email: daxsystems.tz@gmail.com'),W/2,830,9,false,'#7f8c8d','center');
-    return c;
-  }
-
-  function jpegToPdf(canvases){
-    const objects=[];const add=o=>{objects.push(o);return objects.length;};
-    const pagesObj=add(null);const pageObjs=[];
-
-    canvases.forEach(canvas=>{
-      const data=canvas.toDataURL('image/jpeg',0.65);
-      const b64=data.split(',')[1];
-      const bin=atob(b64);
-      const bytes=new Uint8Array(bin.length);
-      for(let i=0;i<bin.length;i++)bytes[i]=bin.charCodeAt(i);
-
-      const imgObj=add({
-        chunks:[
-          new TextEncoder().encode(`<< /Type /XObject /Subtype /Image /Width ${canvas.width} /Height ${canvas.height} /ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /DCTDecode /Length ${bytes.length} >>\nstream\n`),
-          bytes,
-          new TextEncoder().encode('\nendstream')
-        ]
-      });
-
-      const content=`q 595 0 0 842 0 0 cm /Im${imgObj} Do Q`;
-      const contObj=add({chunks:[
-        new TextEncoder().encode(`<< /Length ${content.length} >>\nstream\n${content}\nendstream`)
-      ]});
-
-      const pageObj=add({chunks:[
-        new TextEncoder().encode(
-          `<< /Type /Page /Parent ${pagesObj} 0 R /MediaBox [0 0 595 842] `+
-          `/Resources << /XObject << /Im${imgObj} ${imgObj} 0 R >> >> `+
-          `/Contents ${contObj} 0 R >>`
-        )
-      ]});
-      pageObjs.push(pageObj);
-    });
-
-    objects[pagesObj-1]={
-      chunks:[new TextEncoder().encode(
-        `<< /Type /Pages /Kids [${pageObjs.map(n=>n+' 0 R').join(' ')}] /Count ${pageObjs.length} >>`
-      )]
-    };
-    const catalog=add({chunks:[new TextEncoder().encode(`<< /Type /Catalog /Pages ${pagesObj} 0 R >>`)]});
-
-    const header=new TextEncoder().encode('%PDF-1.4\n%\xE2\xE3\xCF\xD3\n');
-    const chunks=[header];let total=header.length;const offsets=[0];
-
-    function pushBytes(b){chunks.push(b);total+=b.length;}
-    function ascii(s){return new TextEncoder().encode(s);}
-
-    for(let i=0;i<objects.length;i++){
-      offsets.push(total);
-      pushBytes(ascii(`${i+1} 0 obj\n`));
-      const obj=objects[i];
-      (obj.chunks||[]).forEach(pushBytes);
-      pushBytes(ascii('\nendobj\n'));
-    }
-
-    const xref=total;
-    let xrefText=`xref\n0 ${objects.length+1}\n0000000000 65535 f \n`;
-    for(let i=1;i<offsets.length;i++)xrefText+=String(offsets[i]).padStart(10,'0')+' 00000 n \n';
-    xrefText+=`trailer\n<< /Size ${objects.length+1} /Root ${catalog} 0 R >>\nstartxref\n${xref}\n%%EOF`;
-    pushBytes(ascii(xrefText));
-
-    const result=new Uint8Array(total);let at=0;
-    chunks.forEach(b=>{result.set(b,at);at+=b.length;});
-    return new Blob([result],{type:'application/pdf'});
-  }
-
-  const canvases=renderStudents.map(drawPage);
-  return jpegToPdf(canvases);
-}
-
-function offlineGenerateStudentReports(darasa,termId,studentNames,streamName){
-  const blob=offlineBuildStudentReportPDFBlob(darasa,termId,studentNames,streamName); if(!blob){Notiflix.Notify.warning('Hakuna data ya wanafunzi yenye alama kwenye kifaa.',{timeout:3000,position:'right-top'});return false;}
-  const safe=s=>String(s).replace(/[\\/:*?"<>|]/g,'_').replace(/\s+/g,'_'); const fileName=`Matokeo_Binafsi_${safe(darasa)}${streamName?'_'+safe(streamName):''}_${new Date().toISOString().split('T')[0]}.pdf`; return pdfDownload(blob,fileName);
-}
-
 // ============================================
 // Show the real offline export exception on-device instead of incorrectly blaming missing cached marks.
 function offlineDiagnosticErrorText_(err, kind) {
@@ -14859,16 +14520,16 @@ function generatePDFReport(darasa, studentNames, gradeSettings, subjectGradeSett
   };
 
   if (!isOnline()) {
-    // Generate the student report directly from local caches.
-    cacheOfflineReportGradeSettings_(darasa, streamName, gradeSettings, subjectGradeSettings);
-
-    setTimeout(() => {
-      offlineGenerateStudentReports(darasa, termId, studentNames, streamName);
-      if (reportBtn) {
-        reportBtn.innerHTML = originalButtonHTML;
-        reportBtn.disabled = false;
-      }
-    }, 40);
+    // Student PDFs are online-only: the server is the single source of truth
+    // for the complete Primary/Secondary layout, Agizo tables and branding.
+    if (reportBtn) {
+      reportBtn.innerHTML = originalButtonHTML;
+      reportBtn.disabled = false;
+    }
+    Notiflix.Notify.warning(
+      'Ripoti za wanafunzi zinatengenezwa wakati wa ONLINE pekee. Tafadhali washa intaneti kisha ujaribu tena.',
+      { timeout: 5000, position: 'right-top' }
+    );
     return;
   }
 
@@ -14906,7 +14567,10 @@ function generatePDFReport(darasa, studentNames, gradeSettings, subjectGradeSett
       reportBtn.innerHTML = originalButtonHTML;
       reportBtn.disabled = false;
     }
-    offlineGenerateStudentReports(darasa, termId, studentNames, streamName);
+    Notiflix.Notify.failure(
+      'Imeshindikana kuwasiliana na seva. Ripoti haijatengenezwa. Hakikisha intaneti ipo kisha ujaribu tena.',
+      { timeout: 5000, position: 'right-top' }
+    );
   });
 }
 
@@ -20400,7 +20064,7 @@ function reportBrandingRemoveBackground_(canvas){
   }
   return {removed:true,removedPixels:removedPixels,changedPixels:changedPixels,bg:bg};
 }
-function reportBrandingTrimTransparentInk_(canvas){
+function reportBrandingTrimTransparentInk_(canvas,kind){
   try{
     var ctx=canvas.getContext('2d',{willReadFrequently:true}),w=canvas.width,h=canvas.height;
     if(!w||!h)return canvas;
@@ -20411,8 +20075,11 @@ function reportBrandingTrimTransparentInk_(canvas){
     if(maxX<minX||maxY<minY)return canvas;
     // Retain a tiny safety border around every non-transparent ink pixel.
     var pad=Math.max(2,Math.round(Math.min(w,h)*0.008));
+    // Signatures must have no transparent tail below the final ink pixel:
+    // that bottom edge is the anchor that rests directly on the report rule.
+    var bottomPad=/Signature/i.test(String(kind||''))?0:pad;
     var x0=Math.max(0,minX-pad),y0=Math.max(0,minY-pad);
-    var cw=Math.min(w-x0,maxX-minX+1+pad*2),ch=Math.min(h-y0,maxY-minY+1+pad*2);
+    var cw=Math.min(w-x0,maxX-minX+1+pad*2),ch=Math.min(h-y0,maxY-minY+1+pad+bottomPad);
     if(cw===w&&ch===h)return canvas;
     var cropped=document.createElement('canvas');cropped.width=cw;cropped.height=ch;
     cropped.getContext('2d').drawImage(canvas,x0,y0,cw,ch,0,0,cw,ch);
@@ -20442,7 +20109,7 @@ function reportBrandingCompressImage_(file,maxSide,kind){
           var trimData=ctx.getImageData(0,0,canvas.width,canvas.height).data,tx0=canvas.width,ty0=canvas.height,tx1=-1,ty1=-1;
           for(var ty=0;ty<canvas.height;ty++)for(var tx=0;tx<canvas.width;tx++)if(trimData[(ty*canvas.width+tx)*4+3]>10){if(tx<tx0)tx0=tx;if(tx>tx1)tx1=tx;if(ty<ty0)ty0=ty;if(ty>ty1)ty1=ty;}
           if(tx1>=tx0&&ty1>=ty0){var tpad=Math.max(2,Math.round(Math.min(canvas.width,canvas.height)*0.008)),cx0=Math.max(0,tx0-tpad),cy0=Math.max(0,ty0-tpad),cw=Math.min(canvas.width,cx0+(tx1-tx0+1)+2*tpad)-cx0,ch=Math.min(canvas.height,cy0+(ty1-ty0+1)+2*tpad)-cy0;if(cw>0&&ch>0&&(cw<canvas.width-2||ch<canvas.height-2)){var cropped=document.createElement('canvas');cropped.width=cw;cropped.height=ch;cropped.getContext('2d').drawImage(canvas,cx0,cy0,cw,ch,0,0,cw,ch);canvas.width=cw;canvas.height=ch;canvas.getContext('2d').drawImage(cropped,0,0);}}
-          reportBrandingTrimTransparentInk_(canvas);var out=canvas.toDataURL('image/png');
+          reportBrandingTrimTransparentInk_(canvas,kind);var out=canvas.toDataURL('image/png');
           if(out.length>1400000){reject(new Error('Picha bado ni kubwa. Chagua picha ndogo zaidi.'));return;}
           resolve({dataUrl:out,backgroundRemoved:!!backgroundResult.removed,backgroundReason:backgroundResult.reason||''});
         }catch(processError){reject(new Error('Picha haikuweza kuchakatwa salama: '+(processError.message||processError)));}
