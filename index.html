@@ -5228,6 +5228,67 @@ html[data-school-level="primary"] #secondaryDivisionSettingsSection { display:no
 <style id="school-number-example-red-style">
 #schoolNumberInput::placeholder { color: #dc2626 !important; opacity: 1 !important; font-weight: 700 !important; }
 </style>
+
+<style id="report-instruction-word-editor-css">
+.report-word-editor{border:1px solid #cbd5e1;border-radius:12px;overflow:hidden;background:#fff;box-shadow:0 3px 12px rgba(15,23,42,.07);width:100%;max-width:100%;box-sizing:border-box}
+.report-word-toolbar{display:flex;flex-wrap:wrap;align-items:center;gap:5px;padding:8px;background:linear-gradient(180deg,#f8fafc,#edf2f8);border-bottom:1px solid #dbe3ee}
+.report-toolbar-group{display:inline-flex;align-items:center;gap:3px}
+.report-word-toolbar button{min-width:34px;height:34px;border:1px solid #cbd5e1;border-radius:7px;background:#fff;color:#243247;padding:5px 9px;cursor:pointer;font-size:13px;box-shadow:0 1px 2px rgba(15,23,42,.05)}
+.report-word-toolbar button:hover,.report-word-toolbar button:focus,.report-word-toolbar button.is-active{background:#dce9ff;border-color:#7298dc;color:#16439a}
+.report-word-toolbar select{height:34px;max-width:145px;border:1px solid #cbd5e1;border-radius:7px;background:#fff;color:#243247;padding:4px 7px;font-size:12px}
+.report-word-toolbar select[data-cmd="fontName"]{width:126px}.report-word-toolbar select[data-cmd="fontSize"]{width:65px}.report-word-toolbar select[data-cmd="formatBlock"]{width:112px}
+.report-word-toolbar .toolbar-separator{height:24px;border-left:1px solid #cbd5e1;margin:0 3px}
+.report-color-tool{height:34px;display:inline-flex;align-items:center;gap:5px;padding:3px 7px;border:1px solid #cbd5e1;border-radius:7px;background:#fff;color:#243247;font-weight:700;font-size:13px;cursor:pointer}
+.report-color-tool input{width:20px;height:22px;border:0;background:transparent;padding:0}
+.report-word-editable{display:block;width:100%;min-height:210px;max-height:500px;overflow:auto;box-sizing:border-box;padding:18px 20px;outline:none;background:#fff;color:#172033;font-family:Arial,Helvetica,sans-serif;font-size:14px;font-weight:400;line-height:1.6;overflow-wrap:anywhere;word-break:normal;direction:ltr;text-align:left;unicode-bidi:normal;white-space:normal}
+
+.report-word-editable-frame{display:block;width:100%;height:260px;min-height:210px;max-height:500px;border:0;outline:0;background:#fff}
+.report-word-editor:focus-within{box-shadow:inset 0 0 0 2px rgba(37,99,235,.16)}
+
+#principalMessageEditor,#principalMessageEditor *{
+  direction:ltr!important;
+  unicode-bidi:isolate!important;
+  writing-mode:horizontal-tb!important;
+  text-align:inherit;
+}
+#principalMessageEditor{ text-align:left!important; caret-color:#172033!important; }
+#principalMessageEditor ol,#principalMessageEditor ul{direction:ltr!important;unicode-bidi:isolate!important;padding-inline-start:30px!important;}
+#principalMessageEditor li{direction:ltr!important;unicode-bidi:isolate!important;text-align:left!important;display:list-item!important;}
+#principalMessageEditor p,#principalMessageEditor div,#principalMessageEditor span{unicode-bidi:isolate;}
+.report-word-editable:empty:before{content:attr(data-placeholder);color:#94a3b8;pointer-events:none}
+.report-word-editable p{margin:0 0 8px}.report-word-editable h1{font-size:24px;margin:12px 0 7px}.report-word-editable h2{font-size:20px;margin:10px 0 6px}.report-word-editable h3{font-size:17px;margin:8px 0 5px}
+.report-word-editable ul,.report-word-editable ol{padding-left:28px;margin:6px 0}.report-word-editable table{width:100%;border-collapse:collapse;table-layout:fixed;margin:8px 0}.report-word-editable td,.report-word-editable th{border:1px solid #94a3b8;padding:5px;min-width:35px;overflow-wrap:anywhere}
+.report-word-editable blockquote{border-left:3px solid #64748b;margin:8px 0;padding:5px 12px;color:#475569}
+.report-word-status{display:flex;justify-content:space-between;padding:5px 10px;background:#f8fafc;border-top:1px solid #e2e8f0;color:#64748b;font-size:11px}.report-table-panel{padding:10px 12px;background:#f8fafc;border-top:1px solid #dbe3ee}.report-table-panel[hidden]{display:none!important}
+.report-table-panel-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;color:#26364d;font-size:13px}
+.report-table-panel-head button{border:0;background:transparent;font-size:23px;line-height:1;color:#64748b;padding:0 6px}
+.report-table-size{display:flex;align-items:end;flex-wrap:wrap;gap:8px}.report-table-size label{display:flex;flex-direction:column;gap:3px;color:#475569;font-size:11px;font-weight:700}
+.report-table-size input{width:76px;height:34px;border:1px solid #cbd5e1;border-radius:7px;background:#fff;padding:4px 7px;font-size:14px}
+.report-table-size button,.report-table-actions button{min-height:32px;border:1px solid #cbd5e1;border-radius:7px;background:#fff;color:#243247;padding:5px 9px;font-size:12px}
+.report-table-size .report-table-primary{background:#3156d8;color:#fff;border-color:#3156d8;font-weight:700}
+.report-table-actions{display:none;flex-wrap:wrap;gap:6px;margin-top:9px;padding-top:9px;border-top:1px solid #e2e8f0}.report-table-actions.is-table-active{display:flex}
+.report-table-actions.is-table-active{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}
+.report-table-actions button{min-height:42px;width:100%;white-space:normal;line-height:1.25;font-size:12px;touch-action:manipulation}
+.report-table-actions .report-table-danger{grid-column:1/-1;min-height:44px;font-weight:700;background:#fff5f5}
+.report-table-dimensions{display:grid;grid-template-columns:1fr auto;gap:7px;align-items:end;width:100%;margin-top:8px;padding-top:8px;border-top:1px solid #e2e8f0}
+.report-table-dimensions label{display:flex;flex-direction:column;gap:4px;font-size:11px;font-weight:700;color:#475569}
+.report-table-dimensions input{width:100%;min-width:0;min-height:40px;border:1px solid #cbd5e1;border-radius:7px;padding:5px 8px;font-size:16px;background:#fff}
+.report-table-dimensions button{min-height:40px;border:1px solid #cbd5e1;border-radius:7px;background:#fff;padding:5px 10px;font-size:12px;font-weight:700}
+@media(max-width:480px){.report-table-dimensions{grid-template-columns:minmax(0,1fr) minmax(95px,.8fr)}.report-table-dimensions button{width:100%}}
+
+.report-table-panel-head button{min-width:40px;min-height:40px;touch-action:manipulation}
+.report-table-size input{min-height:40px;font-size:16px}
+.report-table-size button{min-height:40px;touch-action:manipulation}
+.report-word-toolbar button{touch-action:manipulation}
+
+.report-table-actions .report-table-danger{color:#b42318;border-color:#f0b7b2}.report-table-hint{width:100%;font-size:11px;color:#64748b}
+.report-word-editable table{border-collapse:collapse;width:100%;max-width:100%;table-layout:fixed;margin:8px 0}
+.report-word-editable td,.report-word-editable th{border:1px solid #94a3b8;padding:7px;min-width:35px;vertical-align:top;overflow-wrap:anywhere}
+.report-word-editable td:focus,.report-word-editable th:focus{outline:2px solid #7298dc;outline-offset:-2px}
+
+.report-instruction-content table{width:100%;max-width:100%;border-collapse:collapse;table-layout:fixed;margin:4px 0}.report-instruction-content td,.report-instruction-content th{border:1px solid #94a3b8;padding:3px;overflow-wrap:anywhere}
+@media(max-width:600px){.report-word-toolbar{gap:4px;padding:6px}.report-word-toolbar button{min-width:32px;height:32px;padding:4px 7px}.report-word-toolbar select{height:32px}.report-word-editable-frame{height:240px}}
+</style>
 </head>
 <body>
 
@@ -6528,12 +6589,60 @@ html[data-school-level="primary"] #secondaryDivisionSettingsSection { display:no
       </div>
 
       <div class="tabs-navigation">
+        <button class="tab-btn" id="reportBrandingTabButton" onclick="openSystemTab('reportBrandingTab', this)"><i class="fas fa-stamp"></i> Utambulisho wa Ripoti</button>
         <button id="schoolNameTabButton" class="tab-btn active" onclick="openSystemTab('schoolNameTab', this)"><i class="fas fa-school"></i> Jina la Shule</button>
         <button class="tab-btn" onclick="openSystemTab('ownerEmailTab', this)"><i class="fas fa-envelope"></i> Barua Pepe ya Head of School</button>
         <button class="tab-btn" onclick="openSystemTab('accountPasswordTab', this)"><i class="fas fa-key"></i> Nenosiri la Akaunti</button>
         <button class="tab-btn" onclick="openSystemTab('studentTransferTab', this)"><i class="fas fa-arrow-right-arrow-left"></i> Uhamishaji wa Wanafunzi</button>
         <button class="tab-btn" onclick="openSystemTab('graduationClassesTab', this)"><i class="fas fa-graduation-cap"></i> Orodha ya Madarasa ya Wahitimu</button>
         <button class="tab-btn" onclick="openSystemTab('deleteAccountTab', this)"><i class="fas fa-trash-alt"></i> Futa Akaunti ya Shule</button>
+      </div>
+
+      <div id="reportBrandingTab" class="tab-content" aria-labelledby="reportBrandingTabButton">
+        <div class="system-settings-section" style="padding:18px;border:1px solid #dbe3ef;border-radius:16px;background:linear-gradient(145deg,#ffffff,#f6f9ff);">
+          <h3><i class="fas fa-file-image"></i> Utambulisho wa Ripoti</h3>
+          <p style="color:#64748b">Pakia logo na mihuri itakayotumika kwenye ripoti za shule. Unaweza kuwasha/kuzima kila kipengele na kupanga ukubwa wake.</p>
+          <p style="color:#475569;font-size:13px;margin-top:-6px">Kwa mihuri na sahihi, mfumo hujaribu kuondoa background kiotomatiki na kuacha wino wenye uwazi (transparent). Picha yenye background tata itaachwa bila kubadilishwa ili kulinda muhuri au sahihi.</p>
+          <div class="system-settings-grid">
+            <div class="system-settings-card" id="brandingLogoCard">
+              <h4><i class="fas fa-school"></i> Logo ya Shule</h4>
+              <label><input type="checkbox" id="brandingLogoEnabled" checked> Jumuisha logo kwenye ripoti</label>
+              <div class="input-group"><label for="brandingLogoFile">Pakia Logo (PNG/JPG/WebP)</label><input type="file" id="brandingLogoFile" accept="image/png,image/jpeg,image/webp"></div>
+              <img id="brandingLogoPreview" alt="Logo preview" style="display:none;max-width:100%;max-height:130px;object-fit:contain;background:#fff;padding:8px;border:1px solid #e2e8f0;border-radius:10px">
+              <label for="brandingLogoSize">Ukubwa wa Logo (px)</label><input type="number" id="brandingLogoSize" min="30" max="240" value="90">
+              <label for="brandingLogoAlignment">Mpangilio wa Logo</label><select id="brandingLogoAlignment"><option value="left">Kushoto</option><option value="center" selected>Katikati</option><option value="right">Kulia</option><option value="both">Pande zote (Kushoto na Kulia)</option></select>
+              <button type="button" class="btn btn-light" onclick="clearReportBrandingImage_('logo')">Ondoa Logo</button>
+            </div>
+            <div class="system-settings-card" id="brandingHeadStampCard">
+              <h4><i class="fas fa-stamp"></i> Muhuri wa Mwalimu Mkuu</h4>
+              <label><input type="checkbox" id="brandingHeadStampEnabled"> Jumuisha muhuri kwenye ripoti</label>
+              <div class="input-group"><label for="brandingHeadStampFile">Pakia Muhuri</label><input type="file" id="brandingHeadStampFile" accept="image/png,image/jpeg,image/webp"></div>
+              <img id="brandingHeadStampPreview" alt="Muhuri wa Mwalimu Mkuu" style="display:none;max-width:100%;max-height:130px;object-fit:contain;background-color:#fff;background-image:linear-gradient(45deg,#e5e7eb 25%,transparent 25%),linear-gradient(-45deg,#e5e7eb 25%,transparent 25%),linear-gradient(45deg,transparent 75%,#e5e7eb 75%),linear-gradient(-45deg,transparent 75%,#e5e7eb 75%);background-size:16px 16px;background-position:0 0,0 8px,8px -8px,-8px 0;padding:8px;border:1px solid #e2e8f0;border-radius:10px">
+              <label for="brandingHeadStampSize">Ukubwa wa Muhuri (px)</label><input type="number" id="brandingHeadStampSize" min="30" max="500" value="85">
+              <button type="button" class="btn btn-light" onclick="clearReportBrandingImage_('headStamp')">Ondoa Muhuri</button>
+            </div>
+            <div class="system-settings-card" id="brandingHeadSignatureCard">
+              <h4><i class="fas fa-signature"></i> Sahihi ya Mwalimu Mkuu</h4>
+              <label><input type="checkbox" id="brandingHeadSignatureEnabled"> Jumuisha sahihi ya Mwalimu Mkuu kwenye ripoti</label>
+              <div class="input-group"><label for="brandingHeadSignatureFile">Pakia Sahihi ya Mwalimu Mkuu (PNG/JPG/WebP)</label><input type="file" id="brandingHeadSignatureFile" accept="image/png,image/jpeg,image/webp"></div>
+              <img id="brandingHeadSignaturePreview" alt="Sahihi ya Mwalimu Mkuu" style="display:none;max-width:100%;max-height:130px;object-fit:contain;background-color:#fff;background-image:linear-gradient(45deg,#e5e7eb 25%,transparent 25%),linear-gradient(-45deg,#e5e7eb 25%,transparent 25%),linear-gradient(45deg,transparent 75%,#e5e7eb 75%),linear-gradient(-45deg,transparent 75%,#e5e7eb 75%);background-size:16px 16px;background-position:0 0,0 8px,8px -8px,-8px 0;padding:8px;border:1px solid #e2e8f0;border-radius:10px">
+              <label for="brandingHeadSignatureSize">Ukubwa wa Sahihi (px)</label><input type="number" id="brandingHeadSignatureSize" min="24" max="260" value="100">
+              <button type="button" class="btn btn-light" onclick="clearReportBrandingImage_('headSignature')">Ondoa Sahihi</button>
+            </div>
+            <div class="system-settings-card" id="brandingClassSignatureCard" style="grid-column:1/-1">
+              <h4><i class="fas fa-signature"></i> Sahihi ya Mwalimu wa Darasa</h4>
+              <p style="color:#64748b">Sahihi hii inapakiwa na kusimamiwa tofauti kwa kila darasa na mkondo pale unapohusika.</p>
+              <div class="input-group"><label for="brandingClassSelect">Chagua Darasa</label><select id="brandingClassSelect"><option value="">Inapakia madarasa...</option></select></div><div class="input-group hidden" id="brandingStreamGroup"><label for="brandingStreamSelect">Chagua Mkondo</label><select id="brandingStreamSelect"><option value="">Chagua Mkondo</option></select></div>
+              <label><input type="checkbox" id="brandingClassSignatureEnabled"> Jumuisha sahihi ya darasa hili kwenye ripoti</label>
+              <div class="input-group"><label for="brandingClassSignatureFile">Pakia Sahihi ya Mwalimu wa Darasa Lililochaguliwa</label><input type="file" id="brandingClassSignatureFile" accept="image/png,image/jpeg,image/webp"></div>
+              <img id="brandingClassSignaturePreview" alt="Sahihi ya Mwalimu wa Darasa" style="display:none;max-width:100%;max-height:130px;object-fit:contain;background-color:#fff;background-image:linear-gradient(45deg,#e5e7eb 25%,transparent 25%),linear-gradient(-45deg,#e5e7eb 25%,transparent 25%),linear-gradient(45deg,transparent 75%,#e5e7eb 75%),linear-gradient(-45deg,transparent 75%,#e5e7eb 75%);background-size:16px 16px;background-position:0 0,0 8px,8px -8px,-8px 0;padding:8px;border:1px solid #e2e8f0;border-radius:10px">
+              <label for="brandingClassSignatureSize">Ukubwa wa Sahihi (px)</label><input type="number" id="brandingClassSignatureSize" min="24" max="260" value="100">
+              <button type="button" class="btn btn-light" onclick="clearReportBrandingImage_('classSignature')">Ondoa Sahihi ya Darasa</button>
+            </div>
+          </div>
+          <button type="button" class="btn btn-primary" id="saveReportBrandingBtn" onclick="saveReportBrandingSettings_()"><i class="fas fa-save"></i> Hifadhi Logo na Mihuri</button>
+          <p id="reportBrandingStatus" role="status" aria-live="polite"></p>
+        </div>
       </div>
 
       <div id="schoolNameTab" class="tab-content active" aria-labelledby="schoolNameTabButton">
@@ -6726,9 +6835,66 @@ html[data-school-level="primary"] #secondaryDivisionSettingsSection { display:no
     <div class="form-container">
       <div class="input-group"><label for="classTeacherName"><i class="fas fa-chalkboard-user"></i> Jina la Mwalimu wa Darasa</label><input type="text" id="classTeacherName" placeholder="Weka jina la mwalimu wa darasa"></div>
       <div class="input-group"><label for="headTeacherName"><i class="fas fa-user-tie"></i> Jina la Mwalimu Mkuu</label><input type="text" id="headTeacherName" placeholder="Weka jina la mwalimu mkuu"></div>
-      <div class="input-group"><label for="principalMessage"><i class="fas fa-comment"></i> Agizo</label><textarea id="principalMessage" rows="3" placeholder="Weka ujumbe/agizo ...."></textarea></div>
-      <div class="input-group"><label for="termStartDate"><i class="fas fa-calendar-plus"></i> Tarehe ya Kufungua Shule</label><input type="date" id="termStartDate"></div>
+      <div class="input-group report-instruction-editor-group"><label for="principalMessageEditor"><i class="fas fa-comment"></i> Agizo / Ujumbe wa Shule</label>
+      <div class="report-word-editor" id="principalMessageWordEditor">
+        <div class="report-word-toolbar" role="toolbar" aria-label="Zana za kuhariri Agizo">
+          <div class="report-toolbar-group">
+            <button type="button" data-cmd="undo" title="Undo"><i class="fas fa-undo"></i></button>
+            <button type="button" data-cmd="redo" title="Redo"><i class="fas fa-redo"></i></button>
+          </div><span class="toolbar-separator"></span>
+          <select data-cmd="fontName" aria-label="Font family" title="Aina ya herufi"><option value="Arial">Arial</option><option value="Calibri">Calibri</option><option value="Cambria">Cambria</option><option value="Georgia">Georgia</option><option value="Tahoma">Tahoma</option><option value="Times New Roman">Times New Roman</option><option value="Verdana">Verdana</option></select>
+          <select data-cmd="fontSize" aria-label="Font size" title="Ukubwa wa herufi"><option value="2">10</option><option value="3" selected>12</option><option value="4">14</option><option value="5">18</option><option value="6">24</option><option value="7">32</option></select>
+          <span class="toolbar-separator"></span>
+          <div class="report-toolbar-group">
+            <button type="button" data-cmd="bold" title="Bold (Ctrl+B)"><b>B</b></button><button type="button" data-cmd="italic" title="Italic (Ctrl+I)"><i>I</i></button><button type="button" data-cmd="underline" title="Underline (Ctrl+U)"><u>U</u></button><button type="button" data-cmd="strikeThrough" title="Strikethrough"><s>S</s></button><button type="button" data-cmd="superscript" title="Superscript">x<sup>2</sup></button><button type="button" data-cmd="subscript" title="Subscript">x<sub>2</sub></button>
+          </div><span class="toolbar-separator"></span>
+          <label class="report-color-tool" title="Rangi ya maandishi">A <input type="color" data-cmd="foreColor" value="#172033" aria-label="Rangi ya maandishi"></label>
+          <label class="report-color-tool" title="Rangi ya kuangazia"><i class="fas fa-highlighter"></i><input type="color" data-cmd="hiliteColor" value="#fff29a" aria-label="Rangi ya kuangazia"></label>
+          <span class="toolbar-separator"></span>
+          <div class="report-toolbar-group">
+            <button type="button" data-cmd="justifyLeft" title="Kushoto"><i class="fas fa-align-left"></i></button><button type="button" data-cmd="justifyCenter" title="Katikati"><i class="fas fa-align-center"></i></button><button type="button" data-cmd="justifyRight" title="Kulia"><i class="fas fa-align-right"></i></button><button type="button" data-cmd="justifyFull" title="Justify"><i class="fas fa-align-justify"></i></button>
+          </div><span class="toolbar-separator"></span>
+          <div class="report-toolbar-group">
+            <button type="button" data-cmd="insertUnorderedList" title="Bullets"><i class="fas fa-list-ul"></i></button><button type="button" data-cmd="insertOrderedList" title="Numbering"><i class="fas fa-list-ol"></i></button><button type="button" data-cmd="outdent" title="Punguza indent"><i class="fas fa-outdent"></i></button><button type="button" data-cmd="indent" title="Ongeza indent"><i class="fas fa-indent"></i></button>
+          </div>
+          <select data-cmd="formatBlock" aria-label="Paragraph style" title="Aina ya aya"><option value="p">Normal</option><option value="h1">Heading 1</option><option value="h2">Heading 2</option><option value="h3">Heading 3</option><option value="blockquote">Quote</option><option value="pre">Preformatted</option></select>
+          <div class="report-toolbar-group">
+            <button type="button" data-cmd="createLink" title="Weka link"><i class="fas fa-link"></i></button><button type="button" data-cmd="unlink" title="Ondoa link"><i class="fas fa-unlink"></i></button><button type="button" data-cmd="insertHorizontalRule" title="Mstari"><i class="fas fa-minus"></i></button><button type="button" data-cmd="insertTable" title="Ingiza jedwali"><i class="fas fa-table"></i></button><button type="button" data-cmd="removeFormat" title="Ondoa formatting"><i class="fas fa-eraser"></i></button>
+          </div>
+        </div>
+        <iframe id="principalMessageEditorFrame" class="report-word-editable-frame" title="Sehemu ya kuandika Agizo" aria-label="Sehemu ya kuandika Agizo" src="about:blank"></iframe>
+        <div class="report-table-panel" id="principalMessageTablePanel" hidden>
+          <div class="report-table-panel-head"><strong>Ingiza / Hariri Jedwali</strong><button type="button" id="reportTablePanelClose" aria-label="Funga">×</button></div>
+          <div class="report-table-size">
+            <label>Rows <input type="number" id="reportTableRows" min="1" max="30" value="3" inputmode="numeric"></label>
+            <label>Columns <input type="number" id="reportTableCols" min="1" max="12" value="3" inputmode="numeric"></label>
+            <button type="button" id="reportTableInsertConfirm" class="report-table-primary">Ingiza Jedwali</button>
+          </div>
+          <div class="report-table-actions" id="reportTableActions">
+            <span class="report-table-hint" id="reportTableCellStatus">Gusa ndani ya seli ya jedwali ili kuhariri au kufuta mstari/safu wima husika.</span>
+<div class="report-table-dimensions">
+<label>Upana wa safu wima (px)<input type="number" id="reportTableColumnWidth" min="35" max="900" step="5" value="120" inputmode="numeric"></label>
+<button type="button" id="reportApplyColumnWidth">Weka upana</button>
+<label>Urefu wa mstari (px)<input type="number" id="reportTableRowHeight" min="24" max="500" step="5" value="36" inputmode="numeric"></label>
+<button type="button" id="reportApplyRowHeight">Weka urefu</button>
+<button type="button" id="reportResetTableWidths">Sawazisha upana</button>
+</div>
+            <button type="button" data-table-action="rowAbove">+ Mstari Juu</button>
+            <button type="button" data-table-action="rowBelow">+ Mstari Chini</button>
+            <button type="button" data-table-action="colLeft">+ Safu Wima Kushoto</button>
+            <button type="button" data-table-action="colRight">+ Safu Wima Kulia</button>
+            <button type="button" data-table-action="deleteRow">Futa Mstari</button>
+            <button type="button" data-table-action="deleteCol">Futa Safu Wima</button>
+            <button type="button" data-table-action="deleteTable" class="report-table-danger">Futa Jedwali Lote</button>
+          </div>
+        </div>
+        <div class="report-word-status"><span id="principalMessageWordCount">0 words</span><span>Rich text editor</span></div>
+      </div>
+      <textarea id="principalMessage" rows="3" aria-hidden="true" tabindex="-1" style="display:none"></textarea>
+      <small style="color:#64748b">Unaweza kutumia bold, italic, underline, orodha za nukta/namba na kupanga maandishi.</small>
+    </div>
       <div class="input-group"><label for="termEndDate"><i class="fas fa-calendar-times"></i> Tarehe ya Kufunga Shule</label><input type="date" id="termEndDate"></div>
+      <div class="input-group"><label for="termStartDate"><i class="fas fa-calendar-plus"></i> Tarehe ya Kufungua Shule</label><input type="date" id="termStartDate"></div>
       <div class="report-settings-actions">
         <button id="saveReportSettingsBtn" class="btn btn-primary" onclick="saveReportSettingsForClass()"><i class="fas fa-save"></i> <span class="report-settings-save-text">Hifadhi Mipangilio</span></button>
         <button id="cancelReportSettingsBtn" class="btn btn-warning" onclick="hideReportSettingsModal()"><i class="fas fa-times"></i> Ghairi</button>
@@ -6946,7 +7112,7 @@ html[data-school-level="primary"] #secondaryDivisionSettingsSection { display:no
 </div>
   <script>
 //AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
-    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycby9LsrX6NI-AKP8OayzgGEwa6Fpk9wveYa3Q4sNvpi33j6MbrqAwFLBFPjTmABiZcJH/exec';
+    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyhA12khydFwtWQPGaEuLgLKyf3183h487Bzi1NBfhCQTFgLJam7E1VENIp_Ev2gLJV/exec';
 
 
     // ============================================
@@ -9256,6 +9422,10 @@ function toggleSidebar() {
 
 function showDeveloperDashboard() {
   setResultsRouteVisibility_('developer');
+  try {
+    localStorage.setItem('currentDashboard', 'developer');
+    localStorage.setItem('isDeveloper', 'true');
+  } catch (e) {}
   console.log("🔧 Opening Developer Dashboard...");
   
   // Hide everything
@@ -12614,6 +12784,19 @@ function showExcelOptions() {
 // Export text follows the selected app language in both online and offline mode.
 function reportExportLanguage_(){try{if(typeof window.siwitiCurrentLanguage==='function'&&String(window.siwitiCurrentLanguage()).toLowerCase().indexOf('en')===0)return 'en';return String(localStorage.getItem('siwitiUserLanguage')||'sw').toLowerCase().indexOf('en')===0?'en':'sw';}catch(e){return 'sw';}}
 function offlineReportText_(sw,en){return reportExportLanguage_()==='en'?en:sw;}
+function offlineInstructionText_(value){
+  var raw=String(value||'');
+  if(!/<[a-z][\s\S]*>/i.test(raw))return raw;
+  try{
+    var box=document.createElement('div');box.innerHTML=raw;
+    box.querySelectorAll('script,style,iframe,object,embed').forEach(function(n){n.remove();});
+    box.querySelectorAll('li').forEach(function(li){li.insertBefore(document.createTextNode('• '),li.firstChild);});
+    box.querySelectorAll('br').forEach(function(br){br.replaceWith(document.createTextNode('\n'));});
+    box.querySelectorAll('p,div,li,h3,h4,blockquote').forEach(function(el){el.appendChild(document.createTextNode('\n'));});
+    return (box.innerText||box.textContent||'').replace(/[ \t]+\n/g,'\n').replace(/\n{3,}/g,'\n\n').trim();
+  }catch(e){return raw.replace(/<[^>]*>/g,' ');}
+}
+
 // Student-report PDF only: resolve the language selected by the visible SW/ENG
 // toggle first, then the language engine/document/storage. Keep results PDF/XLSX
 // exports untouched.
@@ -13813,7 +13996,7 @@ function offlineBuildStudentReportPDFBlob(darasa,termId,studentNames,streamName)
 
     if(hasPrincipalMessage){
       y+=secondaryReport?4:12;
-      const ml=wrap(cfg.principalMessage,width-(secondaryReport?24:30),secondaryReport?rowFont:11,false), mh=secondaryReport?20+ml.length*(rowFont+3):28+ml.length*15;
+      const ml=wrap(offlineInstructionText_(cfg.principalMessage),width-(secondaryReport?24:30),secondaryReport?rowFont:11,false), mh=secondaryReport?20+ml.length*(rowFont+3):28+ml.length*15;
       rect(left,y,width,mh,'#fff3cd','#ffc107',1);ctx.fillStyle='#ffc107';ctx.fillRect(left,y,4,mh);
       text(offlineReportText_('AGIZO:','INSTRUCTIONS:'),left+(secondaryReport?7:10),y+(secondaryReport?13:18),secondaryReport?rowFont:11,true);
       ml.forEach((ln,i)=>text(ln,left+(secondaryReport?7:10),y+(secondaryReport?25+i*(rowFont+3):34+i*15),secondaryReport?rowFont:11,false));
@@ -14902,7 +15085,7 @@ function showDashboard(dashboard) {
   }
   
   // Also prevent staff from accessing other restricted dashboards
-  if (isStaff && (dashboard === 'staff' || dashboard === 'systemSettings')) {
+  if (isStaff && (dashboard === 'staff' || (dashboard === 'systemSettings' && localStorage.getItem('timetableRole') !== 'academic'))) {
     dashboard = 'student';
     Notiflix.Notify.warning('This section is for school owners only', {
       timeout: 3000,
@@ -15002,10 +15185,17 @@ function showDashboard(dashboard) {
     document.getElementById("staffDashboard").classList.remove('hidden');
     updateActiveMenu('staffMenu');
     loadStaffMembers();
-  } else if (dashboard === 'systemSettings' && !isStaff) {
+  } else if (dashboard === 'systemSettings' && (!isStaff || localStorage.getItem('timetableRole') === 'academic')) {
     document.getElementById("systemSettingsDashboard").classList.remove('hidden');
     updateActiveMenu('systemSettingsMenu');
-    loadSystemSettings();
+    if (isStaff) {
+      var logoCard=document.getElementById('brandingLogoCard'); if(logoCard)logoCard.style.display='none';
+      document.querySelectorAll('#systemSettingsDashboard .tabs-navigation, #systemSettingsDashboard > .form-container > .dashboard-header').forEach(function(el){el.style.display='none';});
+      document.querySelectorAll('#systemSettingsDashboard .tab-btn').forEach(function(el){el.classList.remove('active');el.style.display='none';});
+      document.querySelectorAll('#systemSettingsDashboard .tab-content').forEach(function(el){el.classList.remove('active');el.style.display='none';});
+      var brandingTab=document.getElementById('reportBrandingTab'); if(brandingTab){brandingTab.classList.add('active');brandingTab.style.display='block';}
+      loadReportBrandingSettings_();
+    } else { loadSystemSettings(); loadReportBrandingSettings_(); }
   } else if (dashboard === 'auth') {
     document.getElementById("auth").classList.remove('hidden');
     if (sidebar) sidebar.classList.add('hidden');
@@ -15045,7 +15235,7 @@ function showDashboard(dashboard) {
     const staffMenuLi = document.getElementById("staffMenuLi");
     const systemMenuLi = document.getElementById("systemSettingsMenuLi");
     if (staffMenuLi) staffMenuLi.classList.add('hidden');
-    if (systemMenuLi) systemMenuLi.classList.add('hidden');
+    if (systemMenuLi) systemMenuLi.classList.toggle('hidden', localStorage.getItem('timetableRole') !== 'academic');
     
     // Also disable report menu if trial expired
     if (subscriptionStatus && subscriptionStatus.status === "expired") {
@@ -20051,8 +20241,294 @@ function lookupSchoolNumberAndUpdateName_() {
 }
 
 // ============================================
-// LOAD SYSTEM SETTINGS - Silent with cache first
+// REPORT BRANDING: LOGO + HEAD + PER-CLASS STAMPS
 // ============================================
+var reportBrandingState_ = {logo:{enabled:true,dataUrl:'',size:90,alignment:'center'},headStamp:{enabled:false,dataUrl:'',size:85},headSignature:{enabled:false,dataUrl:'',size:100},classStamps:{},classSignatures:{}};
+var reportBrandingSelectedClass_ = '';
+var reportBrandingEditVersion_ = 0;
+var reportBrandingSavePromise_ = null;
+function reportBrandingMarkEdited_(){reportBrandingEditVersion_++;try{localStorage.setItem(reportBrandingCacheKey_(),JSON.stringify(reportBrandingState_));}catch(e){console.warn('Branding cache update skipped.',e);}}
+function reportBrandingBindControls_(){[['brandingLogoEnabled','logo','enabled'],['brandingHeadStampEnabled','headStamp','enabled'],['brandingHeadSignatureEnabled','headSignature','enabled']].forEach(function(x){var el=document.getElementById(x[0]);if(el&&!el.dataset.stateBound){el.dataset.stateBound='1';el.addEventListener('change',function(){reportBrandingState_[x[1]][x[2]]=!!el.checked;reportBrandingMarkEdited_();});}});[['brandingLogoSize','logo','size'],['brandingLogoAlignment','logo','alignment'],['brandingHeadStampSize','headStamp','size'],['brandingHeadSignatureSize','headSignature','size']].forEach(function(x){var el=document.getElementById(x[0]);if(el&&!el.dataset.stateBound){el.dataset.stateBound='1';el.addEventListener('change',function(){reportBrandingState_[x[1]][x[2]]=x[2]==='size'?Number(el.value):el.value;reportBrandingMarkEdited_();});}});[['brandingClassSignatureEnabled','classSignatures','enabled'],['brandingClassStampEnabled','classStamps','enabled']].forEach(function(x){var el=document.getElementById(x[0]);if(el&&!el.dataset.stateBound){el.dataset.stateBound='1';el.addEventListener('change',function(){var key=reportBrandingClassKey_(reportBrandingCurrentClass_());if(!key)return;var old=reportBrandingState_[x[1]][key]||{};reportBrandingState_[x[1]][key]=Object.assign({},old,{enabled:!!el.checked});reportBrandingSelectedClass_=reportBrandingCurrentClass_();reportBrandingMarkEdited_();});}});}
+function reportBrandingClassKey_(name){return String(name||'').trim().toLowerCase().replace(/\s+/g,' ');}
+function reportBrandingCacheKey_(){return 'reportBrandingCache_'+String(currentDbId||localStorage.getItem('currentDbId')||'');}
+function reportBrandingRefreshStreams_(){
+  var cls=document.getElementById('brandingClassSelect'),target=document.getElementById('brandingStreamSelect'),group=document.getElementById('brandingStreamGroup');
+  var darasa=String(cls&&cls.value||'').trim();
+  if(!target||!group)return Promise.resolve([]);
+  target.value='';
+  group.classList.add('hidden');
+  group.dataset.loading='0';
+  if(!darasa){target.innerHTML='<option value="">Chagua Mkondo</option>';return Promise.resolve([]);}
+  group.dataset.loading='1';
+  // Use the same source, cache, race protection and visibility rules as the
+  // Marks / Results stream selector. Do not depend on reportStreamSelect being open.
+  if(typeof refreshStreamSelector==='function'){
+    return refreshStreamSelector(darasa,'brandingStreamGroup','brandingStreamSelect').then(function(streams){
+      group.dataset.loading='0';return Array.isArray(streams)?streams:[];
+    }).catch(function(err){console.warn('Branding stream selector:',err);group.dataset.loading='0';group.classList.add('hidden');return [];});
+  }
+  return fetchWithServerRetry(SCRIPT_URL,{method:'POST',body:JSON.stringify({action:'getStudentStreams',dbId:currentDbId,darasa:darasa})})
+    .then(function(r){if(!r.ok)throw new Error('HTTP '+r.status);return r.json();})
+    .then(function(d){group.dataset.loading='0';var streams=d&&d.status==='success'&&Array.isArray(d.streams)?d.streams:[];target.innerHTML='<option value="">Chagua Mkondo</option>';streams.forEach(function(st){var n=String(st.name||st.mkondo||'').trim();if(!n)return;var o=document.createElement('option');o.value=n;o.textContent=n;target.appendChild(o);});group.classList.toggle('hidden',!streams.length);if(streams.length===1)target.value=target.options[1].value;return streams;})
+    .catch(function(err){console.warn('Branding stream selector:',err);group.dataset.loading='0';group.classList.add('hidden');return [];});
+}
+function reportBrandingCurrentClass_(){var cls=document.getElementById('brandingClassSelect')?.value||'',stream=document.getElementById('brandingStreamSelect')?.value||'';return cls+(stream?' - '+stream:'');}
+function reportBrandingReadClassForm_(){var key=reportBrandingClassKey_(reportBrandingSelectedClass_);if(!key)return;var old=reportBrandingState_.classStamps[key]||{};if(document.getElementById('brandingClassStampEnabled'))reportBrandingState_.classStamps[key]={enabled:!!document.getElementById('brandingClassStampEnabled').checked,dataUrl:old.dataUrl||'',size:Math.max(30,Math.min(500,Number(document.getElementById('brandingClassStampSize')?.value)||85))};var sig=reportBrandingState_.classSignatures[key]||{};reportBrandingState_.classSignatures[key]={enabled:!!document.getElementById('brandingClassSignatureEnabled')?.checked,dataUrl:sig.dataUrl||'',size:Math.max(24,Math.min(260,Number(document.getElementById('brandingClassSignatureSize')?.value)||100))};}
+function reportBrandingRenderClass_(){var key=reportBrandingClassKey_(reportBrandingCurrentClass_()),v=reportBrandingState_.classStamps[key]||{enabled:false,dataUrl:'',size:85},sig=reportBrandingState_.classSignatures[key]||{enabled:false,dataUrl:'',size:100};var oldStampToggle=document.getElementById('brandingClassStampEnabled');if(oldStampToggle)oldStampToggle.checked=!!v.enabled;var oldStampSize=document.getElementById('brandingClassStampSize');if(oldStampSize)oldStampSize.value=v.size||85;reportBrandingSetPreview_('classStamp',v.dataUrl||'');var sigToggle=document.getElementById('brandingClassSignatureEnabled');if(sigToggle)sigToggle.checked=!!sig.enabled;var sigSize=document.getElementById('brandingClassSignatureSize');if(sigSize)sigSize.value=sig.size||100;reportBrandingSetPreview_('classSignature',sig.dataUrl||'');}
+function reportBrandingShowClass_(){reportBrandingReadClassForm_();reportBrandingSelectedClass_=reportBrandingCurrentClass_();reportBrandingRenderClass_();}
+function reportBrandingOnClassChange_(){reportBrandingReadClassForm_();var stream=document.getElementById('brandingStreamSelect');if(stream)stream.value='';var cls=document.getElementById('brandingClassSelect');reportBrandingSelectedClass_=String(cls&&cls.value||'').trim();reportBrandingRefreshStreams_().then(function(){reportBrandingSelectedClass_=reportBrandingCurrentClass_();reportBrandingRenderClass_();reportBrandingMarkEdited_();});}
+function reportBrandingOnStreamChange_(){reportBrandingReadClassForm_();reportBrandingSelectedClass_=reportBrandingCurrentClass_();reportBrandingRenderClass_();reportBrandingMarkEdited_();}
+function reportBrandingPreviewSize_(kind){var ids={logo:'brandingLogoSize',headStamp:'brandingHeadStampSize',headSignature:'brandingHeadSignatureSize',classStamp:'brandingClassStampSize',classSignature:'brandingClassSignatureSize'},el=document.getElementById(ids[kind]),fallback=kind==='logo'?90:(kind==='headStamp'||kind==='classStamp'?85:100),max=kind==='logo'?240:(kind==='headStamp'||kind==='classStamp'?500:260),min=kind==='logo'||kind==='headStamp'||kind==='classStamp'?30:24;var n=Number(el&&el.value);return Math.max(min,Math.min(max,n||fallback));}
+function reportBrandingPreviewInkOnly_(sourceUrl,done){
+  var image=new Image();
+  image.onload=function(){
+    try{
+      var c=document.createElement('canvas');c.width=image.naturalWidth||image.width;c.height=image.naturalHeight||image.height;
+      var cx=c.getContext('2d',{willReadFrequently:true});cx.clearRect(0,0,c.width,c.height);cx.drawImage(image,0,0);
+      // Preview-only pass: attempt safe background removal, then trim transparent margins.
+      // The saved source data URL is never modified by this preview operation.
+      var bgResult={removed:false,reason:'not-processed'};
+      if(typeof reportBrandingRemoveBackground_==='function')bgResult=reportBrandingRemoveBackground_(c);
+      var data=cx.getImageData(0,0,c.width,c.height).data;
+      var minX=c.width,minY=c.height,maxX=-1,maxY=-1;
+      for(var y=0;y<c.height;y++)for(var x=0;x<c.width;x++){if(data[(y*c.width+x)*4+3]>12){if(x<minX)minX=x;if(x>maxX)maxX=x;if(y<minY)minY=y;if(y>maxY)maxY=y;}}
+      if(maxX<minX||maxY<minY){done(sourceUrl);return;}
+      // Never crop a photo/pattern background when safe removal was not established.
+      if(bgResult.reason==='complex-background'||bgResult.reason==='not-confident'||bgResult.reason==='no-clear-ink'){done(sourceUrl);return;}
+      var pad=Math.max(3,Math.round(Math.min(c.width,c.height)*0.012)),x0=Math.max(0,minX-pad),y0=Math.max(0,minY-pad);
+      var w=Math.min(c.width-x0,maxX-minX+1+pad*2),h=Math.min(c.height-y0,maxY-minY+1+pad*2);
+      if(w<=0||h<=0){done(sourceUrl);return;}
+      var out=document.createElement('canvas');out.width=w;out.height=h;out.getContext('2d').drawImage(c,x0,y0,w,h,0,0,w,h);
+      done(out.toDataURL('image/png'));
+    }catch(e){done(sourceUrl);}
+  };
+  image.onerror=function(){done(sourceUrl);};image.src=sourceUrl;
+}
+function reportBrandingSetPreview_(kind,dataUrl){
+  var ids={logo:'brandingLogoPreview',headStamp:'brandingHeadStampPreview',headSignature:'brandingHeadSignaturePreview',classStamp:'brandingClassStampPreview',classSignature:'brandingClassSignaturePreview'},img=document.getElementById(ids[kind]);
+  if(!img)return;
+  var size=reportBrandingPreviewSize_(kind),previewSize=Math.min(320,Math.max(150,Math.round(size*1.7)));
+  img.style.display=dataUrl?'block':'none';img.style.width=previewSize+'px';img.style.height=previewSize+'px';img.style.maxWidth='min(100%, 320px)';img.style.maxHeight='none';img.style.objectFit='contain';img.style.objectPosition='center';img.style.boxSizing='border-box';img.style.margin='12px auto';img.style.padding='10px';img.style.border='1px solid #cbd5e1';img.style.borderRadius='12px';img.title='Preview kubwa — ukubwa wa kuhifadhi: '+size+' px';
+  if(!dataUrl){img.removeAttribute('src');return;}
+  var token=(Number(img.dataset.previewToken)||0)+1;img.dataset.previewToken=String(token);
+  if(kind==='headStamp'||kind==='headSignature'||kind==='classStamp'||kind==='classSignature'){
+    reportBrandingPreviewInkOnly_(dataUrl,function(previewUrl){if(img.dataset.previewToken===String(token))img.src=previewUrl;});
+  }else img.src=dataUrl;
+}
+function reportBrandingBindPreviewSizeControls_(){[['brandingLogoSize','logo'],['brandingHeadStampSize','headStamp'],['brandingHeadSignatureSize','headSignature'],['brandingClassSignatureSize','classSignature'],['brandingClassStampSize','classStamp']].forEach(function(x){var el=document.getElementById(x[0]);if(!el||el.dataset.previewSizeBound)return;el.dataset.previewSizeBound='1';var update=function(){var size=reportBrandingPreviewSize_(x[1]);if(x[1]==='logo'||x[1]==='headStamp'||x[1]==='headSignature'){reportBrandingState_[x[1]].size=size;reportBrandingSetPreview_(x[1],reportBrandingState_[x[1]].dataUrl||'');}else{var key=reportBrandingClassKey_(reportBrandingCurrentClass_()),prop=x[1]==='classSignature'?'classSignatures':'classStamps';if(key){var v=reportBrandingState_[prop][key]||{};v.size=size;reportBrandingState_[prop][key]=v;reportBrandingSetPreview_(x[1],v.dataUrl||'');}}reportBrandingMarkEdited_();};el.addEventListener('input',update);el.addEventListener('change',update);});}
+function reportBrandingMedian_(values){
+  if(!values.length)return 0;
+  values.sort(function(a,b){return a-b;});
+  var mid=Math.floor(values.length/2);
+  return values.length%2?values[mid]:(values[mid-1]+values[mid])/2;
+}
+/*
+ * Removes a flat/mostly uniform paper or scan background from stamp/signature
+ * images locally. It estimates the background from the image perimeter,
+ * retains ink colour, softens anti-aliased edges and trims only transparent
+ * margins. Ambiguous or already-transparent images are left unchanged rather
+ * than risking damage to the original mark.
+ */
+function reportBrandingRemoveBackground_(canvas){
+  var ctx=canvas.getContext('2d',{willReadFrequently:true});
+  var w=canvas.width,h=canvas.height;
+  if(w<3||h<3)return {removed:false,reason:'small'};
+  var imageData;
+  try{imageData=ctx.getImageData(0,0,w,h);}catch(e){return {removed:false,reason:'unreadable'};}
+  var d=imageData.data,step=Math.max(1,Math.floor(Math.min(w,h)/180)),edgeR=[],edgeG=[],edgeB=[],edgeAlpha=[],edge=[];
+  function addEdge(x,y){var i=(y*w+x)*4,a=d[i+3];edgeAlpha.push(a);if(a>245){edgeR.push(d[i]);edgeG.push(d[i+1]);edgeB.push(d[i+2]);edge.push([d[i],d[i+1],d[i+2]]);}}
+  for(var x=0;x<w;x+=step){addEdge(x,0);addEdge(x,h-1);}
+  for(var y=step;y<h-step;y+=step){addEdge(0,y);addEdge(w-1,y);}
+  if(!edge.length)return {removed:false,reason:'transparent'};
+  var transparentEdge=edgeAlpha.filter(function(a){return a<245;}).length/Math.max(1,edgeAlpha.length);
+  // Existing transparent PNG artwork should not be reprocessed unnecessarily.
+  if(transparentEdge>0.08)return {removed:false,reason:'already-transparent'};
+  var bg=[reportBrandingMedian_(edgeR),reportBrandingMedian_(edgeG),reportBrandingMedian_(edgeB)];
+  var edgeDistances=edge.map(function(c){var r=c[0]-bg[0],g=c[1]-bg[1],b=c[2]-bg[2];return Math.sqrt(r*r+g*g+b*b);});
+  var edgeNoise=reportBrandingMedian_(edgeDistances.slice().sort(function(a,b){return a-b;}).slice(Math.floor(edgeDistances.length*0.70)));
+  // A very mixed perimeter usually means a patterned/photo background; keep it intact.
+  var edgeP85=edgeDistances.slice().sort(function(a,b){return a-b;})[Math.min(edgeDistances.length-1,Math.floor(edgeDistances.length*0.85))]||0;
+  if(edgeP85>92)return {removed:false,reason:'complex-background'};
+  var low=Math.max(22,Math.min(52,23+edgeNoise*0.45));
+  var high=low+76;
+  var histogram=new Uint32Array(443),nearBackground=0,total=0,maxDiff=0;
+  for(var py=0;py<h;py++){
+    for(var px=0;px<w;px++){
+      var i=(py*w+px)*4,a=d[i+3];if(a<8)continue;
+      var rr=d[i]-bg[0],gg=d[i+1]-bg[1],bb=d[i+2]-bg[2];
+      var dist=Math.sqrt(rr*rr+gg*gg+bb*bb),bin=Math.min(442,Math.round(dist));
+      histogram[bin]++;total++;if(dist<=low)nearBackground++;if(dist>maxDiff)maxDiff=dist;
+    }
+  }
+  if(!total||nearBackground/total<0.08||maxDiff<high*1.12)return {removed:false,reason:'not-confident'};
+  // Use a robust upper ink distance, ignoring a few unusually dark/noisy pixels.
+  var strongCount=0;for(var b= Math.ceil(high);b<histogram.length;b++)strongCount+=histogram[b];
+  if(strongCount<Math.max(8,total*0.00025))return {removed:false,reason:'no-clear-ink'};
+  var target=Math.max(1,Math.floor(strongCount*0.12)),seen=0,inkReference=maxDiff;
+  for(var hb=Math.ceil(high);hb<histogram.length;hb++){seen+=histogram[hb];if(seen>=target){inkReference=hb;break;}}
+  inkReference=Math.max(high+1,inkReference);
+  var minX=w,minY=h,maxX=-1,maxY=-1,removedPixels=0,changedPixels=0;
+  for(var yy=0;yy<h;yy++){
+    for(var xx=0;xx<w;xx++){
+      var q=(yy*w+xx)*4,oldA=d[q+3];if(oldA<1)continue;
+      var dr=d[q]-bg[0],dg=d[q+1]-bg[1],db=d[q+2]-bg[2];
+      var distance=Math.sqrt(dr*dr+dg*dg+db*db);
+      if(distance<=low){d[q+3]=0;removedPixels++;changedPixels++;continue;}
+      var coverage=distance>=inkReference?1:Math.max(0,Math.min(1,(distance-low)/Math.max(1,inkReference-low)));
+      // Decontaminate anti-aliased edge colours so a pale paper fringe is not retained.
+      if(coverage<0.985){
+        var inv=1-coverage;
+        d[q]=Math.max(0,Math.min(255,Math.round((d[q]-bg[0]*inv)/Math.max(0.035,coverage))));
+        d[q+1]=Math.max(0,Math.min(255,Math.round((d[q+1]-bg[1]*inv)/Math.max(0.035,coverage))));
+        d[q+2]=Math.max(0,Math.min(255,Math.round((d[q+2]-bg[2]*inv)/Math.max(0.035,coverage))));
+        d[q+3]=Math.round(oldA*coverage);changedPixels++;
+      }
+      if(d[q+3]>10){if(xx<minX)minX=xx;if(xx>maxX)maxX=xx;if(yy<minY)minY=yy;if(yy>maxY)maxY=yy;}
+    }
+  }
+  if(maxX<minX||maxY<minY||removedPixels<Math.max(8,total*0.025))return {removed:false,reason:'not-confident'};
+  ctx.putImageData(imageData,0,0);
+  // Crop only transparent margins; retain a small safety border around all ink.
+  var pad=Math.max(3,Math.round(Math.min(w,h)*0.012));
+  var cropX=Math.max(0,minX-pad),cropY=Math.max(0,minY-pad);
+  var cropW=Math.min(w-cropX,maxX-minX+1+pad*2),cropH=Math.min(h-cropY,maxY-minY+1+pad*2);
+  if(cropW>0&&cropH>0&&(cropW!==w||cropH!==h)){
+    var trimmed=document.createElement('canvas');trimmed.width=cropW;trimmed.height=cropH;
+    trimmed.getContext('2d').drawImage(canvas,cropX,cropY,cropW,cropH,0,0,cropW,cropH);
+    canvas.width=cropW;canvas.height=cropH;
+    canvas.getContext('2d').drawImage(trimmed,0,0);
+  }
+  return {removed:true,removedPixels:removedPixels,changedPixels:changedPixels,bg:bg};
+}
+function reportBrandingTrimTransparentInk_(canvas){
+  try{
+    var ctx=canvas.getContext('2d',{willReadFrequently:true}),w=canvas.width,h=canvas.height;
+    if(!w||!h)return canvas;
+    var data=ctx.getImageData(0,0,w,h).data,minX=w,minY=h,maxX=-1,maxY=-1;
+    for(var y=0;y<h;y++)for(var x=0;x<w;x++){
+      if(data[(y*w+x)*4+3]>8){if(x<minX)minX=x;if(x>maxX)maxX=x;if(y<minY)minY=y;if(y>maxY)maxY=y;}
+    }
+    if(maxX<minX||maxY<minY)return canvas;
+    // Retain a tiny safety border around every non-transparent ink pixel.
+    var pad=Math.max(2,Math.round(Math.min(w,h)*0.008));
+    var x0=Math.max(0,minX-pad),y0=Math.max(0,minY-pad);
+    var cw=Math.min(w-x0,maxX-minX+1+pad*2),ch=Math.min(h-y0,maxY-minY+1+pad*2);
+    if(cw===w&&ch===h)return canvas;
+    var cropped=document.createElement('canvas');cropped.width=cw;cropped.height=ch;
+    cropped.getContext('2d').drawImage(canvas,x0,y0,cw,ch,0,0,cw,ch);
+    canvas.width=cw;canvas.height=ch;
+    canvas.getContext('2d').drawImage(cropped,0,0);
+  }catch(e){console.warn('Ink trim skipped:',e);}
+  return canvas;
+}
+function reportBrandingCompressImage_(file,maxSide,kind){
+  return new Promise(function(resolve,reject){
+    if(!file||!/^image\/(png|jpeg|webp)$/.test(file.type)){reject(new Error('Chagua picha ya PNG, JPG au WebP.'));return;}
+    var reader=new FileReader();
+    reader.onerror=function(){reject(new Error('Picha haikuweza kusomwa.'));};
+    reader.onload=function(){
+      var image=new Image();
+      image.onerror=function(){reject(new Error('Picha haijatambulika.'));};
+      image.onload=function(){
+        try{
+          var scale=Math.min(1,maxSide/Math.max(image.width,image.height)),canvas=document.createElement('canvas');
+          canvas.width=Math.max(1,Math.round(image.width*scale));canvas.height=Math.max(1,Math.round(image.height*scale));
+          var ctx=canvas.getContext('2d',{willReadFrequently:true});ctx.clearRect(0,0,canvas.width,canvas.height);
+          ctx.drawImage(image,0,0,canvas.width,canvas.height);
+          var backgroundResult={removed:false,reason:'logo'};
+          if(kind==='headSignature'||kind==='classSignature'||kind==='headStamp')backgroundResult=reportBrandingRemoveBackground_(canvas);
+          // Also trim pre-transparent PNG/WebP artwork when background removal
+          // correctly declines to alter it; only transparent margins are removed.
+          var trimData=ctx.getImageData(0,0,canvas.width,canvas.height).data,tx0=canvas.width,ty0=canvas.height,tx1=-1,ty1=-1;
+          for(var ty=0;ty<canvas.height;ty++)for(var tx=0;tx<canvas.width;tx++)if(trimData[(ty*canvas.width+tx)*4+3]>10){if(tx<tx0)tx0=tx;if(tx>tx1)tx1=tx;if(ty<ty0)ty0=ty;if(ty>ty1)ty1=ty;}
+          if(tx1>=tx0&&ty1>=ty0){var tpad=Math.max(2,Math.round(Math.min(canvas.width,canvas.height)*0.008)),cx0=Math.max(0,tx0-tpad),cy0=Math.max(0,ty0-tpad),cw=Math.min(canvas.width,cx0+(tx1-tx0+1)+2*tpad)-cx0,ch=Math.min(canvas.height,cy0+(ty1-ty0+1)+2*tpad)-cy0;if(cw>0&&ch>0&&(cw<canvas.width-2||ch<canvas.height-2)){var cropped=document.createElement('canvas');cropped.width=cw;cropped.height=ch;cropped.getContext('2d').drawImage(canvas,cx0,cy0,cw,ch,0,0,cw,ch);canvas.width=cw;canvas.height=ch;canvas.getContext('2d').drawImage(cropped,0,0);}}
+          reportBrandingTrimTransparentInk_(canvas);var out=canvas.toDataURL('image/png');
+          if(out.length>1400000){reject(new Error('Picha bado ni kubwa. Chagua picha ndogo zaidi.'));return;}
+          resolve({dataUrl:out,backgroundRemoved:!!backgroundResult.removed,backgroundReason:backgroundResult.reason||''});
+        }catch(processError){reject(new Error('Picha haikuweza kuchakatwa salama: '+(processError.message||processError)));}
+      };
+      image.src=reader.result;
+    };
+    reader.readAsDataURL(file);
+  });
+}
+function reportBrandingBindFile_(inputId,kind){
+  var input=document.getElementById(inputId);if(!input||input.dataset.bound)return;input.dataset.bound='1';
+  input.addEventListener('change',async function(){
+    var file=input.files&&input.files[0];if(!file)return;
+    // Capture the destination before the asynchronous image compression begins.
+    var selectedKey=reportBrandingClassKey_(reportBrandingCurrentClass_());
+    var streamGroup=document.getElementById('brandingStreamGroup'),streamSelect=document.getElementById('brandingStreamSelect');
+    try{
+      if(kind==='classSignature'&&streamGroup&&streamGroup.dataset.loading==='1'){throw new Error('Subiri orodha ya mikondo ya darasa ipakie, kisha chagua mkondo husika.');}
+      if(kind==='classSignature'&&streamGroup&&!streamGroup.classList.contains('hidden')&&streamSelect&&!streamSelect.value){throw new Error('Chagua Mkondo husika kabla ya kuweka sahihi ya mwalimu wa darasa.');}
+      if((kind==='classSignature'||kind==='classStamp')&&!selectedKey)throw new Error('Chagua darasa na mkondo husika kwanza.');
+      var imageResult=await reportBrandingCompressImage_(file,kind==='logo'?1000:700,kind);var url=imageResult.dataUrl;
+      if(kind==='logo'||kind==='headStamp'||kind==='headSignature'){
+        reportBrandingState_[kind].dataUrl=url;
+      }else{
+        var prop=kind==='classSignature'?'classSignatures':'classStamps',old=reportBrandingState_[prop][selectedKey]||{};
+        reportBrandingState_[prop][selectedKey]=Object.assign({},old,{dataUrl:url});
+      }
+      reportBrandingMarkEdited_();reportBrandingSetPreview_(kind,url);if(kind==='headStamp'||kind==='headSignature'||kind==='classSignature'){var status=document.getElementById('reportBrandingStatus');if(status){if(imageResult.backgroundRemoved)status.textContent='Background imeondolewa kiotomatiki. Kagua preview yenye checkerboard kuhakikisha wino wote umehifadhiwa.';else if(imageResult.backgroundReason!=='already-transparent'&&imageResult.backgroundReason!=='transparent')status.textContent='Picha imehifadhiwa bila kuibadilisha ili kulinda wino: background haikutambulika kwa uhakika. Jaribu picha yenye karatasi/background iliyo tulivu zaidi.';}}
+    }catch(e){Swal.fire({icon:'error',title:'Picha haijapakiwa',text:e.message||String(e)});}
+    finally{input.value='';}
+  });
+}
+/* Crop transparent canvas margins around the actual visible ink. This changes
+   only the stored image canvas bounds; configured display size and page layout
+   remain untouched. Existing saved branding images are normalized once. */
+function reportBrandingCropInkDataUrl_(dataUrl){
+  return new Promise(function(resolve){
+    if(!dataUrl||typeof dataUrl!=='string'||dataUrl.indexOf('data:image/')!==0){resolve({dataUrl:dataUrl,changed:false});return;}
+    var im=new Image();
+    im.onload=function(){try{
+      var w=im.naturalWidth||im.width,h=im.naturalHeight||im.height;
+      if(!w||!h){resolve({dataUrl:dataUrl,changed:false});return;}
+      var c=document.createElement('canvas');c.width=w;c.height=h;
+      var cx=c.getContext('2d',{willReadFrequently:true});cx.drawImage(im,0,0);
+      var px=cx.getImageData(0,0,w,h).data,minX=w,minY=h,maxX=-1,maxY=-1;
+      for(var y=0;y<h;y++)for(var x=0;x<w;x++)if(px[(y*w+x)*4+3]>10){if(x<minX)minX=x;if(x>maxX)maxX=x;if(y<minY)minY=y;if(y>maxY)maxY=y;}
+      if(maxX<minX||maxY<minY){resolve({dataUrl:dataUrl,changed:false});return;}
+      var pad=Math.max(2,Math.round(Math.min(w,h)*0.008));
+      var x0=Math.max(0,minX-pad),y0=Math.max(0,minY-pad),x1=Math.min(w,maxX+1+pad),y1=Math.min(h,maxY+1+pad);
+      var cw=x1-x0,ch=y1-y0;
+      // Ignore tiny differences to avoid repeated re-encoding on every load.
+      if(cw>=w-2&&ch>=h-2){resolve({dataUrl:dataUrl,changed:false});return;}
+      var out=document.createElement('canvas');out.width=cw;out.height=ch;
+      out.getContext('2d').drawImage(c,x0,y0,cw,ch,0,0,cw,ch);
+      resolve({dataUrl:out.toDataURL('image/png'),changed:true});
+    }catch(e){resolve({dataUrl:dataUrl,changed:false});}};
+    im.onerror=function(){resolve({dataUrl:dataUrl,changed:false});};im.src=dataUrl;
+  });
+}
+async function reportBrandingNormalizeSavedInk_(settings){
+  var changed=false;
+  async function cropEntry(entry){if(!entry||!entry.dataUrl)return;var r=await reportBrandingCropInkDataUrl_(entry.dataUrl);if(r.changed){entry.dataUrl=r.dataUrl;changed=true;}}
+  await cropEntry(settings.headStamp);await cropEntry(settings.headSignature);
+  for(var k of Object.keys(settings.classStamps||{}))await cropEntry(settings.classStamps[k]);
+  for(var k2 of Object.keys(settings.classSignatures||{}))await cropEntry(settings.classSignatures[k2]);
+  if(!changed)return false;
+  reportBrandingState_=settings;
+  try{localStorage.setItem(reportBrandingCacheKey_(),JSON.stringify(settings));}catch(e){console.warn('Ink-cropped branding cache skipped.',e);}
+  // Persist the one-time image-canvas normalization without reading or altering
+  // any visible form controls, size values, enable flags, or class selections.
+  if(isOnline()){
+    try{
+      var response=await fetchWithServerRetry(SCRIPT_URL,{method:'POST',body:JSON.stringify({action:'saveReportBrandingSettings',dbId:currentDbId,email:localStorage.getItem('currentUserEmail')||'',userType:localStorage.getItem('userType')||'',timetableRole:localStorage.getItem('timetableRole')||'',settings:settings})});
+      var result=await response.json();if(result.status!=='success')console.warn('Ink-only image normalization was cached locally but server save was not confirmed:',result.message||'');
+    }catch(saveError){console.warn('Ink-only image normalization will retry on next settings load.',saveError);}
+  }
+  return true;
+}
+function loadReportBrandingSettings_(){var cached={};try{cached=JSON.parse(localStorage.getItem(reportBrandingCacheKey_())||'{}')||{};}catch(e){}if(cached&&Object.keys(cached).length)reportBrandingState_=Object.assign(reportBrandingState_,cached);reportBrandingState_.classStamps=reportBrandingState_.classStamps||{};reportBrandingState_.classSignatures=reportBrandingState_.classSignatures||{};reportBrandingApplyForm_();[['brandingLogoFile','logo'],['brandingHeadStampFile','headStamp'],['brandingHeadSignatureFile','headSignature'],['brandingClassSignatureFile','classSignature']].forEach(function(x){reportBrandingBindFile_(x[0],x[1]);});var cls=document.getElementById('brandingClassSelect');if(cls){var source=document.getElementById('darasaReport');if(source&&source.options.length>1){cls.innerHTML=Array.from(source.options).filter(function(o){return o.value;}).map(function(o){return '<option value="'+String(o.value).replace(/&/g,'&amp;').replace(/"/g,'&quot;')+'">'+o.textContent+'</option>';}).join('');}else{var classes=getSchoolClassesForActiveLevel_();cls.innerHTML=classes.map(function(c){return '<option value="'+String(c).replace(/&/g,'&amp;').replace(/"/g,'&quot;')+'">'+c+'</option>';}).join('');}if(!cls.dataset.bound){cls.dataset.bound='1';cls.addEventListener('change',reportBrandingOnClassChange_);}
+var streamSel=document.getElementById('brandingStreamSelect');
+if(streamSel&&!streamSel.dataset.bound){streamSel.dataset.bound='1';streamSel.addEventListener('change',reportBrandingOnStreamChange_);}
+reportBrandingSelectedClass_=String(cls.value||'').trim();
+reportBrandingRefreshStreams_().then(function(){reportBrandingSelectedClass_=reportBrandingCurrentClass_();reportBrandingRenderClass_();});}reportBrandingBindControls_();reportBrandingBindPreviewSizeControls_();if(!isOnline())return;var requestVersion=reportBrandingEditVersion_;fetchWithServerRetry(SCRIPT_URL,{method:'POST',body:JSON.stringify({action:'getReportBrandingSettings',dbId:currentDbId,email:localStorage.getItem('currentUserEmail')||'',userType:localStorage.getItem('userType')||'',timetableRole:localStorage.getItem('timetableRole')||''})}).then(function(r){return r.json();}).then(function(d){if(d.status==='success'&&requestVersion===reportBrandingEditVersion_){var server=d.settings||{};reportBrandingState_=Object.assign(reportBrandingState_,server);reportBrandingState_.classStamps=reportBrandingState_.classStamps||{};reportBrandingState_.classSignatures=reportBrandingState_.classSignatures||{};reportBrandingState_.headSignature=reportBrandingState_.headSignature||{enabled:false,dataUrl:'',size:100};try{localStorage.setItem(reportBrandingCacheKey_(),JSON.stringify(reportBrandingState_));}catch(cacheError){console.warn('Report branding cache is full; server settings remain available.',cacheError);}reportBrandingApplyForm_();reportBrandingRenderClass_();reportBrandingNormalizeSavedInk_(reportBrandingState_).then(function(changed){if(changed){reportBrandingApplyForm_();reportBrandingRenderClass_();}});}else if(d.status==='success'){console.info('Branding server response ignored because the user has edited settings since the request started.');}}).catch(function(e){console.warn('Report branding settings sync:',e);});}
+function reportBrandingApplyForm_(){var a=reportBrandingState_.logo||{},b=reportBrandingState_.headStamp||{},h=reportBrandingState_.headSignature||{};document.getElementById('brandingLogoEnabled').checked=a.enabled!==false;document.getElementById('brandingLogoSize').value=a.size||90;document.getElementById('brandingLogoAlignment').value=a.alignment||'center';reportBrandingSetPreview_('logo',a.dataUrl||'');document.getElementById('brandingHeadStampEnabled').checked=!!b.enabled;document.getElementById('brandingHeadStampSize').value=b.size||85;reportBrandingSetPreview_('headStamp',b.dataUrl||'');document.getElementById('brandingHeadSignatureEnabled').checked=!!h.enabled;document.getElementById('brandingHeadSignatureSize').value=h.size||100;reportBrandingSetPreview_('headSignature',h.dataUrl||'');}
+function clearReportBrandingImage_(kind){if(kind==='logo'||kind==='headStamp'||kind==='headSignature'){reportBrandingState_[kind].dataUrl='';reportBrandingSetPreview_(kind,'');}else{var key=reportBrandingClassKey_(reportBrandingCurrentClass_());if(key){var prop=kind==='classSignature'?'classSignatures':'classStamps',v=reportBrandingState_[prop][key]||{};v.dataUrl='';reportBrandingState_[prop][key]=v;}reportBrandingSetPreview_(kind,'');}}
+function saveReportBrandingSettings_(){if(reportBrandingSavePromise_)return reportBrandingSavePromise_;var logo=reportBrandingState_.logo,head=reportBrandingState_.headStamp,headSig=reportBrandingState_.headSignature;logo.enabled=!!document.getElementById('brandingLogoEnabled').checked;logo.size=Math.max(30,Math.min(240,Number(document.getElementById('brandingLogoSize').value)||90));logo.alignment=document.getElementById('brandingLogoAlignment').value;head.enabled=!!document.getElementById('brandingHeadStampEnabled').checked;head.size=Math.max(30,Math.min(500,Number(document.getElementById('brandingHeadStampSize').value)||85));headSig.enabled=!!document.getElementById('brandingHeadSignatureEnabled').checked;headSig.size=Math.max(24,Math.min(260,Number(document.getElementById('brandingHeadSignatureSize').value)||100));reportBrandingReadClassForm_();reportBrandingSelectedClass_=reportBrandingCurrentClass_();var snapshot=JSON.parse(JSON.stringify(reportBrandingState_)),saveVersion=reportBrandingEditVersion_;var payload={action:'saveReportBrandingSettings',dbId:currentDbId,email:localStorage.getItem('currentUserEmail')||'',userType:localStorage.getItem('userType')||'',timetableRole:localStorage.getItem('timetableRole')||'',settings:snapshot};try{localStorage.setItem(reportBrandingCacheKey_(),JSON.stringify(snapshot));}catch(cacheError){console.warn('Report branding could not fit in local cache; continuing with server save.',cacheError);}var status=document.getElementById('reportBrandingStatus');if(status)status.textContent='Inahifadhi mipangilio...';var btn=document.getElementById('saveReportBrandingBtn');if(btn)btn.disabled=true;if(!isOnline()){if(status)status.textContent='Imehifadhiwa kwenye kifaa. Unganisha intaneti ili kusawazisha kwenye server.';if(btn)btn.disabled=false;return Promise.resolve();}reportBrandingSavePromise_=fetchWithServerRetry(SCRIPT_URL,{method:'POST',body:JSON.stringify(payload)}).then(function(r){return r.json();}).then(function(d){if(status)status.textContent=d.status==='success'?'Mipangilio ya utambulisho wa ripoti imehifadhiwa kikamilifu.':(d.message||'Imeshindwa kuhifadhi.');if(d.status!=='success'){Swal.fire({icon:'error',title:'Imeshindwa kuhifadhi',text:d.message||'Jaribu tena.'});}else if(reportBrandingEditVersion_===saveVersion){reportBrandingState_=Object.assign(reportBrandingState_,d.settings||snapshot);try{localStorage.setItem(reportBrandingCacheKey_(),JSON.stringify(reportBrandingState_));}catch(e){}}else{try{localStorage.setItem(reportBrandingCacheKey_(),JSON.stringify(reportBrandingState_));}catch(e){}}}).catch(function(e){if(status)status.textContent='Imehifadhiwa kwenye kifaa; server haikupatikana.';console.warn('Report branding save failed:',e);}).finally(function(){reportBrandingSavePromise_=null;if(btn)btn.disabled=false;});return reportBrandingSavePromise_;}
 function loadSystemSettings() {
   // Load from cache immediately (no loading indicator)
   let cachedSettings = {}; try { cachedSettings = JSON.parse(localStorage.getItem('systemSettingsCache') || '{}') || {}; } catch (e) { cachedSettings = {}; }
@@ -26613,6 +27089,7 @@ function showReportSettings() {
     return;
   }
   const streamName = document.getElementById('reportStreamSelect')?.value || '';
+  if (typeof window.beginReportInstructionEditorLoad_ === 'function') window.beginReportInstructionEditorLoad_();
   document.getElementById("settingsDarasaName").textContent = darasa + (streamName ? ' — ' + streamName : '');
   document.getElementById("reportSettingsOverlay").classList.remove("hidden");
   document.getElementById("reportSettingsModal").classList.remove("hidden");
@@ -26661,6 +27138,7 @@ function queueReportSettingsForSilentSync(action) {
 }
 
 function saveReportSettingsForClass() {
+  if (typeof window.syncInstructionEditor_ === "function") window.syncInstructionEditor_();
   const darasa = document.getElementById("darasaReport").value;
   const streamName = document.getElementById('reportStreamSelect')?.value || '';
   const settings = {
@@ -28704,8 +29182,49 @@ if ('serviceWorker' in navigator) {
 
   // Wrap the existing view functions to also update the URL.
   // Original functions are preserved and still run exactly as before.
+  function hasActiveAuthenticatedSession_() {
+    try {
+      return !!(
+        localStorage.getItem('dbId') ||
+        localStorage.getItem('isDeveloper') === 'true' ||
+        localStorage.getItem('userType') === 'developer'
+      );
+    } catch (e) { return false; }
+  }
+
+  function getAuthenticatedDashboard_() {
+    let userType = '';
+    let saved = 'student';
+    try {
+      userType = String(localStorage.getItem('userType') || '').toLowerCase();
+      saved = String(localStorage.getItem('currentDashboard') || 'student');
+    } catch (e) {}
+    if (userType === 'developer' || localStorage.getItem('isDeveloper') === 'true') return 'developer';
+    return DASHBOARD_PATHS[saved] ? saved : 'student';
+  }
+
+  function restoreAuthenticatedDashboard_() {
+    const dashboard = getAuthenticatedDashboard_();
+    // A developer has a dedicated dashboard and must not be routed through the
+    // school dashboard renderer (which would expose the wrong screen).
+    if (dashboard === 'developer' && typeof window.showDeveloperDashboard === 'function') {
+      window.showDeveloperDashboard();
+      updateUrl(DASHBOARD_PATHS.developer);
+    } else {
+      window.showDashboard(dashboard);
+      updateUrl(DASHBOARD_PATHS[dashboard] || DASHBOARD_PATHS.student);
+    }
+  }
+
   const _showLogin = window.showLogin;
   window.showLogin = function() {
+    // Back/Forward, stale links, and accidental calls must never reveal Login
+    // while an authenticated session is still active. Real logout clears the
+    // session keys first, so the normal logout-to-login flow remains intact.
+    if (hasActiveAuthenticatedSession_()) {
+      restoreAuthenticatedDashboard_();
+      return;
+    }
     _showLogin.apply(this, arguments);
     updateUrl('/login');
   };
@@ -28749,8 +29268,14 @@ if ('serviceWorker' in navigator) {
 
   // Decide which view to show based on the current URL path
   function routeFromPath(path) {
-    const dbId = localStorage.getItem('dbId');
-    const isLoggedIn = !!dbId;
+    const isLoggedIn = hasActiveAuthenticatedSession_();
+
+    // A stale /login history entry is not a logout action. Replace it with
+    // the active user's dashboard so Back can never show Login over Dashboard.
+    if (path === '/login' && isLoggedIn) {
+      restoreAuthenticatedDashboard_();
+      return;
+    }
 
     if (path === '/registration') {
       window.showRegister();
@@ -28797,10 +29322,9 @@ if ('serviceWorker' in navigator) {
     } else {
       // No specific path (e.g. just "/"): reflect whatever the app booted into
       isRoutingSuppressed = false;
-      const dbId = localStorage.getItem('dbId');
-      if (dbId) {
-        const savedDashboard = localStorage.getItem('currentDashboard') || 'student';
-        updateUrl(DASHBOARD_PATHS[savedDashboard] || ('/dashboard/' + savedDashboard));
+      if (hasActiveAuthenticatedSession_()) {
+        const savedDashboard = getAuthenticatedDashboard_();
+        updateUrl(DASHBOARD_PATHS[savedDashboard] || DASHBOARD_PATHS.student);
       } else {
         updateUrl('/login');
       }
@@ -31414,7 +31938,28 @@ window.SIWITI_LANG_KEY='siwitiUserLanguage';
     try { if(!ratibaHasAuthenticatedDashboard_())ratibaHidePlanExpiredGate_(); else ratibaEnforceOfflinePlanExpiry_(); ratibaMaybeShowPlanExpiryReminder_(); }catch(e){}
   });
   var _ratibaOriginalShowLogin=window.showLogin;
-  window.showLogin=function(){window.__ratibaLoggedOut=true;ratibaHidePlanExpiredGate_();if(typeof hidePaymentOverlay==='function')hidePaymentOverlay();if(typeof _ratibaOriginalShowLogin==='function')return _ratibaOriginalShowLogin.apply(this,arguments);};
+  window.showLogin=function(){
+    var activeSession=false;
+    try { activeSession=!!(localStorage.getItem('dbId')||localStorage.getItem('isDeveloper')==='true'||localStorage.getItem('userType')==='developer'); } catch(e) {}
+    if(activeSession){
+      // Do not mark the session as logged out merely because Back/history or
+      // another legacy handler requested Login. Restore exactly one dashboard.
+      window.__ratibaLoggedOut=false;
+      ratibaHidePlanExpiredGate_();
+      if(typeof hidePaymentOverlay==='function')hidePaymentOverlay();
+      var type='';var saved='student';
+      try { type=String(localStorage.getItem('userType')||'').toLowerCase(); saved=String(localStorage.getItem('currentDashboard')||'student'); } catch(e) {}
+      if(type==='developer'||localStorage.getItem('isDeveloper')==='true'){
+        if(typeof window.showDeveloperDashboard==='function')return window.showDeveloperDashboard();
+      }
+      if(typeof window.showDashboard==='function')return window.showDashboard(saved);
+      return;
+    }
+    window.__ratibaLoggedOut=true;
+    ratibaHidePlanExpiredGate_();
+    if(typeof hidePaymentOverlay==='function')hidePaymentOverlay();
+    if(typeof _ratibaOriginalShowLogin==='function')return _ratibaOriginalShowLogin.apply(this,arguments);
+  };
 })();
 </script>
 
@@ -31754,5 +32299,365 @@ body.developer-dashboard-active #sidebarHeadingToggle{display:none!important;vis
 @media(max-width:768px){#sidebarHeadingToggle{top:8px!important}body.sidebar-open #sidebarHeadingToggle{left:min(245px, calc(100vw - 55px))!important}}
 @media print{#sidebarHeadingToggle{display:none!important}}
 </style>
-</body>
+
+<script id="report-instruction-word-editor-js">
+(function(){
+  'use strict';
+  var frame=null,editor=null,hidden=null,toolbar=null,tablePanel=null;
+  var editDoc=null,editWin=null,savedRange=null,activeTableCell=null;
+  var userInteracted=false,pendingHtml='',frameReady=false;
+  function safeStyle_(source){
+    var rules=[];
+    String(source||'').split(';').forEach(function(rule){
+      var i=rule.indexOf(':');if(i<1)return;
+      var p=rule.slice(0,i).trim().toLowerCase(),v=rule.slice(i+1).trim();
+      if(!v||/url\s*\(|expression|javascript|@import/i.test(v))return;
+      if(p==='color'||p==='background-color'){
+        if(/^#[0-9a-f]{3,8}$/i.test(v)||/^rgba?\([\d\s.,%]+\)$/i.test(v)||/^(black|white|red|blue|green|yellow|orange|purple|gray|grey|navy|teal|maroon|lime|aqua|fuchsia|silver)$/i.test(v))rules.push(p+':'+v);
+      }else if(p==='font-size'){
+        var named={'xx-small':'8px','x-small':'9px','small':'10px','medium':'12px','large':'14px','x-large':'18px','xx-large':'24px','xxx-large':'32px'};
+        var m=v.match(/^(\d+(?:\.\d+)?)(px|pt|em|rem)$/i);
+        if(named[v.toLowerCase()])rules.push(p+':'+named[v.toLowerCase()]);
+        else if(m){var n=+m[1],u=m[2].toLowerCase();n=u==='px'?Math.max(8,Math.min(48,n)):u==='pt'?Math.max(6,Math.min(36,n)):Math.max(.6,Math.min(3,n));rules.push(p+':'+n+u);}
+      }else if(p==='font-family'){
+        var family=v.replace(/["']/g,'').split(',')[0].trim();
+        if(/^(Arial|Calibri|Cambria|Georgia|Tahoma|Times New Roman|Verdana|Courier New|Helvetica)$/i.test(family))rules.push(p+':'+family);
+      }else if(p==='text-align'&&/^(left|center|right|justify)$/i.test(v))rules.push(p+':'+v.toLowerCase());
+      else if(p==='font-weight'&&/^(normal|bold|[4-9]00)$/i.test(v))rules.push(p+':'+v.toLowerCase());
+      else if(p==='font-style'&&/^(normal|italic|oblique)$/i.test(v))rules.push(p+':'+v.toLowerCase());
+      else if(p==='text-decoration'&&/^(none|underline|line-through|overline)(\s+(underline|line-through|overline))*$/i.test(v))rules.push(p+':'+v.toLowerCase());
+      else if(p==='line-height'&&/^(1(\.\d+)?|[2-9](\.\d+)?)(px|pt)?$/i.test(v))rules.push(p+':'+v);
+      else if((p==='width'||p==='min-width'||p==='height')&&/^\\d{1,4}(px|%)$/i.test(v)){var dim=parseInt(v,10);if(dim>=20&&dim<=1200)rules.push(p+':'+v);}
+      else if((p==='margin-left'||p==='margin-right')&&/^\d{1,2}(px|pt|mm)$/i.test(v))rules.push(p+':'+v);
+    });
+    return rules.join(';');
+  }
+  function cleanHtml_(input){
+    var box=document.createElement('div');box.innerHTML=String(input||'');
+    box.querySelectorAll('script,style,iframe,object,embed,svg,math,form,input,button,video,audio').forEach(function(n){n.remove();});
+    var allowed={P:1,BR:1,STRONG:1,B:1,EM:1,I:1,U:1,S:1,UL:1,OL:1,LI:1,BLOCKQUOTE:1,H1:1,H2:1,H3:1,H4:1,DIV:1,SPAN:1,HR:1,PRE:1,SUP:1,SUB:1,TABLE:1,THEAD:1,TBODY:1,TFOOT:1,TR:1,TD:1,TH:1,FONT:1,A:1};
+    function walk(parent){
+      Array.from(parent.children).forEach(function(el){
+        walk(el);
+        if(!allowed[el.tagName]){var p=el.parentNode;while(el.firstChild)p.insertBefore(el.firstChild,el);el.remove();return;}
+        var style=safeStyle_(el.getAttribute('style')||'');
+        if(el.tagName==='FONT'){
+          var color=el.getAttribute('color'),face=el.getAttribute('face'),size=el.getAttribute('size');
+          if(color&&/^#[0-9a-f]{3,8}$/i.test(color))style+=';color:'+color;
+          if(face&&/^(Arial|Calibri|Cambria|Georgia|Tahoma|Times New Roman|Verdana|Courier New|Helvetica)$/i.test(face))style+=';font-family:'+face;
+          var sizes={'1':'8px','2':'10px','3':'12px','4':'14px','5':'18px','6':'24px','7':'32px'};
+          if(sizes[size])style+=';font-size:'+sizes[size];
+          var span=document.createElement('span');span.innerHTML=el.innerHTML;if(style)span.setAttribute('style',safeStyle_(style));el.parentNode.replaceChild(span,el);return;
+        }
+        Array.from(el.attributes).forEach(function(a){
+          if(a.name.toLowerCase()==='style')return;
+          if(el.tagName==='A'&&a.name.toLowerCase()==='href'&&/^https?:\/\//i.test(a.value))return;
+          el.removeAttribute(a.name);
+        });
+        if(style)el.setAttribute('style',style);else el.removeAttribute('style');
+        if(el.tagName==='A'){
+          var href=el.getAttribute('href');
+          if(!href){var parent=el.parentNode;while(el.firstChild)parent.insertBefore(el.firstChild,el);el.remove();}
+          else el.setAttribute('rel','noopener noreferrer');
+        }
+        if(el.tagName==='TABLE')el.setAttribute('style',(style?style+';':'')+'width:100%;max-width:100%;border-collapse:collapse;table-layout:fixed');
+      });
+    }
+    walk(box);return box.innerHTML;
+  }
+  function legacyMarkdownToHtml_(text){
+    var lines=String(text||'').replace(/\r/g,'').split('\n'),out=[],list='';
+    function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+    function close(){if(list){out.push('</'+list+'>');list='';}}
+    lines.forEach(function(raw){
+      var s=esc(raw.trim()),m;if(!s){close();return;}
+      s=s.replace(/\*\*([^*]+)\*\*/g,'<strong>$1</strong>').replace(/\*([^*]+)\*/g,'<em>$1</em>').replace(/__([^_]+)__/g,'<u>$1</u>').replace(/(^|[^_])_([^_]+)_($|[^_])/g,'$1<u>$2</u>$3');
+      if((m=s.match(/^(?:[-*•])\s+(.+)$/))){if(list!=='ul'){close();out.push('<ul>');list='ul';}out.push('<li>'+m[1]+'</li>');return;}
+      if((m=s.match(/^\d+[.)]\s+(.+)$/))){if(list!=='ol'){close();out.push('<ol>');list='ol';}out.push('<li>'+m[1]+'</li>');return;}
+      close();out.push('<p>'+s+'</p>');
+    });
+    close();return out.join('');
+  }
+
+
+  function sync_(){
+    if(!editor||!hidden)return;
+    // Read the iframe's live DOM; never replace it during typing.
+    hidden.value=editor.innerHTML;
+    var count=document.getElementById('principalMessageWordCount');
+    if(count){
+      var text=(editor.innerText||editor.textContent||'').trim();
+      count.textContent=(text?text.split(/\s+/).length:0)+' words';
+    }
+  }
+  window.syncInstructionEditor_=function(){
+    sync_();
+    if(hidden)hidden.value=cleanHtml_(hidden.value);
+  };
+  function loadHtml_(value){
+    var source=String(value||'');
+    var htmlValue=/<[a-z][\s\S]*>/i.test(source)?source:legacyMarkdownToHtml_(source);
+    pendingHtml=cleanHtml_(htmlValue);
+    if(frameReady&&editor){
+      editor.innerHTML=pendingHtml;
+      savedRange=null;activeTableCell=null;userInteracted=false;sync_();
+    }
+  }
+  window.beginReportInstructionEditorLoad_=function(){
+    userInteracted=false;savedRange=null;activeTableCell=null;pendingHtml='';
+    if(frameReady&&editor)editor.innerHTML='';
+    if(hidden)hidden.value='';
+    var count=document.getElementById('principalMessageWordCount');
+    if(count)count.textContent='0 words';
+  };
+  function markInteraction_(){userInteracted=true;}
+  function inside_(node,root){return !!(node&&(node===root||root.contains(node)));}
+  function selectionRange_(){
+    if(!editWin||!editor)return null;
+    var sel=editWin.getSelection();
+    if(sel&&sel.rangeCount&&inside_(sel.anchorNode,editor))return sel.getRangeAt(0);
+    return null;
+  }
+  function saveRange_(){
+    var range=selectionRange_();
+    if(range)savedRange=range.cloneRange();
+  }
+  function restoreRange_(){
+    if(!editWin||!editor)return false;
+    var live=selectionRange_();
+    if(live){savedRange=live.cloneRange();return true;}
+    if(!savedRange)return false;
+    try{
+      editor.focus();
+      var sel=editWin.getSelection();sel.removeAllRanges();sel.addRange(savedRange);
+      return true;
+    }catch(e){savedRange=null;return false;}
+  }
+  function placeCaret_(node,atEnd){
+    if(!node||!editDoc||!editWin)return;
+    editor.focus();
+    var range=editDoc.createRange(),sel=editWin.getSelection();
+    range.selectNodeContents(node);range.collapse(atEnd!==false);
+    sel.removeAllRanges();sel.addRange(range);savedRange=range.cloneRange();
+  }
+  function run_(command,value){
+    if(!editDoc)return false;
+    restoreRange_();
+    try{editDoc.execCommand('styleWithCSS',false,true);}catch(ignore){}
+    try{editDoc.execCommand(command,false,value==null?null:value);}catch(e){return false;}
+    saveRange_();sync_();return true;
+  }
+  function insertList_(ordered){
+    if(!editor)return false;
+    restoreRange_();
+    var range=selectionRange_();
+    if(!range){editor.focus();range=editDoc.createRange();range.selectNodeContents(editor);range.collapse(false);}
+    var list=editDoc.createElement(ordered?'ol':'ul');
+    var li=editDoc.createElement('li');li.appendChild(editDoc.createElement('br'));list.appendChild(li);
+    range.deleteContents();range.insertNode(list);placeCaret_(li,false);markInteraction_();sync_();return true;
+  }
+  function cellAtCaret_(){
+    var range=selectionRange_(),node=range?range.startContainer:(savedRange?savedRange.startContainer:null);
+    if(node&&node.nodeType===3)node=node.parentNode;
+    while(node&&node!==editor){if(node.nodeType===1&&/^(TD|TH)$/.test(node.tagName))return node;node=node.parentNode;}
+    return activeTableCell&&editor.contains(activeTableCell)?activeTableCell:null;
+  }
+  function updateTablePanel_(){
+    if(!tablePanel)return;
+    var cell=cellAtCaret_(),table=cell&&cell.closest('table');
+    var actions=document.getElementById('reportTableActions');
+    if(actions)actions.classList.toggle('is-table-active',!!table);
+    activeTableCell=cell||null;
+    var status=document.getElementById('reportTableCellStatus');
+    if(status){
+      if(table&&cell){
+        status.textContent='Seli: Mstari '+(Array.from(table.rows).indexOf(cell.parentElement)+1)+
+          ', Safu wima '+(Array.prototype.indexOf.call(cell.parentElement.cells,cell)+1)+
+          ' · Jedwali '+table.rows.length+' × '+(table.rows[0]?table.rows[0].cells.length:0);
+      }else status.textContent='Gusa seli ya jedwali ili kuongeza au kufuta mstari/safu wima.';
+    }
+  }
+  function makeTable_(rows,cols){
+    rows=Math.max(1,Math.min(30,parseInt(rows,10)||1));
+    cols=Math.max(1,Math.min(12,parseInt(cols,10)||1));
+    restoreRange_();
+    var range=selectionRange_();
+    var table=editDoc.createElement('table'),tbody=editDoc.createElement('tbody');
+    for(var r=0;r<rows;r++){
+      var tr=editDoc.createElement('tr');
+      for(var c=0;c<cols;c++){var td=editDoc.createElement('td');td.appendChild(editDoc.createElement('br'));tr.appendChild(td);}
+      tbody.appendChild(tr);
+    }
+    table.appendChild(tbody);
+    table.setAttribute('style','width:100%;max-width:100%;border-collapse:collapse;table-layout:fixed');
+    if(range){range.deleteContents();range.insertNode(table);}else editor.appendChild(table);
+    var after=editDoc.createElement('p');after.appendChild(editDoc.createElement('br'));
+    if(table.nextSibling)table.parentNode.insertBefore(after,table.nextSibling);else editor.appendChild(after);
+    placeCaret_(table.querySelector('td'),false);sync_();updateTablePanel_();
+  }
+  function applyColumnWidth_(){
+    var cell=cellAtCaret_(),table=cell&&cell.closest('table');
+    if(!cell||!table){window.alert('Gusa ndani ya safu wima unayotaka kubadilisha.');return;}
+    var index=Array.prototype.indexOf.call(cell.parentElement.cells,cell);
+    var width=Math.max(35,Math.min(900,parseInt(document.getElementById('reportTableColumnWidth').value,10)||120));
+    Array.from(table.rows).forEach(function(tr){if(tr.cells[index]){tr.cells[index].style.width=width+'px';tr.cells[index].style.minWidth=width+'px';}});
+    table.style.tableLayout='fixed';sync_();updateTablePanel_();
+  }
+  function applyRowHeight_(){
+    var cell=cellAtCaret_(),table=cell&&cell.closest('table');
+    if(!cell||!table){window.alert('Gusa ndani ya mstari unaotaka kubadilisha.');return;}
+    var height=Math.max(24,Math.min(500,parseInt(document.getElementById('reportTableRowHeight').value,10)||36));
+    cell.parentElement.style.height=height+'px';
+    Array.from(cell.parentElement.cells).forEach(function(td){td.style.height=height+'px';});
+    sync_();updateTablePanel_();
+  }
+  function resetTableWidths_(){
+    var cell=cellAtCaret_(),table=cell&&cell.closest('table');
+    if(!cell||!table){window.alert('Gusa ndani ya jedwali kwanza.');return;}
+    Array.from(table.rows).forEach(function(tr){Array.from(tr.cells).forEach(function(td){td.style.removeProperty('width');td.style.removeProperty('min-width');});});
+    table.style.width='100%';table.style.tableLayout='fixed';sync_();updateTablePanel_();
+  }
+  function editTable_(action){
+    var cell=cellAtCaret_(),table=cell&&cell.closest('table');
+    if(!cell||!table){window.alert('Gusa ndani ya jedwali kwanza.');return;}
+    var row=cell.parentElement,ci=Array.prototype.indexOf.call(row.cells,cell);
+    var rows=Array.from(table.rows),ri=rows.indexOf(row);
+    function newCell(tag){var el=editDoc.createElement(tag||'td');el.appendChild(editDoc.createElement('br'));return el;}
+    if(action==='rowAbove'||action==='rowBelow'){
+      var nr=editDoc.createElement('tr');
+      Array.from(row.cells).forEach(function(c){nr.appendChild(newCell(c.tagName.toLowerCase()));});
+      row.parentNode.insertBefore(nr,action==='rowAbove'?row:row.nextSibling);
+      placeCaret_(nr.cells[Math.min(ci,nr.cells.length-1)],false);
+    }else if(action==='colLeft'||action==='colRight'){
+      rows.forEach(function(tr){
+        var ref=tr.cells[Math.min(ci,tr.cells.length-1)],td=newCell(ref?ref.tagName.toLowerCase():'td');
+        if(ref)tr.insertBefore(td,action==='colLeft'?ref:ref.nextSibling);else tr.appendChild(td);
+      });
+      placeCaret_(rows[ri].cells[action==='colLeft'?ci:ci+1],false);
+    }else{
+      var isTable=action==='deleteTable',isRow=action==='deleteRow';
+      var title=isTable?'Futa jedwali lote?':(isRow?'Futa mstari huu?':'Futa safu wima hii?');
+      var msg=isTable?'Maudhui yote ya jedwali hili yataondolewa kwenye Agizo.':(isRow?'Maudhui yote ya mstari huu yataondolewa.':'Maudhui yote ya safu wima hii yataondolewa.');
+      function apply_(){
+        if(isRow){
+          row.remove();
+          if(!table.rows.length){table.remove();activeTableCell=null;sync_();updateTablePanel_();return;}
+          var rr=table.rows[Math.min(ri,table.rows.length-1)];
+          placeCaret_(rr.cells[Math.min(ci,rr.cells.length-1)],false);
+        }else if(action==='deleteCol'){
+          rows.forEach(function(tr){if(tr.cells[ci])tr.deleteCell(ci);});
+          if(!table.rows.length||!table.rows[0].cells.length){table.remove();activeTableCell=null;sync_();updateTablePanel_();return;}
+          placeCaret_(table.rows[Math.min(ri,table.rows.length-1)].cells[Math.min(ci,table.rows[0].cells.length-1)],false);
+        }else{
+          var next=table.nextSibling||table.previousSibling;table.remove();activeTableCell=null;
+          if(next)placeCaret_(next,false);else placeCaret_(editor,true);
+        }
+        sync_();updateTablePanel_();
+      }
+      if(window.Swal&&Swal.fire){
+        Swal.fire({icon:'warning',title:title,text:msg,showCancelButton:true,
+          confirmButtonText:isTable?'Ndiyo, futa jedwali':(isRow?'Ndiyo, futa mstari':'Ndiyo, futa safu wima'),
+          cancelButtonText:'Ghairi',confirmButtonColor:'#dc2626',cancelButtonColor:'#64748b',
+          reverseButtons:true,focusCancel:true}).then(function(r){if(r.isConfirmed)apply_();});
+      }else if(window.confirm(title+'\n'+msg))apply_();
+      return;
+    }
+    sync_();updateTablePanel_();
+  }
+  function initFrame_(){
+    frame=document.getElementById('principalMessageEditorFrame');
+    hidden=document.getElementById('principalMessage');
+    toolbar=document.querySelector('#principalMessageWordEditor .report-word-toolbar');
+    tablePanel=document.getElementById('principalMessageTablePanel');
+    if(!frame||!hidden||!toolbar)return;
+    frame.addEventListener('load',function(){
+      try{
+        editDoc=frame.contentDocument;editWin=frame.contentWindow;
+        editDoc.open();
+        editDoc.write('<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><style>'+
+          'html,body{margin:0;padding:0;width:100%;min-height:100%;background:#fff;color:#172033;font:14px/1.6 Arial,Helvetica,sans-serif;direction:ltr;text-align:left;unicode-bidi:normal;overflow-wrap:anywhere}'+
+          'body{box-sizing:border-box;padding:14px 16px;min-height:240px;outline:0;caret-color:#172033}'+
+          'p{margin:0 0 8px}h1{font-size:24px}h2{font-size:20px}h3{font-size:17px}ul,ol{padding-left:28px}'+
+          'table{width:100%;max-width:100%;border-collapse:collapse;table-layout:fixed;margin:8px 0;border:1px solid #64748b}td,th{border:1px solid #64748b;padding:7px;min-width:35px;vertical-align:top;overflow-wrap:anywhere;word-break:break-word}'+
+          'blockquote{border-left:3px solid #64748b;margin:8px 0;padding:5px 12px;color:#475569}'+
+          'body:empty:before{content:"Andika Agizo au Ujumbe wa Shule hapa...";color:#94a3b8;pointer-events:none}'+
+          '</style></head><body contenteditable="true" role="textbox" aria-multiline="true" spellcheck="true"></body></html>');
+        editDoc.close();editor=editDoc.body;editor.setAttribute('dir','ltr');editor.setAttribute('contenteditable','true');
+        frameReady=true;
+        if(pendingHtml)editor.innerHTML=pendingHtml;
+        editor.addEventListener('beforeinput',markInteraction_);
+        editor.addEventListener('input',function(){markInteraction_();sync_();});
+        editor.addEventListener('compositionstart',markInteraction_);
+        editor.addEventListener('compositionend',function(){markInteraction_();sync_();});
+        editor.addEventListener('keyup',function(){saveRange_();updateTablePanel_();});
+        editor.addEventListener('pointerup',function(){saveRange_();updateTablePanel_();});
+        editor.addEventListener('click',function(e){markInteraction_();var c=e.target.closest('td,th');activeTableCell=c||null;saveRange_();updateTablePanel_();});
+        editor.addEventListener('blur',sync_);
+        editDoc.addEventListener('selectionchange',updateTablePanel_);
+        editor.addEventListener('keydown',function(e){
+          if((e.ctrlKey||e.metaKey)&&!e.shiftKey){
+            var k=e.key.toLowerCase(),cmd=k==='b'?'bold':k==='i'?'italic':k==='u'?'underline':null;
+            if(cmd){e.preventDefault();run_(cmd);}
+          }
+        });
+        sync_();
+      }catch(err){console.error('Report instruction editor frame initialization failed:',err);}
+    });
+    // srcdoc keeps editor isolated from page-wide styles/scripts and avoids the old page DOM caret interference.
+    frame.srcdoc='<!doctype html><html><head><meta charset="utf-8"></head><body contenteditable="true"></body></html>';
+    var originalFill=window.fillReportSettingsForm;
+    if(typeof originalFill==='function'&&!originalFill.__iframeEditorWrapped){
+      var wrapped=function(settings){
+        originalFill.apply(this,arguments);
+        var value=String((settings||{}).principalMessage||hidden.value||'');
+        if(userInteracted){sync_();return;}
+        loadHtml_(value);
+      };
+      wrapped.__iframeEditorWrapped=true;window.fillReportSettingsForm=wrapped;
+    }
+    window.beginReportInstructionEditorLoad_=function(){
+      userInteracted=false;savedRange=null;activeTableCell=null;pendingHtml='';
+      if(frameReady&&editor)editor.innerHTML='';
+      hidden.value='';
+      var c=document.getElementById('principalMessageWordCount');if(c)c.textContent='0 words';
+    };
+    toolbar.addEventListener('pointerdown',function(e){
+      var ctl=e.target.closest('button,select,input');if(ctl){saveRange_();if(ctl.tagName==='BUTTON')e.preventDefault();}
+    });
+    toolbar.addEventListener('click',function(e){
+      var b=e.target.closest('button[data-cmd]');if(!b)return;
+      var cmd=b.getAttribute('data-cmd');
+      if(cmd==='insertTable'){if(tablePanel){tablePanel.hidden=false;tablePanel.dataset.open='true';document.getElementById('reportTableRows').focus();}return;}
+      if(cmd==='insertOrderedList'){insertList_(true);return;}
+      if(cmd==='insertUnorderedList'){insertList_(false);return;}
+      if(cmd==='createLink'){restoreRange_();var url=window.prompt('Weka anuani ya link (https://...)');if(url&&/^https?:\/\//i.test(url))run_('createLink',url);return;}
+      run_(cmd,null);
+    });
+    toolbar.addEventListener('change',function(e){var ctl=e.target.closest('select[data-cmd],input[data-cmd]');if(ctl)run_(ctl.getAttribute('data-cmd'),ctl.value);});
+    var close=document.getElementById('reportTablePanelClose');
+    if(close)close.addEventListener('click',function(){tablePanel.hidden=true;tablePanel.dataset.open='false';});
+    var insert=document.getElementById('reportTableInsertConfirm');
+    if(insert)insert.addEventListener('click',function(){makeTable_(document.getElementById('reportTableRows').value,document.getElementById('reportTableCols').value);tablePanel.hidden=true;tablePanel.dataset.open='false';});
+    if(tablePanel)tablePanel.addEventListener('click',function(e){
+      var b=e.target.closest('button[data-table-action]');
+      if(b){editTable_(b.getAttribute('data-table-action'));return;}
+      if(e.target.closest('#reportApplyColumnWidth')){applyColumnWidth_();return;}
+      if(e.target.closest('#reportApplyRowHeight')){applyRowHeight_();return;}
+      if(e.target.closest('#reportResetTableWidths')){resetTableWidths_();return;}
+    });
+    var initial=String(hidden.value||'');
+    if(initial)loadHtml_(initial);
+  }
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',initFrame_);else initFrame_();
+})();
+</script>
+<script id="report-branding-stream-sync-js">
+document.addEventListener('change',function(e){
+  if(e.target&&['darasaReport','reportStreamSelect'].indexOf(e.target.id)>=0){
+    var b=document.getElementById('brandingClassSelect'),r=document.getElementById('darasaReport');
+    if(b&&r&&Array.from(b.options).some(function(o){return o.value===r.value;}))b.value=r.value;
+    reportBrandingRefreshStreams_();
+  }
+});
+</script></body>
 </html>
