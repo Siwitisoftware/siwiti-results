@@ -7112,7 +7112,7 @@ html[data-school-level="primary"] #secondaryDivisionSettingsSection { display:no
 </div>
   <script>
 //AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
-    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzUVMrE6b2jxZ9kzIJrGWwnXHxXMPQxaaghUFFGJM5HbBmkQCjAda1HvIydoX-_gYGp/exec';
+    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwAyTuC6cfmf6uyn1DxJEVcTCH-WvYYTpulFUDjHmwVoWanFVln8I_KyorpPA0RVyx3/exec';
 
 
     // ============================================
@@ -14357,6 +14357,32 @@ function copyToClipboard(text) {
 // GENERATE SELECTED STUDENTS REPORT - Loading on button
 // ============================================
 function generateSelectedStudentsReport() {
+  const activeLevel = String(localStorage.getItem('schoolLevel') || localStorage.getItem('schoolType') || 'primary').trim().toLowerCase();
+  const isSecondaryAccount = activeLevel.indexOf('secondary') >= 0 || activeLevel.indexOf('sekondari') >= 0 || activeLevel.indexOf('o-level') >= 0;
+  if (isSecondaryAccount) return generateSelectedStudentsReportWithLayout(1);
+
+  Swal.fire({
+    title: 'Chagua Mpangilio wa Ripoti',
+    html: '<div style="display:flex;flex-direction:column;gap:14px;text-align:left;padding:8px 4px;">' +
+      '<label style="display:flex;align-items:center;gap:12px;padding:14px;border:2px solid #2563eb;border-radius:10px;cursor:pointer;background:#eff6ff;">' +
+      '<input type="radio" name="primaryReportPageOption" value="1" checked style="width:19px;height:19px;accent-color:#2563eb;">' +
+      '<span style="font-weight:700;font-size:15px;">Ripoti 1 kwa ukurasa</span></label>' +
+      '<label style="display:flex;align-items:center;gap:12px;padding:14px;border:2px solid #cbd5e1;border-radius:10px;cursor:pointer;background:#f8fafc;">' +
+      '<input type="radio" name="primaryReportPageOption" value="2" style="width:19px;height:19px;accent-color:#2563eb;">' +
+      '<span style="font-weight:700;font-size:15px;">Ripoti 2 kwa ukurasa</span></label></div>',
+    showCancelButton: true, confirmButtonText: 'Endelea', cancelButtonText: 'Ghairi',
+    confirmButtonColor: '#2563eb', cancelButtonColor: '#64748b', focusConfirm: false,
+    preConfirm: function() {
+      const selected = document.querySelector('input[name="primaryReportPageOption"]:checked');
+      if (!selected) { Swal.showValidationMessage('Chagua mpangilio wa ripoti.'); return false; }
+      return Number(selected.value);
+    }
+  }).then(function(result) {
+    if (result.isConfirmed) generateSelectedStudentsReportWithLayout(result.value === 2 ? 2 : 1);
+  });
+}
+
+function generateSelectedStudentsReportWithLayout(reportsPerPage) {
   const darasa = document.getElementById("darasaReport").value;
   const termId = document.getElementById("termReport").value;
   const selectedStudents = getSelectedStudents();
@@ -14431,7 +14457,7 @@ function generateSelectedStudentsReport() {
     e_min: parseFloat(subjectGradeE) || 0
   };
   
-  generatePDFReport(darasa, selectedStudents, gradeSettings, subjectGradeSettings, termId, reportSettings, reportBtn, originalButtonHTML, document.getElementById('reportStreamSelect')?.value || '');
+  generatePDFReport(darasa, selectedStudents, gradeSettings, subjectGradeSettings, termId, reportSettings, reportBtn, originalButtonHTML, document.getElementById('reportStreamSelect')?.value || '', reportsPerPage);
 }
 
 // o. generatePDFReport (UPDATED) FUNCTION
@@ -14492,21 +14518,41 @@ function downloadPDFFile(downloadInfo) {
 // ============================================
 // GENERATE PDF REPORT - Loading on button
 // ============================================
-function generatePDFReport(darasa, studentNames, gradeSettings, subjectGradeSettings, termId, reportSettings, reportBtn, originalButtonHTML, streamName) {
+function generatePDFReport(darasa, studentNames, gradeSettings, subjectGradeSettings, termId, reportSettings, reportBtn, originalButtonHTML, streamName, reportsPerPage) {
   streamName = String(streamName || '').trim();
-  if (!currentDbId || !darasa || !studentNames || studentNames.length === 0) {
+  reportsPerPage = Number(reportsPerPage) === 2 ? 2 : 1;
+
+  var buttonRestored = false;
+  function restoreReportButton_() {
+    if (buttonRestored) return;
+    buttonRestored = true;
     if (reportBtn) {
-      reportBtn.innerHTML = originalButtonHTML;
+      reportBtn.innerHTML = originalButtonHTML || '<i class="fas fa-print"></i> Tengeneza Ripoti za Waliochaguliwa';
       reportBtn.disabled = false;
     }
-    Notiflix.Notify.failure('Data ya kutosha haijatolewa', {
-      timeout: 3000,
-      position: 'right-top'
-    });
+  }
+  function showReportError_(message) {
+    restoreReportButton_();
+    var safeMessage = String(message || 'Ripoti haikuweza kutengenezwa. Tafadhali jaribu tena.');
+    if (typeof Notiflix !== 'undefined' && Notiflix.Notify) {
+      Notiflix.Notify.failure(safeMessage, { timeout: 6000, position: 'right-top' });
+    } else if (typeof Swal !== 'undefined') {
+      Swal.fire({ icon: 'error', title: 'Imeshindikana kutengeneza ripoti', text: safeMessage, confirmButtonColor: '#4361ee' });
+    } else {
+      alert(safeMessage);
+    }
+  }
+
+  if (!currentDbId || !darasa || !Array.isArray(studentNames) || studentNames.length === 0 || !termId) {
+    showReportError_('Taarifa za kutengeneza ripoti hazijakamilika. Hakikisha darasa, muhula na wanafunzi wamechaguliwa.');
+    return;
+  }
+  if (!isOnline()) {
+    showReportError_('Ripoti za wanafunzi zinatengenezwa wakati wa ONLINE pekee. Tafadhali washa intaneti kisha ujaribu tena.');
     return;
   }
 
-  const requestData = {
+  var requestData = {
     action: "generateStudentReportPDF",
     language: reportExportLanguage_(),
     dbId: currentDbId,
@@ -14516,62 +14562,79 @@ function generatePDFReport(darasa, studentNames, gradeSettings, subjectGradeSett
     subjectGradeSettings: subjectGradeSettings,
     termId: termId,
     streamName: streamName,
-    reportSettings: reportSettings
+    reportSettings: reportSettings,
+    reportsPerPage: reportsPerPage
   };
 
-  if (!isOnline()) {
-    // Student PDFs are online-only: the server is the single source of truth
-    // for the complete Primary/Secondary layout, Agizo tables and branding.
-    if (reportBtn) {
-      reportBtn.innerHTML = originalButtonHTML;
-      reportBtn.disabled = false;
-    }
-    Notiflix.Notify.warning(
-      'Ripoti za wanafunzi zinatengenezwa wakati wa ONLINE pekee. Tafadhali washa intaneti kisha ujaribu tena.',
-      { timeout: 5000, position: 'right-top' }
-    );
+  var timeoutMs = 180000;
+  var timeoutId;
+  var requestPromise;
+  try {
+    requestPromise = fetchWithServerRetry(SCRIPT_URL, {
+      method: "POST",
+      body: JSON.stringify(requestData)
+    }).then(function(res) {
+      if (!res || !res.ok) throw new Error('Seva imerudisha HTTP ' + (res ? res.status : 'isiyojulikana'));
+      return res.text();
+    }).then(function(rawText) {
+      var response;
+      try {
+        response = JSON.parse(rawText);
+      } catch (parseError) {
+        console.error('Jibu lisilo JSON kutoka seva:', String(rawText || '').slice(0, 1000));
+        throw new Error('Seva imerudisha jibu lisilotambulika. Hakikisha Apps Script imedeployiwa kwa toleo jipya.');
+      }
+      if (!response || typeof response !== 'object') throw new Error('Jibu la seva halijakamilika.');
+      if (response.status !== "success") throw new Error(response.message || 'Seva imeshindwa kutengeneza ripoti.');
+
+      var fileName = response.fileName || (darasa + '_Ripoti.pdf');
+      var downloadUrl = response.fileUrl || response.downloadUrl || '';
+      if (response.fileBase64) {
+        triggerDirectDownload(response.fileBase64, response.mimeType || 'application/pdf', fileName, downloadUrl);
+      } else if (downloadUrl) {
+        if (typeof showWebViewDownloadLink_ === 'function' && isAndroidWebView_()) {
+          showWebViewDownloadLink_(downloadUrl, fileName, response.mimeType || 'application/pdf');
+        } else {
+          var downloadLink = document.createElement('a');
+          downloadLink.href = downloadUrl;
+          downloadLink.target = '_blank';
+          downloadLink.rel = 'noopener';
+          downloadLink.download = fileName;
+          document.body.appendChild(downloadLink);
+          downloadLink.click();
+          downloadLink.remove();
+        }
+      } else {
+        throw new Error('PDF imetengenezwa lakini seva haikurudisha faili wala kiungo cha kupakua.');
+      }
+
+      restoreReportButton_();
+      Notiflix.Notify.success('Ripoti ' + (response.studentCount || studentNames.length) + ' zimeandaliwa.', {
+        timeout: 4000,
+        position: 'right-top'
+      });
+      return response;
+    });
+  } catch (syncError) {
+    console.error('Hitilafu ya kuanzisha ombi la PDF:', syncError);
+    showReportError_(syncError.message || 'Imeshindikana kuanzisha ombi la kutengeneza ripoti.');
     return;
   }
 
-  fetchWithServerRetry(SCRIPT_URL, {
-    method: "POST",
-    body: JSON.stringify(requestData)
-  })
-  .then(res => res.json())
-  .then(response => {
-    if (reportBtn) {
-      reportBtn.innerHTML = originalButtonHTML;
-      reportBtn.disabled = false;
-    }
-    
-    if (response.status === "success") {
-      const downloadUrl = response.fileUrl;
-      const fileName = response.fileName || `${darasa}_Ripoti.pdf`;
-      
-      triggerDirectDownload(response.fileBase64, response.mimeType, fileName, downloadUrl);
-      
-      Notiflix.Notify.success(`✅ Ripoti ${response.studentCount} zimepakuliwa!`, {
-        timeout: 3000,
-        position: 'right-top'
-      });
-      
-    } else {
-      Notiflix.Notify.failure(response.message, {
-        timeout: 3000,
-        position: 'right-top'
-      });
-    }
-  })
-  .catch(error => {
-    if (reportBtn) {
-      reportBtn.innerHTML = originalButtonHTML;
-      reportBtn.disabled = false;
-    }
-    Notiflix.Notify.failure(
-      'Imeshindikana kuwasiliana na seva. Ripoti haijatengenezwa. Hakikisha intaneti ipo kisha ujaribu tena.',
-      { timeout: 5000, position: 'right-top' }
-    );
+  var timeoutPromise = new Promise(function(resolve, reject) {
+    timeoutId = setTimeout(function() {
+      reject(new Error('Muda wa kusubiri seva umeisha (dakika 3). Huenda ripoti ni kubwa au Apps Script imekwama. Jaribu wanafunzi wachache kwanza.'));
+    }, timeoutMs);
   });
+  Promise.race([requestPromise, timeoutPromise])
+    .catch(function(error) {
+      console.error('PDF report generation failed:', error);
+      showReportError_(error && error.message ? error.message : 'Imeshindikana kuwasiliana na seva. Tafadhali jaribu tena.');
+    })
+    .finally(function() {
+      clearTimeout(timeoutId);
+      restoreReportButton_();
+    });
 }
 
 // Updated copyToClipboard function (more robust)
