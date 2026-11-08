@@ -5909,7 +5909,7 @@ html[data-school-level="primary"] #secondaryDivisionSettingsSection { display:no
               </select>
             </div>
             <div>
-              <button class="btn btn-danger" onclick="confirmDeleteAllStudents()" style="margin-top: 24px;"><i class="fas fa-trash-alt"></i> Futa Wanafunzi Wote</button>
+              <button id="deleteAllStudentsBtn" class="btn btn-danger" onclick="confirmDeleteAllStudents()" style="margin-top: 24px; display: none;"><i class="fas fa-trash-alt"></i> Futa Wanafunzi Wote</button>
             </div>
           </div>
 
@@ -8683,11 +8683,29 @@ function openStudentTab(tabName, event) {
     if (event && event.currentTarget) event.currentTarget.classList.add('active');
     if (tabName === 'studentsList') {
       renderStudentListPrompt_();
-      // Wait for signed server scope before populating the class dropdown/roster.
-      if(!Number(localStorage.getItem('studentAccessScopeAt')||0) || Date.now()-Number(localStorage.getItem('studentAccessScopeAt')||0)>5*60*1000){
-        loadStudentAccessClasses_(function(ok){if(ok){renderStudentListPrompt_();}else{renderStudentListPrompt_();}});
+      updateStudentBulkDeleteButton_();
+      // Always refresh the signed role/scope before showing the class selector.
+      // This prevents a recently changed Academic Coordinator role from being
+      // stuck with an old cached Staff-only class list.
+      if(currentDbId && isOnline()){
+        loadStudentAccessClasses_(function(ok){
+          if(!ok){
+            renderStudentListPrompt_();
+            var body=document.getElementById('studentsTableBody');
+            if(body)body.innerHTML='<tr><td colspan="5" style="text-align:center;padding:30px">Imeshindikana kuthibitisha ruhusa za madarasa. Tafadhali jaribu tena.</td></tr>';
+          } else {
+            updateStudentBulkDeleteButton_();
+            var sel=document.getElementById('darasaList');
+            if(!sel || !sel.value)renderStudentListPrompt_();
+            // loadStudentAccessClasses_ loads the roster itself if a class
+            // was already selected, after rebuilding the authorized options.
+          }
+        });
+      } else {
+        applyStudentAccessClassOptions_();
+        updateStudentBulkDeleteButton_();
+        loadStudents();
       }
-      setTimeout(function() { loadStudents(); }, 100);
     } else if (tabName === 'studentStreams') {
       setTimeout(function() { loadStudentStreams(); }, 50);
     }
@@ -17190,6 +17208,18 @@ function loadStudentAccessClasses_(afterLoad) {
     return false;
   });
 }
+function updateStudentBulkDeleteButton_(){
+  var btn=document.getElementById('deleteAllStudentsBtn') ||
+          document.querySelector('#studentsList button[onclick="confirmDeleteAllStudents()"]');
+  if(!btn)return;
+  var selector=document.getElementById('darasaList');
+  var selectedClass=selector?String(selector.value||'').trim():'';
+  // Bulk deletion is Head of School-only on the backend.
+  // Mtaaluma and Staff must not see this destructive control.
+  var canDelete=studentAccessRoleClient_()==='owner' && !!selectedClass;
+  btn.style.display=canDelete?'':'none';
+  btn.disabled=!canDelete;
+}
 function applyStudentAccessClassOptions_() {
   var level=String(localStorage.getItem('schoolLevel')||'primary').toLowerCase();
   var all=level==='secondary'
@@ -17241,8 +17271,7 @@ function applyStudentAccessClassOptions_() {
       listSelect.appendChild(exitGroup);
     }
   }
-  var delAll=document.querySelector('#studentsList button[onclick="confirmDeleteAllStudents()"]');
-  if(delAll)delAll.style.display=studentAccessRoleClient_()==='staff'?'none':'';
+  updateStudentBulkDeleteButton_();
 }
 
 
@@ -17433,6 +17462,7 @@ function loadStudents() {
   const listTab=document.getElementById('studentsList');
   const selector=document.getElementById("darasaList");
   const darasa=selector?String(selector.value||'').trim():'';
+  updateStudentBulkDeleteButton_();
   // Other dashboard actions may call loadStudents() for refresh purposes.
   // Never expose/render the roster while its tab is hidden.
   if(!listTab || !listTab.classList.contains('active'))return;
@@ -22601,7 +22631,13 @@ function showContactInfo() {
 
 // FUNCTION MPYA: confirmDeleteAllStudents - Inathibitisha kabla ya kufuta wote
 function confirmDeleteAllStudents() {
-    const darasa = document.getElementById("darasaList").value;
+    const selector=document.getElementById("darasaList");
+    const darasa=selector?String(selector.value||'').trim():'';
+    updateStudentBulkDeleteButton_();
+    if(studentAccessRoleClient_()!=='owner' || !darasa){
+        if(typeof Swal!=='undefined')Swal.fire({icon:'info',title:'Chagua darasa',text:'Futa Wanafunzi Wote ni ruhusa ya Head of School pekee na inahitaji darasa lichaguliwe.'});
+        return;
+    }
     
     // Check kama kuna wanafunzi walao katika darasa hili
     const studentCache = JSON.parse(localStorage.getItem('studentCache')) || {};
@@ -22653,6 +22689,11 @@ function confirmDeleteAllStudents() {
 
 // FUNCTION MPYA: deleteAllStudents - Inafuta wanafunzi wote wa darasa maalum
 function deleteAllStudents(darasa) {
+    darasa=String(darasa||'').trim();
+    if(studentAccessRoleClient_()!=='owner' || !darasa){
+        console.warn('Blocked bulk student deletion: Head of School and selected class are required.');
+        return;
+    }
     const studentCache = JSON.parse(localStorage.getItem('studentCache')) || {};
     const studentsInClass = studentCache[darasa] || [];
     
