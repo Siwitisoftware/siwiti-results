@@ -5014,6 +5014,13 @@ html[data-school-level="primary"] #secondaryDivisionSettingsSection { display:no
 #secondaryDivisionSettingsSection .sec-division-table input{display:block;width:100%;min-width:0;box-sizing:border-box;height:40px;padding:6px 4px;text-align:center;font-size:16px;font-weight:600;border:1px solid #cbd5e1;border-radius:8px;background:#fff;color:#172033}
 #secondaryDivisionSettingsSection .sec-division-table input:focus{outline:2px solid #4263eb;outline-offset:1px;border-color:#4263eb}
 @media(max-width:480px){#secondaryDivisionSettingsSection .sec-division-table{font-size:12px}#secondaryDivisionSettingsSection .sec-division-table th,#secondaryDivisionSettingsSection .sec-division-table td{padding:6px 3px}#secondaryDivisionSettingsSection .sec-division-table thead th{font-size:11px}#secondaryDivisionSettingsSection .sec-division-table input{height:38px;font-size:16px;padding:5px 2px}#secondaryDivisionSettingsSection .sec-division-table tbody th{width:17%}}
+
+#studentStreamsContainer .stream-admin-actions{display:flex;gap:7px;align-items:center}
+#studentStreamsContainer .stream-edit-btn,#studentStreamsContainer .stream-delete-btn{display:inline-flex;align-items:center;gap:6px;border:1px solid #dbe3ef;border-radius:9px;padding:8px 10px;background:#fff;color:#1e40af;font-size:12px;font-weight:750;cursor:pointer}
+#studentStreamsContainer .stream-delete-btn{color:#b91c1c;border-color:#fecaca}
+#studentStreamsContainer .stream-edit-btn:hover{background:#eff6ff}
+#studentStreamsContainer .stream-delete-btn:hover{background:#fef2f2}
+@media(max-width:520px){#studentStreamsContainer .stream-admin-actions{width:100%}#studentStreamsContainer .stream-admin-actions button{flex:1;justify-content:center}}
 </style>
 <style>
 /* ================= TIMETABLE DASHBOARD v7 ================= */
@@ -5288,6 +5295,13 @@ html[data-school-level="primary"] #secondaryDivisionSettingsSection { display:no
 
 .report-instruction-content table{width:100%;max-width:100%;border-collapse:collapse;table-layout:fixed;margin:4px 0}.report-instruction-content td,.report-instruction-content th{border:1px solid #94a3b8;padding:3px;overflow-wrap:anywhere}
 @media(max-width:600px){.report-word-toolbar{gap:4px;padding:6px}.report-word-toolbar button{min-width:32px;height:32px;padding:4px 7px}.report-word-toolbar select{height:32px}.report-word-editable-frame{height:240px}}
+</style>
+<style id="siwiti-modern-alert-style">
+.swal2-popup,.swal2-popup.siwiti-modern-alert{border-radius:22px!important;padding:1.65rem!important;box-shadow:0 20px 60px rgba(15,23,42,.16)!important}
+.swal2-popup .swal2-title{font-weight:800;letter-spacing:-.35px;color:#172033}
+.swal2-popup .swal2-html-container{font-size:15px;line-height:1.65;color:#526078}
+.swal2-popup .swal2-confirm{border-radius:12px!important;padding:11px 25px!important;font-weight:700!important;box-shadow:0 5px 14px rgba(37,99,235,.2)}
+.swal2-popup .swal2-cancel{border-radius:12px!important;padding:11px 22px!important;font-weight:700!important}
 </style>
 </head>
 <body>
@@ -5882,6 +5896,7 @@ html[data-school-level="primary"] #secondaryDivisionSettingsSection { display:no
             <div class="input-group">
               <label for="darasaList"><i class="fas fa-chalkboard-user"></i> Chagua Darasa</label>
               <select id="darasaList" onchange="loadStudents()">
+                <option value="">Chagua darasa</option>
                 <option value="Awali">Awali</option>
                 <option value="Darasa la Kwanza">Darasa la Kwanza</option>
                 <option value="Darasa la Pili">Darasa la Pili</option>
@@ -5913,7 +5928,7 @@ html[data-school-level="primary"] #secondaryDivisionSettingsSection { display:no
                 </tr>
               </thead>
               <tbody id="studentsTableBody">
-                <tr><td colspan="5" style="text-align: center; padding: 40px;"><div class="loading-spinner"></div> Inapakia...</td></tr>
+                <tr><td colspan="5" style="text-align:center;padding:40px;"><div class="empty-state"><div class="empty-state-icon"><i class="fas fa-hand-pointer"></i></div><h4>Chagua Darasa</h4><p>Chagua darasa kwenye orodha hapo juu ili kuona wanafunzi wake.</p></div></td></tr>
               </tbody>
             </table>
           </div>
@@ -5928,7 +5943,7 @@ html[data-school-level="primary"] #secondaryDivisionSettingsSection { display:no
             <i class="fas fa-info-circle"></i>
             Tengeneza mikondo kwa kila darasa, kisha gawa wanafunzi kwenye mikondo. Mwanafunzi anaweza kuwa kwenye mkondo mmoja tu kwa darasa; mwanafunzi aliyepangiwa mkondo hataonekana kwenye orodha ya kugawa tena mpaka aondolewe kwanza.
           </div>
-          <div class="settings-form-row" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px;align-items:end;">
+          <div id="studentStreamAdminControls" class="settings-form-row" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px;align-items:end;">
             <div class="input-group">
               <label for="studentStreamsClass"><i class="fas fa-chalkboard"></i> Chagua Darasa</label>
               <select id="studentStreamsClass" onchange="loadStudentStreams()">
@@ -6080,7 +6095,7 @@ html[data-school-level="primary"] #secondaryDivisionSettingsSection { display:no
     <div id="manualEntry" class="tab-content active">
       <!-- Term Selection Section -->
       <div class="system-settings-section" style="background: linear-gradient(135deg, #f0f9ff, #e6f3ff);">
-        <h3><i class="fas fa-calendar-alt"></i> Chagua au Tengeneza Muhula</h3>
+        <h3><i class="fas fa-calendar-alt"></i> Chagua Muhula</h3>
         <div class="system-settings-grid">
           <div class="system-settings-card">
             <h4><i class="fas fa-list"></i> Orodha ya Mihula</h4>
@@ -6089,6 +6104,7 @@ html[data-school-level="primary"] #secondaryDivisionSettingsSection { display:no
               <select id="termSelect" onchange="loadTermData()"><option value="">Chagua Muhula</option></select>
             </div>
           </div>
+          <div id="termManagementControls" style="display:contents">
           <div class="system-settings-card">
             <h4><i class="fas fa-plus-circle"></i> Tengeneza Muhula Mpya</h4>
             <div class="input-group">
@@ -6103,6 +6119,7 @@ html[data-school-level="primary"] #secondaryDivisionSettingsSection { display:no
               <button class="btn btn-warning" onclick="editCurrentTerm()" style="flex: 1;"><i class="fas fa-edit"></i> Hariri</button>
               <button class="btn btn-danger" onclick="deleteCurrentTerm()" style="flex: 1;"><i class="fas fa-trash-alt"></i> Futa</button>
             </div>
+          </div>
           </div>
         </div>
       </div>
@@ -7112,7 +7129,7 @@ html[data-school-level="primary"] #secondaryDivisionSettingsSection { display:no
 </div>
   <script>
 //AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
-    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwAyTuC6cfmf6uyn1DxJEVcTCH-WvYYTpulFUDjHmwVoWanFVln8I_KyorpPA0RVyx3/exec';
+    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxFN76mBlkfAdU8RJLhg1-SD9_vaedH16mG-X6UeRiiEvzji_jP_npBWmdY0Fi-7U2b/exec';
 
 
     // ============================================
@@ -7163,7 +7180,27 @@ html[data-school-level="primary"] #secondaryDivisionSettingsSection { display:no
 
       function run() {
         attempt++;
-        return fetch(url, options).catch(function(err) {
+        return fetch(url, options).then(function(response) {
+          // Normalize technical backend errors before any screen can display
+          // them. Business messages/codes remain intact; implementation details
+          // are replaced with a calm, user-facing message in the active language.
+          try {
+            var originalJson = response.json.bind(response);
+            response.json = function() {
+              return originalJson().then(function(payload) {
+                if (payload && typeof payload.message === 'string' &&
+                    /exception:|error:|script function|service invoked too many|too many simultaneous|lock timeout|stack trace|cannot call .* of null|cannot read propert|unexpected error|server is aborted|access denied|at [\w.$]+\(/i.test(payload.message)) {
+                  var english = String(localStorage.getItem('siwitiUserLanguage') || 'sw').toLowerCase().indexOf('en') === 0;
+                  payload.message = english
+                    ? 'The request could not be completed right now. Please try again. If the problem continues, contact the system administrator.'
+                    : 'Ombi halijakamilika kwa sasa. Tafadhali jaribu tena. Tatizo likiendelea, wasiliana na msimamizi wa mfumo.';
+                }
+                return payload;
+              });
+            };
+          } catch (ignoreResponseMessage) {}
+          return response;
+        }).catch(function(err) {
           // Never retry a request whose caller explicitly aborted it.
           if (options.signal && options.signal.aborted) throw err;
           if (attempt >= maxAttempts) throw err;
@@ -8614,9 +8651,28 @@ function initializeStudentTabs() {
   }
 }
 
+// Stream and term management permissions are presentation-only here; Backend rechecks every write.
+function isHeadOfSchoolClient_(){ return String(localStorage.getItem('userType')||'').toLowerCase()==='owner'; }
+function canManageTermsClient_(){ return isHeadOfSchoolClient_() || (String(localStorage.getItem('userType')||'').toLowerCase()==='staff' && String(localStorage.getItem('timetableRole')||'').toLowerCase()==='academic'); }
+function applyAcademicManagementVisibility_(){
+  var streamTabButton=document.querySelector('#studentDashboard .tabs-navigation button[onclick*="studentStreams"]');
+  var streamControls=document.getElementById('studentStreamAdminControls');
+  var allowed=isHeadOfSchoolClient_();
+  if(streamTabButton)streamTabButton.style.display=allowed?'':'none';
+  if(streamControls)streamControls.style.display=allowed?'':'none';
+  var termControls=document.getElementById('termManagementControls');
+  if(termControls)termControls.style.display=canManageTermsClient_()?'contents':'none';
+}
+
 // FUNCTION: openStudentTab - Inabadilisha kati ya tabs
 function openStudentTab(tabName, event) {
+  if(tabName==='studentStreams'&&!isHeadOfSchoolClient_()){
+    if(typeof Notiflix!=='undefined')Notiflix.Notify.warning('Usimamizi wa mikondo unapatikana kwa Head of School pekee.');
+    return;
+  }
+
   try {
+    applyAcademicManagementVisibility_();
     // Scope tab changes to the Student Dashboard only, so other dashboards are untouched.
     var tabContents = document.querySelectorAll('#studentDashboard .tab-content');
     tabContents.forEach(function(tab) { if (tab) tab.classList.remove('active'); });
@@ -8626,6 +8682,11 @@ function openStudentTab(tabName, event) {
     if (selectedTab) selectedTab.classList.add('active');
     if (event && event.currentTarget) event.currentTarget.classList.add('active');
     if (tabName === 'studentsList') {
+      renderStudentListPrompt_();
+      // Wait for signed server scope before populating the class dropdown/roster.
+      if(!Number(localStorage.getItem('studentAccessScopeAt')||0) || Date.now()-Number(localStorage.getItem('studentAccessScopeAt')||0)>5*60*1000){
+        loadStudentAccessClasses_(function(ok){if(ok){renderStudentListPrompt_();}else{renderStudentListPrompt_();}});
+      }
       setTimeout(function() { loadStudents(); }, 100);
     } else if (tabName === 'studentStreams') {
       setTimeout(function() { loadStudentStreams(); }, 50);
@@ -9320,7 +9381,7 @@ function performRatibaLogout_() {
   [
     'subscriptionStatus','trialEndTime','ratibaPlanExpiryAt','ratibaPlanReminderLastAt',
     'ratibaPlan','subscriptionPlan','currentUserEmail','userEmail','lastTimerUpdate',
-    'dbId','schoolName','userType','staffName','timetableRole','headSchoolName',
+    'dbId','schoolName','userType','staffName','timetableRole','headSchoolName','managementToken',
     'isDeveloper','currentDashboard'
   ].forEach(function (key) { try { localStorage.removeItem(key); } catch (e) {} });
 
@@ -10202,12 +10263,10 @@ function performEditUser(oldEmail, newEmail, newPassword, newSchool, subscriptio
         loadAllUsers();
       });
     } else {
-      Swal.fire({
-        icon: 'error',
-        title: 'Imeshindikana',
-        text: data.message,
-        confirmButtonColor: '#4361ee'
-      });
+      var duplicate = data && data.code === 'TERM_DUPLICATE';
+      showTermFeedback_(duplicate ? 'warning' : 'error',
+        duplicate ? 'Muhula Tayari Upo' : 'Imeshindikana',
+        getFriendlyServerMessage_(data, 'Imeshindikana kutengeneza muhula. Tafadhali jaribu tena.'));
     }
   })
   .catch(error => {
@@ -10763,12 +10822,7 @@ function createNewUser() {
         loadAllUsers();
       });
     } else {
-      Swal.fire({
-        icon: 'error',
-        title: 'Imeshindikana',
-        text: data.message,
-        confirmButtonColor: '#4361ee'
-      });
+      showTermFeedback_(data && data.code === 'TERM_DUPLICATE' ? 'warning' : 'error', data && data.code === 'TERM_DUPLICATE' ? 'Muhula Tayari Upo' : 'Imeshindikana', getFriendlyServerMessage_(data, 'Imeshindikana kutengeneza muhula. Tafadhali jaribu tena.'));
     }
   })
   .catch(error => {
@@ -10902,10 +10956,60 @@ function loadTerms() {
   }
 }
 
+// Centralized, frontend-owned presentation for server responses.
+// The backend supplies stable codes; the UI owns wording, language and design.
+function getFriendlyServerMessage_(response, fallback) {
+  response = response || {};
+  var lang = String(localStorage.getItem('siwitiUserLanguage') || 'sw').toLowerCase();
+  var en = lang.indexOf('en') === 0;
+  var code = String(response.code || '');
+  var messages = {
+    TERM_DUPLICATE: en
+      ? 'A term with an equivalent name already exists for this year. You can use the same term name in a different year.'
+      : 'Muhula wenye maana/jina linalofanana tayari upo katika mwaka huu. Unaweza kutumia jina hilo hilo kwa mwaka tofauti.',
+    TERM_REQUIRED_FIELDS: en ? 'Please complete all required term details.' : 'Tafadhali jaza taarifa zote zinazohitajika za muhula.',
+    TERM_ACCESS_DENIED: en ? 'Only the Head of School and the appointed Academic Officer can manage terms. Please sign in again.' : 'Head of School na Mtaaluma aliyeteuliwa pekee ndio wanaoweza kusimamia mihula. Tafadhali ingia tena.',
+    TERMS_STORE_UNAVAILABLE: en ? 'The terms list is temporarily unavailable. Please try again.' : 'Orodha ya mihula haipatikani kwa sasa. Tafadhali jaribu tena.',
+    TERM_NOT_FOUND: en ? 'The selected term could not be found. Refresh the list and try again.' : 'Muhula uliochagua haujapatikana. Sasisha orodha kisha ujaribu tena.',
+    TERM_CREATE_FAILED: en ? 'The term could not be created. Please try again.' : 'Imeshindikana kutengeneza muhula. Tafadhali jaribu tena.',
+    TERM_UPDATE_FAILED: en ? 'The term changes could not be saved. Please try again.' : 'Imeshindikana kuhifadhi mabadiliko ya muhula. Tafadhali jaribu tena.',
+    SUBSCRIPTION_NOT_ACTIVE: en ? 'This service is currently unavailable. Please contact your school administrator.' : 'Huduma haipatikani kwa sasa. Tafadhali wasiliana na msimamizi wa shule.',
+    PLAN_EXPIRED: en ? 'Your school plan has expired. Please contact the administrator to renew it.' : 'Muda wa matumizi ya shule umeisha. Tafadhali wasiliana na msimamizi ili kuhuisha huduma.',
+    ACCOUNT_CLOSED: en ? 'This school account is currently closed. Please contact the administrator.' : 'Akaunti ya shule imefungwa kwa sasa. Tafadhali wasiliana na msimamizi.'
+  };
+  if (messages[code]) return messages[code];
+  // Never expose backend exception strings, stack traces, SQL/Google service
+  // details or raw technical diagnostics in a user-facing notification.
+  var raw = String(response.message || '');
+  if (/exception:|error:|script function|service invoked too many|lock timeout|stack| at [\w.$]+\(/i.test(raw)) {
+    return fallback || (en ? 'The request could not be completed. Please try again.' : 'Ombi halikukamilika. Tafadhali jaribu tena.');
+  }
+  return fallback || (en ? 'The request could not be completed. Please try again.' : 'Ombi halikukamilika. Tafadhali jaribu tena.');
+}
+
+function showTermFeedback_(kind, title, message) {
+  var en = String(localStorage.getItem('siwitiUserLanguage') || 'sw').toLowerCase().indexOf('en') === 0;
+  var palette = kind === 'success' ? '#16a34a' : (kind === 'warning' ? '#d97706' : '#dc2626');
+  return Swal.fire({
+    icon: kind,
+    title: title,
+    text: message,
+    confirmButtonText: en ? 'Continue' : 'Sawa',
+    confirmButtonColor: '#2563eb',
+    buttonsStyling: true,
+    customClass: { popup: 'siwiti-modern-alert', title: 'siwiti-modern-alert-title', confirmButton: 'siwiti-modern-alert-button' },
+    background: '#ffffff',
+    color: '#172033',
+    showClass: { popup: 'swal2-show' },
+    hideClass: { popup: 'swal2-hide' }
+  });
+}
+
 // ============================================
 // CREATE NEW TERM - Fast with simple success message
 // ============================================
 function createNewTerm() {
+  if(!canManageTermsClient_()){showTermFeedback_('error','Huna Ruhusa','Usimamizi wa mihula unapatikana kwa Head of School na Mtaaluma pekee.');return;}
   const termName = document.getElementById("newTermName").value.trim();
   
   if (!termName) {
@@ -10944,6 +11048,9 @@ function createNewTerm() {
   const data = {
     action: "createTerm",
     dbId: currentDbId,
+    email: localStorage.getItem('currentUserEmail') || '',
+    managementToken: localStorage.getItem('managementToken') || '',
+    userType: localStorage.getItem('userType') || '',
     termName: termName,
     termYear: currentYear,
     termMonth: currentMonth,
@@ -10991,12 +11098,7 @@ function createNewTerm() {
         timer: 1500
       });
     } else {
-      Swal.fire({
-        icon: 'error',
-        title: 'Imeshindikana',
-        text: data.message,
-        confirmButtonColor: '#4361ee'
-      });
+      showTermFeedback_(data && data.code === 'TERM_DUPLICATE' ? 'warning' : 'error', data && data.code === 'TERM_DUPLICATE' ? 'Muhula Tayari Upo' : 'Imeshindikana', getFriendlyServerMessage_(data, 'Imeshindikana kutengeneza muhula. Tafadhali jaribu tena.'));
     }
   })
   .catch(error => {
@@ -11052,6 +11154,7 @@ function loadTermData() {
 // EDIT CURRENT TERM - Loading on button only
 // ============================================
 function editCurrentTerm() {
+  if(!canManageTermsClient_()){showTermFeedback_('error','Huna Ruhusa','Usimamizi wa mihula unapatikana kwa Head of School na Mtaaluma pekee.');return;}
   const termId = document.getElementById("termSelect").value;
   
   if (!termId) {
@@ -11129,6 +11232,9 @@ function editCurrentTerm() {
           body: JSON.stringify({
             action: "editTerm",
             dbId: currentDbId,
+            email: localStorage.getItem('currentUserEmail') || '',
+            managementToken: localStorage.getItem('managementToken') || '',
+            userType: localStorage.getItem('userType') || '',
             termId: termId,
             termName: name,
             termYear: term.year
@@ -11160,12 +11266,10 @@ function editCurrentTerm() {
               loadTermData();
             });
           } else {
-            Swal.fire({
-              icon: 'error',
-              title: 'Imeshindikana',
-              text: data.message,
-              confirmButtonColor: '#4361ee'
-            });
+            var duplicate = data && data.code === 'TERM_DUPLICATE';
+            showTermFeedback_(duplicate ? 'warning' : 'error',
+              duplicate ? 'Muhula Tayari Upo' : 'Imeshindikana',
+              getFriendlyServerMessage_(data, 'Imeshindikana kuhifadhi mabadiliko ya muhula. Tafadhali jaribu tena.'));
           }
         })
         .catch(error => {
@@ -11187,6 +11291,7 @@ function editCurrentTerm() {
 // DELETE CURRENT TERM - Loading on button only
 // ============================================
 function deleteCurrentTerm() {
+  if(!canManageTermsClient_()){showTermFeedback_('error','Huna Ruhusa','Usimamizi wa mihula unapatikana kwa Head of School na Mtaaluma pekee.');return;}
   const termId = document.getElementById("termSelect").value;
   
   if (!termId) {
@@ -11261,6 +11366,9 @@ function deleteCurrentTerm() {
           body: JSON.stringify({
             action: "deleteTerm",
             dbId: currentDbId,
+            email: localStorage.getItem('currentUserEmail') || '',
+            managementToken: localStorage.getItem('managementToken') || '',
+            userType: localStorage.getItem('userType') || '',
             termId: termId
           })
         })
@@ -11323,88 +11431,89 @@ function deleteCurrentTerm() {
 // ADD A STUDENT TO THE SELECTED TERM (SAFE + STREAM-AWARE)
 // ============================================
 async function addMissingStudentToTerm() {
-  // This function is outside the language IIFE, so read the selected language
-  // from the document instead of referencing the IIFE-private currentLang variable.
   const modalLang = String(document.documentElement.lang || 'sw').toLowerCase().startsWith('en') ? 'en' : 'sw';
   const btn = document.getElementById('addMissingTermStudentBtn');
   const darasa = String(document.getElementById('darasaResults')?.value || '').trim();
   const termId = String(document.getElementById('termSelect')?.value || '').trim();
   const streamGroup = document.getElementById('manualStreamGroup');
   const streamName = String(document.getElementById('manualStreamSelect')?.value || '').trim();
-  if (!termId) {
-    Swal.fire({icon:'warning', title:'Chagua Muhula', text:'Tafadhali chagua muhula kabla ya kuongeza mwanafunzi.', confirmButtonColor:'#4361ee'});
-    return;
-  }
-  if (streamGroup && !streamGroup.classList.contains('hidden') && !streamName) {
-    Swal.fire({icon:'warning', title:'Chagua Mkondo', text:'Darasa hili lina mikondo. Chagua mkondo husika kwanza.', confirmButtonColor:'#4361ee'});
-    return;
-  }
-  if (!currentDbId) {
-    Swal.fire({icon:'error', title:'Akaunti haipatikani', text:'Toka kisha ingia tena kwenye mfumo.', confirmButtonColor:'#4361ee'});
-    return;
-  }
-  if (!isOnline()) {
-    Swal.fire({icon:'warning', title:'Hakuna Mtandao', text:'Kuongeza mwanafunzi kwenye muhula kunahitaji mtandao ili kuhakiki mkondo na kuzuia marudio.', confirmButtonColor:'#4361ee'});
-    return;
-  }
+  if (!termId) { Swal.fire({icon:'warning',title:modalLang==='en'?'Select Term':'Chagua Muhula',text:modalLang==='en'?'Select a term first.':'Tafadhali chagua muhula kwanza.',confirmButtonColor:'#4361ee'}); return; }
+  if (streamGroup && !streamGroup.classList.contains('hidden') && !streamName) { Swal.fire({icon:'warning',title:modalLang==='en'?'Select Stream':'Chagua Mkondo',text:modalLang==='en'?'Select the stream first.':'Darasa hili lina mikondo. Chagua mkondo husika kwanza.',confirmButtonColor:'#4361ee'}); return; }
+  if (!currentDbId) { Swal.fire({icon:'error',title:modalLang==='en'?'Account unavailable':'Akaunti haipatikani',text:modalLang==='en'?'Please sign in again.':'Toka kisha ingia tena kwenye mfumo.',confirmButtonColor:'#4361ee'}); return; }
+  if (!isOnline()) { Swal.fire({icon:'warning',title:modalLang==='en'?'No Internet':'Hakuna Mtandao',text:modalLang==='en'?'An internet connection is required to verify term and stream membership.':'Kuongeza wanafunzi kunahitaji mtandao ili kuhakiki muhula na mikondo.',confirmButtonColor:'#4361ee'}); return; }
   const originalHTML = btn ? btn.innerHTML : '';
-  if (btn) { btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>'; }
+  if (btn) { btn.disabled=true; btn.innerHTML='<i class="fas fa-spinner fa-spin"></i>'; }
   try {
-    const request = async (payload) => {
-      const response = await fetchWithServerRetry(SCRIPT_URL, {method:'POST', body:JSON.stringify(payload)});
-      if (!response || !response.ok) throw new Error('Server haikujibu vizuri (' + (response ? response.status : 'no response') + ').');
-      const data = await response.json();
-      if (!data || typeof data.status !== 'string') throw new Error('Jibu la server halijatambulika.');
-      return data;
-    };
-    const [rosterData, termData] = await Promise.all([
-      request({action:'listStudents', dbId:currentDbId, darasa:darasa}),
-      request({action:'listTermResults', dbId:currentDbId, darasa:darasa, termId:termId, streamName:streamName})
+    const request=async payload=>{const response=await fetchWithServerRetry(SCRIPT_URL,{method:'POST',body:JSON.stringify(payload)});if(!response||!response.ok)throw new Error('Server haikujibu vizuri ('+(response?response.status:'no response')+').');const data=await response.json();if(!data||typeof data.status!=='string')throw new Error('Jibu la server halijatambulika.');return data;};
+    const baseAuth={dbId:currentDbId,email:localStorage.getItem('currentUserEmail')||'',managementToken:localStorage.getItem('managementToken')||''};
+    const [rosterData,termData,streamData]=await Promise.all([
+      request(Object.assign({action:'listStudents',darasa:darasa},baseAuth)),
+      request({action:'listTermResults',dbId:currentDbId,darasa:darasa,termId:termId,streamName:streamName}),
+      request({action:'getStudentStreams',dbId:currentDbId,darasa:darasa})
     ]);
-    if (rosterData.status !== 'success') throw new Error(rosterData.message || 'Imeshindikana kupata orodha ya wanafunzi wa darasa.');
-    if (termData.status !== 'success') throw new Error(termData.message || 'Imeshindikana kupata orodha ya wanafunzi wa muhula.');
-    const roster = Array.isArray(rosterData.students) ? rosterData.students : [];
-    const current = Array.isArray(termData.results) ? termData.results : [];
-    const norm = value => String(value == null ? '' : value).normalize('NFKC').replace(/\s+/g,' ').trim().toLocaleLowerCase();
-    const present = new Set(current.map(s => norm(s && s.jina)).filter(Boolean));
-    const candidates = roster.filter(s => s && String(s.jina || '').trim() && !present.has(norm(s.jina)));
-    if (!candidates.length) {
-      Swal.fire({icon:'info', title:modalLang==='en'?'No Student to Add':'Hakuna Mwanafunzi wa Kuongeza', text:modalLang==='en'?'All students registered in this class are already included in this term or in the selected stream.':'Wanafunzi wote waliosajiliwa kwenye darasa hili tayari wapo kwenye muhula huu au kwenye mkondo uliochaguliwa.', confirmButtonText:modalLang==='en'?'OK':'Sawa', confirmButtonColor:'#4361ee'});
-      return;
-    }
-    const options = {};
-    candidates.sort((a,b) => String(a.jina).localeCompare(String(b.jina))).forEach(s => { options[String(s.jina)] = String(s.jina) + (s.jinsi ? ' (' + s.jinsi + ')' : ''); });
-    const choice = await Swal.fire({
-      title:modalLang==='en'?'Add Student to Term':'Ongeza Mwanafunzi Kwenye Muhula',
-      text:modalLang==='en'?'Choose the student missing from this term’s list.':'Chagua mwanafunzi ambaye hayupo kwenye orodha ya muhula huu.',
-      input:'select', inputOptions:options, inputPlaceholder:modalLang==='en'?'-- Choose student --':'-- Chagua mwanafunzi --',
-      showCancelButton:true, confirmButtonText:modalLang==='en'?'Add Student':'Ongeza Mwanafunzi', cancelButtonText:modalLang==='en'?'Cancel':'Ghairi', confirmButtonColor:'#4361ee',
-      inputValidator:value => value ? undefined : (modalLang==='en'?'Please select a student.':'Tafadhali chagua mwanafunzi.')
+    if(rosterData.status!=='success')throw new Error(rosterData.message||'Imeshindikana kupata orodha ya darasa.');
+    if(termData.status!=='success')throw new Error(termData.message||'Imeshindikana kupata orodha ya muhula.');
+    if(streamData.status!=='success')throw new Error(streamData.message||'Imeshindikana kuhakiki mikondo ya darasa.');
+    const roster=Array.isArray(rosterData.students)?rosterData.students:[];
+    const current=Array.isArray(termData.results)?termData.results:[];
+    const norm=value=>String(value==null?'':value).normalize('NFKC').replace(/[\u00a0\u2007\u202f]/g,' ').replace(/\s+/g,' ').trim().toLocaleLowerCase();
+    const present=new Set(current.map(s=>norm(s&&s.jina)).filter(Boolean));
+    const groups=Array.isArray(streamData.streams)?streamData.streams:[];
+    const hasStreams=groups.length>0;
+    const assignedToOtherStream=new Map();
+    groups.forEach(group=>(Array.isArray(group.students)?group.students:[]).forEach(student=>{
+      const key=norm(student&&student.jina);if(key&&norm(group.name)!==norm(streamName))assignedToOtherStream.set(key,String(group.name||''));
+    }));
+    // Streamed classes: exclude students assigned to any other stream.
+    // Non-streamed classes: exclude only students already in this term.
+    const candidates=roster.filter(student=>{
+      const name=norm(student&&student.jina);if(!name||present.has(name))return false;
+      if(hasStreams&&assignedToOtherStream.has(name))return false;
+      return true;
+    }).sort((a,b)=>String(a.jina).localeCompare(String(b.jina)));
+    if(!candidates.length){Swal.fire({icon:'info',title:modalLang==='en'?'No Student to Add':'Hakuna Mwanafunzi wa Kuongeza',text:modalLang==='en'?'No eligible student is missing from this selected term and stream.':'Hakuna mwanafunzi anayekidhi masharti ya kuongezwa kwenye muhula na mkondo uliochaguliwa.',confirmButtonText:modalLang==='en'?'OK':'Sawa',confirmButtonColor:'#4361ee'});return;}
+    const checkboxRows=candidates.map((student,index)=>'<label style="display:flex;align-items:center;gap:10px;padding:9px 10px;border-bottom:1px solid #e8edf3;text-align:left;cursor:pointer"><input type="checkbox" class="siwiti-add-student-check" value="'+String(index)+'" style="width:18px;height:18px;flex:0 0 auto"><span style="min-width:0"><strong>'+escapeHtml(String(student.jina))+'</strong>'+(student.jinsi?' <small style="color:#64748b">('+escapeHtml(String(student.jinsi))+')</small>':'')+'</span></label>').join('');
+    const choice=await Swal.fire({
+      title:modalLang==='en'?'Add Missing Students':'Ongeza Wanafunzi Waliokosekana',
+      html:'<div style="text-align:left;margin-bottom:10px;color:#64748b;font-size:13px">'+(modalLang==='en'?'Select one or more students to add.':'Weka tiki kwa mwanafunzi mmoja au zaidi unaotaka kuwaongeza.')+'</div><div style="display:flex;gap:8px;justify-content:flex-end;margin-bottom:8px"><button type="button" id="siwitiSelectAllAdd" class="swal2-styled" style="background:#eaf1ff;color:#2455a6;font-size:12px;padding:7px 10px">'+(modalLang==='en'?'Select all':'Chagua wote')+'</button><button type="button" id="siwitiClearAllAdd" class="swal2-styled" style="background:#f1f5f9;color:#475569;font-size:12px;padding:7px 10px">'+(modalLang==='en'?'Clear':'Ondoa tiki')+'</button></div><div style="max-height:48vh;overflow:auto;border:1px solid #e2e8f0;border-radius:10px">'+checkboxRows+'</div><div id="siwitiAddSelectedCount" style="text-align:right;font-size:12px;color:#64748b;margin-top:8px">0</div>',
+      showCancelButton:true,confirmButtonText:modalLang==='en'?'Add Selected':'Ongeza Waliochaguliwa',cancelButtonText:modalLang==='en'?'Cancel':'Ghairi',confirmButtonColor:'#4361ee',
+      didOpen:()=>{const checks=Array.from(document.querySelectorAll('.siwiti-add-student-check'));const count=()=>{const n=checks.filter(c=>c.checked).length;const el=document.getElementById('siwitiAddSelectedCount');if(el)el.textContent=(modalLang==='en'?n+' selected':n+' wamechaguliwa');};checks.forEach(c=>c.addEventListener('change',count));document.getElementById('siwitiSelectAllAdd')?.addEventListener('click',()=>{checks.forEach(c=>c.checked=true);count();});document.getElementById('siwitiClearAllAdd')?.addEventListener('click',()=>{checks.forEach(c=>c.checked=false);count();});count();},
+      preConfirm:()=>{const selected=Array.from(document.querySelectorAll('.siwiti-add-student-check:checked')).map(c=>candidates[Number(c.value)]).filter(Boolean).map(s=>String(s.jina));if(!selected.length){Swal.showValidationMessage(modalLang==='en'?'Select at least one student.':'Chagua angalau mwanafunzi mmoja.');return false;}return selected;}
     });
-    if (!choice.isConfirmed || !choice.value) return;
-    if (btn) btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
-    const added = await request({action:'addStudentToTerm', dbId:currentDbId, darasa:darasa, termId:termId, streamName:streamName, jina:choice.value});
-    if (added.status !== 'success') {
-      if (added.assignedStream) {
-        await Swal.fire({icon:'warning', title:modalLang==='en'?'Student Is in Another Stream':'Mwanafunzi Yupo Kwenye Mkondo Mwingine', text:modalLang==='en'?'This student is already in stream ' + added.assignedStream + '. Select that stream to enter marks.':'Mwanafunzi huyu tayari yupo kwenye mkondo ' + added.assignedStream + '. Chagua mkondo huo kuingiza alama.', confirmButtonText:modalLang==='en'?'OK':'Sawa', confirmButtonColor:'#4361ee'});
-      } else {
-        await Swal.fire({icon:'error', title:modalLang==='en'?'Could Not Add Student':'Imeshindikana Kuongeza', text:added.message || (modalLang==='en'?'The student was not added to the term.':'Mwanafunzi hakuongezwa kwenye muhula.'), confirmButtonColor:'#4361ee'});
-      }
-      return;
-    }
-    // Server has confirmed the row was added. Refresh active table/cache from server.
-    await Swal.fire({icon:'success', title:modalLang==='en'?'Student Added':'Mwanafunzi Ameongezwa', text:added.message || (modalLang==='en'?'The student was added to the term. You can now enter marks.':'Mwanafunzi ameongezwa kwenye muhula. Sasa unaweza kuingiza alama.'), confirmButtonColor:'#4361ee', timer:1800});
-    loadResults();
-  } catch (error) {
-    Swal.fire({icon:'error', title:modalLang==='en'?'Error':'Hitilafu', text:error && error.message ? error.message : (modalLang==='en'?'Could not contact the server. No changes were confirmed.':'Imeshindikana kuwasiliana na seva. Hakuna mabadiliko yaliyothibitishwa.'), confirmButtonColor:'#4361ee'});
-  } finally {
-    if (btn) { btn.disabled = false; btn.innerHTML = originalHTML; }
-  }
+    if(!choice.isConfirmed||!Array.isArray(choice.value)||!choice.value.length)return;
+    if(btn)btn.innerHTML='<i class="fas fa-spinner fa-spin"></i>';
+    const added=await request({action:'addStudentsToTerm',dbId:currentDbId,darasa:darasa,termId:termId,streamName:streamName,majina:choice.value});
+    const successNames=(added.added||[]).map(x=>x.jina||'');
+    const failed=(added.rejected||[]);
+    if(successNames.length){await Swal.fire({icon:failed.length?'warning':'success',title:modalLang==='en'?'Add Students Result':'Matokeo ya Kuongeza Wanafunzi',html:'<div style="text-align:left"><p><strong>'+(modalLang==='en'?'Added':'Wameongezwa')+': '+successNames.length+'</strong></p>'+(failed.length?'<p><strong>'+(modalLang==='en'?'Not added':'Hawakuongezwa')+': '+failed.length+'</strong></p><ul style="text-align:left;max-height:150px;overflow:auto">'+failed.map(x=>'<li>'+escapeHtml(x.jina)+': '+escapeHtml(x.message)+'</li>').join('')+'</ul>':'')+'</div>',confirmButtonText:modalLang==='en'?'OK':'Sawa',confirmButtonColor:'#4361ee'});loadResults();}
+    else {Swal.fire({icon:'error',title:modalLang==='en'?'Could Not Add Students':'Imeshindikana Kuongeza Wanafunzi',html:'<ul style="text-align:left">'+failed.map(x=>'<li>'+escapeHtml(x.jina)+': '+escapeHtml(x.message)+'</li>').join('')+'</ul>',confirmButtonColor:'#4361ee'});}
+  } catch(error) {Swal.fire({icon:'error',title:modalLang==='en'?'Error':'Hitilafu',text:error&&error.message?error.message:(modalLang==='en'?'Could not contact the server.':'Imeshindikana kuwasiliana na seva.'),confirmButtonColor:'#4361ee'});}
+  finally {if(btn){btn.disabled=false;btn.innerHTML=originalHTML;}}
 }
 
 // ============================================
 // SAVE RESULTS - Loading on button only
 // ============================================
+// Normalize text for matching only; never rewrite the visible/source label.
+function siwitiTextMatchKey_(value) {
+  return String(value == null ? '' : value)
+    .replace(/[\u00a0\u2007\u202f\uFEFF]/g, ' ')
+    .replace(/[\u200B-\u200D]/g, '')
+    .replace(/[\t\r\n]+/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim()
+    .toLocaleUpperCase();
+}
+function siwitiStudentNameKey_(name) {
+  return siwitiTextMatchKey_(name);
+}
+function siwitiGenderCode_(value) {
+  var key = siwitiTextMatchKey_(value).replace(/[.]/g, '');
+  if (/^(F|FEMALE|GIRL|GIRLS|MWANAMKE|WASICHANA)$/.test(key)) return 'F';
+  if (/^(M|MALE|BOY|BOYS|MWANAUME|WAVULANA)$/.test(key)) return 'M';
+  return key;
+}
+
 function saveResults() {
   const darasa = document.getElementById("darasaResults").value;
   const termId = document.getElementById("termSelect").value;
@@ -11437,7 +11546,7 @@ function saveResults() {
   let studentMap = {};
 
   inputs.forEach(input => {
-    const student = input.dataset.student;
+    const student = siwitiStudentNameKey_(input.dataset.student);
     const subject = input.dataset.subject;
     const score = input.value;
 
@@ -11456,7 +11565,7 @@ function saveResults() {
   });
 
   for (let i = 0; i < tbody.rows.length; i++) {
-    const studentName = tbody.rows[i].cells[0].textContent;
+    const studentName = siwitiStudentNameKey_(tbody.rows[i].cells[0].textContent);
     if (!studentMap[studentName]) {
       studentMap[studentName] = { jina: studentName, scores: {} };
     }
@@ -11581,7 +11690,7 @@ function updateResultsCacheAfterSave(darasa, termId, results) {
   
   results.forEach(result => {
     // Find existing result in cache
-    let existingResult = resultsCache[darasa][termId].find(r => r.jina === result.jina);
+    let existingResult = resultsCache[darasa][termId].find(r => siwitiStudentNameKey_(r.jina) === siwitiStudentNameKey_(result.jina));
     
     if (existingResult) {
       // Update existing result - handle deletions (null scores)
@@ -11598,7 +11707,7 @@ function updateResultsCacheAfterSave(darasa, termId, results) {
     } else {
       // New student - add to cache
       const studentRow = Array.from(document.getElementById("resultsTable").getElementsByTagName('tbody')[0].rows)
-        .find(row => row.cells[0].textContent === result.jina);
+        .find(row => siwitiStudentNameKey_(row.cells[0].textContent) === siwitiStudentNameKey_(result.jina));
       const gender = studentRow ? studentRow.cells[1].textContent : '';
       
       // Filter out null scores
@@ -11617,10 +11726,10 @@ function updateResultsCacheAfterSave(darasa, termId, results) {
     }
     
     // Update student cache
-    const existingStudent = studentCache[darasa].find(s => s.jina === result.jina);
+    const existingStudent = studentCache[darasa].find(s => siwitiStudentNameKey_(s.jina) === siwitiStudentNameKey_(result.jina));
     if (!existingStudent) {
       const studentRow = Array.from(document.getElementById("resultsTable").getElementsByTagName('tbody')[0].rows)
-        .find(row => row.cells[0].textContent === result.jina);
+        .find(row => siwitiStudentNameKey_(row.cells[0].textContent) === siwitiStudentNameKey_(result.jina));
       const gender = studentRow ? studentRow.cells[1].textContent : '';
       
       studentCache[darasa].push({
@@ -11684,7 +11793,7 @@ function confirmDeleteAllScores() {
   const visibleTable = document.getElementById('resultsTable');
   if (visibleTable) {
     const headers = Array.from(visibleTable.querySelectorAll('thead th'));
-    const subjectIndex = headers.findIndex(th => String(th.textContent || '').trim() === String(selectedSubject).trim());
+    const subjectIndex = headers.findIndex(th => siwitiTextMatchKey_(th.textContent) === siwitiTextMatchKey_(selectedSubject));
     if (subjectIndex >= 0) {
       const rows = Array.from(visibleTable.querySelectorAll('tbody tr'));
       const hasVisibleMarks = rows.some(tr => {
@@ -11865,7 +11974,7 @@ function clearDeletedSubjectFromVisibleTable(subject) {
   const table = document.getElementById('resultsTable');
   if (!table) return;
   const headerCells = Array.from(table.querySelectorAll('thead th'));
-  const subjectIndex = headerCells.findIndex(th => String(th.textContent || '').trim() === String(subject || '').trim());
+  const subjectIndex = headerCells.findIndex(th => siwitiTextMatchKey_(th.textContent) === siwitiTextMatchKey_(subject));
   if (subjectIndex < 0) return;
   Array.from(table.querySelectorAll('tbody tr')).forEach(tr => {
     const cells = tr.querySelectorAll('td');
@@ -14860,6 +14969,7 @@ function showDashboard(dashboard) {
   }
 
   // Show the selected dashboard
+  applyAcademicManagementVisibility_();
   if (dashboard === 'student') {
     document.getElementById("studentDashboard").classList.remove('hidden');
     updateActiveMenu('studentMenu');
@@ -15881,6 +15991,8 @@ function registerStaffMember() {
     return;
   }
   
+  if (!studentClassAllowed_(darasa)) { Notiflix.Notify.failure('Darasa hili halijagawiwa kwenye akaunti yako.'); return; }
+
   // Get button and show loading
   const registerBtn = document.getElementById("registerStaffBtn");
   let originalButtonHTML = '';
@@ -16630,6 +16742,12 @@ var currentStreamStudents = [];
 var currentStudentStreamsClass = '';
 var currentStudentStreamsLoadingToken = 0;
 var studentStreamRenderRevision_ = 0;
+function canManageStudentStreams_(){ return String(localStorage.getItem('userType')||'').toLowerCase()==='owner'; }
+function requireStudentStreamManager_(){
+  if(canManageStudentStreams_())return true;
+  setStudentStreamsStatus_(studentStreamsLocalized_('Usimamizi wa mikondo unapatikana kwa Head of School pekee.','Stream management is restricted to the Head of School.'),'error');
+  return false;
+}
 function studentStreamSelectionKey_(darasa, streamName) {
   return 'studentStreamSelectionDraft_' + String(currentDbId || localStorage.getItem('currentDbId') || 'default') + '_' + encodeURIComponent(String(darasa || '')) + '_' + encodeURIComponent(String(streamName || ''));
 }
@@ -16710,6 +16828,7 @@ function normalizeStreamList_(streams) {
   }).sort(function(a,b){return a.name.localeCompare(b.name);});
 }
 function loadStudentStreams() {
+  if(!requireStudentStreamManager_())return;
   var classSelect = document.getElementById('studentStreamsClass');
   var container = document.getElementById('studentStreamsContainer');
   if (!classSelect || !container) return;
@@ -16724,7 +16843,7 @@ function loadStudentStreams() {
   if (!currentDbId || !isOnline()) return;
   Promise.all([
     fetchWithServerRetry(SCRIPT_URL, {method:'POST', body:JSON.stringify({action:'getStudentStreams', dbId:currentDbId, darasa:darasa})}).then(function(r){if(!r.ok) throw new Error('HTTP '+r.status); return r.json();}),
-    fetchWithServerRetry(SCRIPT_URL, {method:'POST', body:JSON.stringify({action:'listStudents', dbId:currentDbId, darasa:darasa})}).then(function(r){if(!r.ok) throw new Error('HTTP '+r.status); return r.json();})
+    fetchWithServerRetry(SCRIPT_URL, {method:'POST', body:JSON.stringify({action:'listStudents', dbId:currentDbId, email:localStorage.getItem('currentUserEmail')||'', managementToken:localStorage.getItem('managementToken')||'', darasa:darasa})}).then(function(r){if(!r.ok) throw new Error('HTTP '+r.status); return r.json();})
   ]).then(function(results) {
     if (token !== currentStudentStreamsLoadingToken || darasa !== currentStudentStreamsClass) return;
     var streamsData = results[0], studentsData = results[1];
@@ -16794,6 +16913,7 @@ function confirmStudentStreamAction_(title, message, okText, callback) {
 function renderStudentStreams_() {
   var container = document.getElementById('studentStreamsContainer');
   if (!container) return;
+  if(!canManageStudentStreams_()){container.innerHTML='';return;}
   var darasa = currentStudentStreamsClass || (document.getElementById('studentStreamsClass') || {}).value || 'Awali';
   currentStudentStreams = normalizeStreamList_(currentStudentStreams);
   var students = Array.isArray(currentStreamStudents) ? currentStreamStudents : getCachedClassStudents_(darasa);
@@ -16838,7 +16958,7 @@ function renderStudentStreams_() {
     }).join('');
     if (!assignRows) assignRows = '<div class="stream-no-available"><i class="fas fa-check-circle"></i><span>Hakuna wanafunzi ambao hawajapangiwa mkondo</span></div>';
     return '<section class="stream-card" role="tabpanel" data-stream-name="' + escapeHtml(stream.name) + '"' + (stream.name === activeStreamName ? '' : ' hidden') + '>' +
-      '<header class="stream-card-header"><div class="stream-card-title"><span class="stream-card-icon"><i class="fas fa-layer-group"></i></span><div><h4>' + escapeHtml(stream.name) + '</h4><small>Darasa: ' + escapeHtml(darasa) + '</small></div></div><span class="stream-count-badge"><i class="fas fa-users"></i> ' + assigned.length + ' wanafunzi</span><button type="button" class="stream-toggle-assign" id="streamToggleAssign_' + index + '" aria-expanded="false" aria-controls="streamAssignPanel_' + index + '" onclick="toggleStreamAssignPanel(' + index + ')"><i class="fas fa-plus"></i><span>Gawa Wanafunzi</span></button></header>' +
+      '<header class="stream-card-header"><div class="stream-card-title"><span class="stream-card-icon"><i class="fas fa-layer-group"></i></span><div><h4>' + escapeHtml(stream.name) + '</h4><small>Darasa: ' + escapeHtml(darasa) + '</small></div></div><span class="stream-count-badge"><i class="fas fa-users"></i> ' + assigned.length + ' wanafunzi</span>' + (canManageStudentStreams_() ? '<div class="stream-admin-actions"><button type="button" class="stream-edit-btn" onclick="editStudentStreamAt(' + index + ')"><i class="fas fa-pen"></i><span>Hariri</span></button><button type="button" class="stream-delete-btn" onclick="deleteStudentStreamAt(' + index + ')"><i class="fas fa-trash"></i><span>Futa</span></button></div>' : '') + '<button type="button" class="stream-toggle-assign" id="streamToggleAssign_' + index + '" aria-expanded="false" aria-controls="streamAssignPanel_' + index + '" onclick="toggleStreamAssignPanel(' + index + ')"><i class="fas fa-plus"></i><span>Gawa Wanafunzi</span></button></header>' +
       '<div class="stream-assign-panel" id="streamAssignPanel_' + index + '" hidden><div class="stream-panel-heading"><div><h5><i class="fas fa-user-plus"></i> Ongeza wanafunzi</h5><p>Chagua wanafunzi ambao bado hawajapangiwa mkondo.</p></div><span class="stream-selection-count" id="streamSelectionCount_' + index + '">' + savedDraft.length + '/' + available.length + '</span></div>' +
       '<div class="stream-search-wrap"><i class="fas fa-search"></i><input type="search" class="stream-search-input" placeholder="Tafuta mwanafunzi kwa jina..." aria-label="Tafuta mwanafunzi" oninput="filterStreamStudentList(' + index + ',this.value)"></div>' +
       '<div class="stream-assign-list" id="streamStudentList_' + index + '">' + assignRows + '</div>' +
@@ -16846,7 +16966,26 @@ function renderStudentStreams_() {
       '<div class="stream-members-panel"><div class="stream-members-heading"><div><h5><i class="fas fa-users"></i> Wanafunzi waliopo</h5><p>Chagua mmoja au zaidi kuwaondoa.</p></div>' + (assigned.length ? '<button type="button" class="stream-remove-selected" onclick="removeSelectedStudentsFromStreamAt(' + index + ')"><i class="fas fa-user-minus"></i> Ondoa waliochaguliwa</button>' : '') + '</div><div class="stream-members-list">' + people + '</div></div></section>';
   }).join('');
 }
+function editStudentStreamAt(streamIndex){
+  if(!requireStudentStreamManager_())return;
+  var stream=currentStudentStreams[Number(streamIndex)];if(!stream)return;
+  if(!isOnline()){setStudentStreamsStatus_('Kuhariri mkondo kunahitaji intaneti.','error');return;}
+  Swal.fire({title:'Hariri Mkondo',input:'text',inputValue:stream.name,inputLabel:'Jina jipya la mkondo',showCancelButton:true,confirmButtonText:'Hifadhi',cancelButtonText:'Ghairi',inputValidator:function(v){if(!String(v||'').trim())return 'Jina la mkondo linahitajika.';if(String(v).trim().length>40)return 'Jina lisizidi herufi 40.';}}).then(function(r){
+    if(!r.isConfirmed)return;var newName=String(r.value||'').trim();if(newName.toLowerCase()===stream.name.toLowerCase())return;
+    Swal.fire({title:'Inahifadhi mabadiliko...',allowOutsideClick:false,showConfirmButton:false,didOpen:function(){Swal.showLoading();}});
+    fetchWithServerRetry(SCRIPT_URL,{method:'POST',body:JSON.stringify({action:'editStudentStream',dbId:currentDbId,email:localStorage.getItem('currentUserEmail')||'',managementToken:localStorage.getItem('managementToken')||'',darasa:currentStudentStreamsClass,oldName:stream.name,newName:newName})}).then(function(r){return r.json();}).then(function(d){Swal.close();if(d.status==='success'){try{localStorage.removeItem(studentStreamSelectionKey_(currentStudentStreamsClass,stream.name));}catch(e){};loadStudentStreams();setStudentStreamsStatus_('Mkondo umehaririwa. Wanafunzi na alama zao zimehifadhiwa.','success');}else{setStudentStreamsStatus_(d.code==='STREAM_DUPLICATE'?'Jina hilo tayari linatumika katika darasa hili.':(d.message||'Imeshindikana kuhariri mkondo.'),'error');}}).catch(function(){Swal.close();setStudentStreamsStatus_('Imeshindikana kuwasiliana na server. Hakuna mabadiliko yaliyothibitishwa.','error');});
+  });
+}
+function deleteStudentStreamAt(streamIndex){
+  if(!requireStudentStreamManager_())return;
+  var stream=currentStudentStreams[Number(streamIndex)];if(!stream)return;
+  if(!isOnline()){setStudentStreamsStatus_('Kufuta mkondo kunahitaji intaneti.','error');return;}
+  var count=Array.isArray(stream.students)?stream.students.length:0;
+  Swal.fire({icon:'warning',title:'Futa Mkondo?',html:'<p>Unataka kufuta mkondo <strong>'+escapeHtml(stream.name)+'</strong> katika <strong>'+escapeHtml(currentStudentStreamsClass)+'</strong>?</p><div style="margin-top:10px;padding:12px;border-radius:10px;background:#ecfdf5;color:#065f46;text-align:left"><strong>Wanafunzi '+count+' watabaki kwenye orodha kuu ya darasa.</strong><br>Usajili, alama na ripoti zao hazitafutwa.</div>',showCancelButton:true,confirmButtonText:'Ndiyo, Futa Mkondo',cancelButtonText:'Ghairi',confirmButtonColor:'#dc2626'}).then(function(r){if(!r.isConfirmed)return;Swal.fire({title:'Inafuta mkondo...',allowOutsideClick:false,showConfirmButton:false,didOpen:function(){Swal.showLoading();}});fetchWithServerRetry(SCRIPT_URL,{method:'POST',body:JSON.stringify({action:'deleteStudentStream',dbId:currentDbId,email:localStorage.getItem('currentUserEmail')||'',managementToken:localStorage.getItem('managementToken')||'',darasa:currentStudentStreamsClass,mkondo:stream.name})}).then(function(r){return r.json();}).then(function(d){Swal.close();if(d.status==='success'){try{localStorage.removeItem(studentStreamSelectionKey_(currentStudentStreamsClass,stream.name));}catch(e){};loadStudentStreams();setStudentStreamsStatus_('Mkondo umefutwa. Wanafunzi na alama zao zimehifadhiwa.','success');}else setStudentStreamsStatus_(d.message||'Imeshindikana kufuta mkondo.','error');}).catch(function(){Swal.close();setStudentStreamsStatus_('Imeshindikana kuwasiliana na server. Hakuna mabadiliko yaliyothibitishwa.','error');});});
+}
+
 function queueStudentStreamAction_(payload) {
+  if(payload && ['createStudentStream','assignStudentToStream','removeStudentFromStream','unassignStudentFromStreams'].indexOf(payload.action)!==-1){payload.email=payload.email||localStorage.getItem('currentUserEmail')||'';payload.managementToken=payload.managementToken||localStorage.getItem('managementToken')||'';payload.userType='owner';}
   var queue = [];
   try { queue = JSON.parse(localStorage.getItem('offlineQueue') || '[]') || []; } catch (e) {}
   var studentOps = ['assignStudentToStream','removeStudentFromStream','unassignStudentFromStreams'];
@@ -16865,6 +17004,7 @@ function queueStudentStreamAction_(payload) {
   localStorage.setItem('offlineQueue', JSON.stringify(queue));
 }
 function createStudentStream() {
+  if(!requireStudentStreamManager_())return;
   var classSelect = document.getElementById('studentStreamsClass');
   var nameInput = document.getElementById('newStudentStreamName');
   var darasa = classSelect ? classSelect.value : '';
@@ -16879,7 +17019,7 @@ function createStudentStream() {
   existing.push(stream); saveStreamsForClass_(darasa, existing);
   currentStudentStreams = normalizeStreamList_(existing); renderStudentStreams_();
   if (nameInput) nameInput.value = '';
-  var payload = {action:'createStudentStream', dbId:currentDbId, darasa:darasa, mkondo:mkondo};
+  var payload = {action:'createStudentStream', dbId:currentDbId, email:localStorage.getItem('currentUserEmail')||'', managementToken:localStorage.getItem('managementToken')||'', userType:'owner', darasa:darasa, mkondo:mkondo};
   if (!isOnline()) {
     queueStudentStreamAction_(payload);
     setStudentStreamsStatus_('Mkondo umehifadhiwa kwenye kifaa; utasawazishwa mtandao utakaporudi.', 'success');
@@ -16897,12 +17037,14 @@ function createStudentStream() {
 }
 function studentStreamsLocalized_(sw,en) { return (typeof window.siwitiCurrentLanguage==='function' && window.siwitiCurrentLanguage()==='en') ? en : sw; }
 function assignStudentToStreamAt(streamIndex) {
+  if(!requireStudentStreamManager_())return;
   // Backward-compatible wrapper for any existing call sites.
   var select = document.getElementById('streamStudentSelect_' + streamIndex);
   if (select && select.value) { assignStudentsToStreamAt(streamIndex); return; }
   setStudentStreamsStatus_(studentStreamsLocalized_('Chagua mwanafunzi mmoja au zaidi wa kuweka kwenye mkondo.','Select one or more students to assign to the stream.'), 'error');
 }
 function assignStudentsToStreamAt(streamIndex) {
+  if(!requireStudentStreamManager_())return;
   var stream = currentStudentStreams[streamIndex];
   var list = document.getElementById('streamStudentList_' + streamIndex);
   var names = list ? Array.prototype.map.call(list.querySelectorAll('.stream-assign-checkbox:checked'), function(box){return String(box.value||'').trim();}).filter(Boolean) : readStudentStreamSelection_(currentStudentStreamsClass, (currentStudentStreams[streamIndex]||{}).name);
@@ -16929,7 +17071,7 @@ function assignStudentsToStreamAt(streamIndex) {
   });
   target.students.sort(function(a,b){return a.jina.localeCompare(b.jina);});
   currentStudentStreams = next; saveStreamsForClass_(darasa,next); clearStudentStreamSelection_(darasa, stream.name); renderStudentStreams_();
-  var payloads = peopleToAssign.map(function(student){return {action:'assignStudentToStream',dbId:currentDbId,darasa:darasa,mkondo:stream.name,jina:student.jina};});
+  var payloads = peopleToAssign.map(function(student){return {action:'assignStudentToStream',dbId:currentDbId,email:localStorage.getItem('currentUserEmail')||'',managementToken:localStorage.getItem('managementToken')||'',userType:'owner',darasa:darasa,mkondo:stream.name,jina:student.jina};});
   if (!isOnline()) {
     payloads.forEach(queueStudentStreamAction_);
     setStudentStreamsStatus_(peopleToAssign.length + studentStreamsLocalized_(' wamewekwa kwenye mkondo kwenye kifaa; watasawazishwa mtandao utakaporudi.',' students assigned locally; they will sync when online.'), 'success');
@@ -16941,17 +17083,20 @@ function assignStudentsToStreamAt(streamIndex) {
   },Promise.resolve()).then(function(){setStudentStreamsStatus_(peopleToAssign.length + studentStreamsLocalized_(' wamewekwa kwenye mkondo.',' students assigned to the stream.'), 'success');loadStudentStreams();}).catch(function(err){payloads.forEach(queueStudentStreamAction_);setStudentStreamsStatus_('Baadhi ya maombi hayakuthibitishwa; mabadiliko yamewekwa kwenye foleni ya kusawazisha.', 'error');console.warn('Bulk stream assignment:',err);loadStudentStreams();});
 }
 function removeStudentFromStreamAt(streamIndex, studentIndex) {
+  if(!requireStudentStreamManager_())return;
   var stream = currentStudentStreams[streamIndex];
   if (!stream || !stream.students || !stream.students[studentIndex]) return;
   removeStudentsFromStreamAt(streamIndex,[String(stream.students[studentIndex].jina||'')]);
 }
 function removeSelectedStudentsFromStreamAt(streamIndex) {
+  if(!requireStudentStreamManager_())return;
   var boxes = document.querySelectorAll('.stream-remove-checkbox[data-stream-index="' + streamIndex + '"]:checked');
   var names = Array.prototype.map.call(boxes,function(box){return String(box.value||'').trim();}).filter(Boolean);
   if (!names.length) { setStudentStreamsStatus_(studentStreamsLocalized_('Chagua mwanafunzi mmoja au zaidi wa kuondoa.','Select one or more students to remove.'), 'error'); return; }
   removeStudentsFromStreamAt(streamIndex,names);
 }
 function removeStudentsFromStreamAt(streamIndex,names,confirmed) {
+  if(!requireStudentStreamManager_())return;
   var stream = currentStudentStreams[streamIndex];
   if (!stream || !Array.isArray(stream.students)) return;
   var selected = (names||[]).map(function(n){return String(n||'').trim();}).filter(Boolean);
@@ -16965,7 +17110,7 @@ function removeStudentsFromStreamAt(streamIndex,names,confirmed) {
   var darasa = currentStudentStreamsClass;
   stream.students = stream.students.filter(function(person){return !lookup[String(person.jina||'').trim().toLowerCase()];});
   saveStreamsForClass_(darasa,currentStudentStreams); renderStudentStreams_();
-  var payloads = actual.map(function(student){return {action:'removeStudentFromStream',dbId:currentDbId,darasa:darasa,mkondo:stream.name,jina:student.jina};});
+  var payloads = actual.map(function(student){return {action:'removeStudentFromStream',dbId:currentDbId,email:localStorage.getItem('currentUserEmail')||'',managementToken:localStorage.getItem('managementToken')||'',userType:'owner',darasa:darasa,mkondo:stream.name,jina:student.jina};});
   if (!isOnline()) {
     payloads.forEach(queueStudentStreamAction_);
     setStudentStreamsStatus_(actual.length + studentStreamsLocalized_(' wameondolewa kwenye mkondo kwenye kifaa; mabadiliko yatasawazishwa mtandao utakaporudi.',' students removed locally; changes will sync when online.'), 'success');
@@ -16980,6 +17125,133 @@ function removeStudentsFromStreamAt(streamIndex,names,confirmed) {
 // ============================================
 // REGISTER STUDENT - Fixed (only this function)
 // ============================================
+// Student-management class scope is loaded from the signed Backend session.
+function studentAccessRoleClient_(){
+  var userType=String(localStorage.getItem('userType')||'').trim().toLowerCase();
+  var verifiedRole=String(localStorage.getItem('studentAccessRole')||'').trim().toLowerCase();
+  // The role returned by getStudentAccessClasses is the signed backend role.
+  if(verifiedRole==='academic'||verifiedRole==='owner'||verifiedRole==='staff')return verifiedRole;
+  return userType==='owner'?'owner':(userType==='staff'?'staff':userType);
+}
+function studentListCanViewAllClasses_(){
+  return localStorage.getItem('studentListCanViewAllClasses')==='true';
+}
+function studentAccessClasses_() {
+  var role=studentAccessRoleClient_();
+  if(role==='owner') return null; // Head of School manages every class.
+  // Staff AND Academic Coordinator retain their assigned-class write scope.
+  try { var raw=JSON.parse(localStorage.getItem('studentAccessClasses')||'[]'); return Array.isArray(raw)?raw:[]; } catch(e) { return []; }
+}
+function isAcademicCoordinatorClient_(){return studentAccessRoleClient_()==='academic';}
+function studentCanManageSelectedClass_(className){
+  var role=studentAccessRoleClient_();
+  if(role==='owner')return true;
+  var allowed=studentAccessClasses_();
+  return allowed.indexOf(String(className||'').trim())>=0;
+}
+function studentCanViewSelectedClass_(className){
+  if(studentListCanViewAllClasses_())return true;
+  return studentCanManageSelectedClass_(className);
+}
+
+function studentClassAllowed_(className) {
+  var allowed=studentAccessClasses_();
+  return allowed===null || allowed.indexOf(String(className||'').trim())>=0;
+}
+function loadStudentAccessClasses_(afterLoad) {
+  if(!currentDbId || !isOnline()) { if(typeof afterLoad==='function')afterLoad(false); return Promise.resolve(false); }
+  var payload={action:'getStudentAccessClasses',dbId:currentDbId,email:localStorage.getItem('currentUserEmail')||'',managementToken:localStorage.getItem('managementToken')||''};
+  return fetchWithServerRetry(SCRIPT_URL,{method:'POST',body:JSON.stringify(payload)}).then(function(r){if(!r.ok)throw new Error('HTTP '+r.status);return r.json();}).then(function(d){
+    if(!d||d.status!=='success'||!Array.isArray(d.classes))throw new Error(d&&d.message||'Access denied');
+    localStorage.setItem('studentAccessClasses',JSON.stringify(d.classes));
+    localStorage.setItem('studentAccessRole',String(d.role||''));
+    localStorage.setItem('studentListCanViewAllClasses',d.canViewAllStudentClasses===true?'true':'false');
+    if(d.schoolLevel)localStorage.setItem('schoolLevel',String(d.schoolLevel));
+    localStorage.setItem('studentAccessScopeAt',String(Date.now()));
+    applyStudentAccessClassOptions_();
+    // If the Student List tab is already open (e.g. login raced the async
+    // permission fetch), refresh it after the authorized class options are ready.
+    var listTab=document.getElementById('studentsList');
+    if(listTab && listTab.classList.contains('active')){
+      var listSelect=document.getElementById('darasaList');
+      if(listSelect && listSelect.value && studentCanViewSelectedClass_(listSelect.value))loadStudents();
+      else renderStudentListPrompt_();
+    }
+    if(typeof afterLoad==='function')afterLoad(true,d);
+    return true;
+  }).catch(function(e){
+    // Fail closed for Staff: never restore the full class list from stale HTML/cache.
+    if(String(localStorage.getItem('userType')||'').toLowerCase()==='staff'){
+      localStorage.removeItem('studentAccessClasses');localStorage.removeItem('studentAccessRole');localStorage.removeItem('studentListCanViewAllClasses');localStorage.removeItem('studentAccessScopeAt');
+      applyStudentAccessClassOptions_();
+    }
+    console.warn('Student class access could not be loaded:',e);
+    if(typeof afterLoad==='function')afterLoad(false);
+    return false;
+  });
+}
+function applyStudentAccessClassOptions_() {
+  var level=String(localStorage.getItem('schoolLevel')||'primary').toLowerCase();
+  var all=level==='secondary'
+    ? [{value:'Form I',sw:'Kidato cha I',en:'Form I'},{value:'Form II',sw:'Kidato cha II',en:'Form II'},{value:'Form III',sw:'Kidato cha III',en:'Form III'},{value:'Form IV',sw:'Kidato cha IV',en:'Form IV'}]
+    : [{value:'Awali',sw:'Awali',en:'Pre - Primary'},{value:'Darasa la Kwanza',sw:'Darasa la Kwanza',en:'Standard I'},{value:'Darasa la Pili',sw:'Darasa la Pili',en:'Standard II'},{value:'Darasa la Tatu',sw:'Darasa la Tatu',en:'Standard III'},{value:'Darasa la Nne',sw:'Darasa la Nne',en:'Standard IV'},{value:'Darasa la Tano',sw:'Darasa la Tano',en:'Standard V'},{value:'Darasa la Sita',sw:'Darasa la Sita',en:'Standard VI'},{value:'Darasa la Saba',sw:'Darasa la Saba',en:'Standard VII'}];
+  var allowed=studentAccessClasses_();
+  var lang=String(localStorage.getItem('siwitiUserLanguage')||'sw').toLowerCase();
+  var en=lang.indexOf('en')===0;
+  ['darasaRegister','darasaTemplate','darasaList'].forEach(function(id){
+    var el=document.getElementById(id);if(!el)return;
+    var oldValue=String(el.value||'');
+    var isList=(id==='darasaList');
+    // Read-all is a backend-issued permission, and applies only to the list tab.
+    var canReadAll=isList && studentListCanViewAllClasses_();
+    var opts=(id==='darasaList' && canReadAll) || studentAccessRoleClient_()==='owner'
+      ? all
+      : all.filter(function(item){return allowed.indexOf(item.value)>=0;});
+    var signature=JSON.stringify({
+      level:level,lang:en?'en':'sw',role:studentAccessRoleClient_(),
+      canReadAll:canReadAll,values:opts.map(function(item){return item.value;})
+    });
+    // Do not tear down/recreate identical options on every pageshow or scope refresh.
+    if(el.getAttribute('data-class-options-signature')!==signature){
+      el.innerHTML='';
+      var placeholder=document.createElement('option');
+      placeholder.value='';
+      placeholder.textContent=opts.length?(en?'Select class':'Chagua darasa'):(en?'No class assigned':'Hakuna darasa ulilogawiwa');
+      el.appendChild(placeholder);
+      opts.forEach(function(item){
+        var option=document.createElement('option');
+        option.value=item.value;option.textContent=en?item.en:item.sw;
+        el.appendChild(option);
+      });
+      el.setAttribute('data-class-options-signature',signature);
+    }
+    // Preserve a valid user's selection; otherwise require a deliberate choice.
+    if(oldValue && opts.some(function(item){return item.value===oldValue;}))el.value=oldValue;
+    else el.value='';
+    el.disabled=opts.length===0;
+  });
+  var listSelect=document.getElementById('darasaList');
+  if(listSelect){
+    var exitGroup=document.getElementById('exitSheetsOptgroup');
+    if(exitGroup)exitGroup.remove();
+    if((studentAccessRoleClient_()==='owner'||studentListCanViewAllClasses_())||allowed.indexOf('Darasa la Saba')>=0){
+      exitGroup=document.createElement('optgroup');
+      exitGroup.id='exitSheetsOptgroup';
+      exitGroup.label='─── Darasa la Saba Exit ───';
+      listSelect.appendChild(exitGroup);
+    }
+  }
+  var delAll=document.querySelector('#studentsList button[onclick="confirmDeleteAllStudents()"]');
+  if(delAll)delAll.style.display=studentAccessRoleClient_()==='staff'?'none':'';
+}
+
+
+
+(function installStudentAccessRefresh_(){
+  if(window.__studentAccessRefreshInstalled)return;window.__studentAccessRefreshInstalled=true;
+  window.addEventListener('pageshow',function(){if(localStorage.getItem('currentUserEmail')&&currentDbId&&isOnline())loadStudentAccessClasses_();});
+})();
+
 function registerStudent() {
   const jina = document.getElementById("studentName").value.trim();
   const jinsi = document.getElementById("jinsi").value;
@@ -17006,6 +17278,8 @@ function registerStudent() {
   const data = {
     action: "registerStudent",
     dbId: currentDbId,
+    email: localStorage.getItem('currentUserEmail') || '',
+    managementToken: localStorage.getItem('managementToken') || '',
     jina: jina,
     jinsi: jinsi,
     darasa: darasa
@@ -17149,8 +17423,25 @@ function updateLocalCachesAfterRegistration(jina, jinsi, darasa) {
 // ============================================
 // LOAD STUDENTS - Silent loading with cache first
 // ============================================
+function renderStudentListPrompt_(){
+  var body=document.getElementById('studentsTableBody');
+  var title=document.getElementById('dynamicSectionTitle');
+  if(title)title.innerHTML='';
+  if(body)body.innerHTML='<tr><td colspan="5" style="text-align:center;padding:40px;"><div class="empty-state"><div class="empty-state-icon"><i class="fas fa-hand-pointer"></i></div><h4>Chagua Darasa</h4><p>Chagua darasa kwenye orodha hapo juu ili kuona wanafunzi wake.</p></div></td></tr>';
+}
 function loadStudents() {
-  const darasa = document.getElementById("darasaList").value;
+  const listTab=document.getElementById('studentsList');
+  const selector=document.getElementById("darasaList");
+  const darasa=selector?String(selector.value||'').trim():'';
+  // Other dashboard actions may call loadStudents() for refresh purposes.
+  // Never expose/render the roster while its tab is hidden.
+  if(!listTab || !listTab.classList.contains('active'))return;
+  if(!darasa){renderStudentListPrompt_();return;}
+  if((String(localStorage.getItem('userType')||'').toLowerCase()==='staff' || isAcademicCoordinatorClient_()) && isOnline()){
+    var scopeAt=Number(localStorage.getItem('studentAccessScopeAt')||0);
+    if(!scopeAt || Date.now()-scopeAt>5*60*1000){loadStudentAccessClasses_(function(ok){if(ok){var sel=document.getElementById('darasaList');if(sel&&studentCanViewSelectedClass_(sel.value))loadStudents();}else{var b=document.getElementById('studentsTableBody');if(b)b.innerHTML='<tr><td colspan="5" style="text-align:center;padding:30px">Ruhusa za madarasa hazijathibitishwa. Tafadhali ingia tena.</td></tr>';}});return;}
+  }
+  if (!studentCanViewSelectedClass_(darasa)) { var deniedBody=document.getElementById('studentsTableBody'); if(deniedBody)deniedBody.innerHTML='<tr><td colspan="5" style="text-align:center;padding:30px">Huna ruhusa ya kuona darasa hili.</td></tr>'; return; }
   
   // Update section title
   updateStudentsSectionTitle(darasa);
@@ -17203,6 +17494,8 @@ function loadStudents() {
       body: JSON.stringify({
         action: "listStudents",
         dbId: currentDbId,
+        email: localStorage.getItem('currentUserEmail') || '',
+        managementToken: localStorage.getItem('managementToken') || '',
         darasa: darasa
       })
     })
@@ -17316,6 +17609,13 @@ function displayStudents(students = null, darasa = null) {
     const actionsCell = row.insertCell(4);
     actionsCell.style.textAlign = 'center';
     
+    // Academic Coordinator can inspect every class roster, but only manage
+    // students in classes explicitly assigned to that account.
+    if (!studentCanManageSelectedClass_(selectedDarasa)) {
+      actionsCell.textContent = isAcademicCoordinatorClient_() ? 'Kuangalia tu' : '—';
+      return;
+    }
+
     // Create promote up button
     const promoteUpBtn = document.createElement('button');
     promoteUpBtn.innerHTML = '<i class="fas fa-arrow-up"></i>';
@@ -17424,7 +17724,9 @@ function loadExitSheetsForDropdown() {
     method: "POST",
     body: JSON.stringify({
       action: "getAllExitSheets",
-      dbId: currentDbId
+      dbId: currentDbId,
+      email: localStorage.getItem('currentUserEmail') || '',
+      managementToken: localStorage.getItem('managementToken') || '' 
     })
   })
   .then(res => res.json())
@@ -17505,6 +17807,8 @@ function loadExitSheetStudents(exitSheetName) {
     body: JSON.stringify({
       action: "getExitSheetStudents",
       dbId: currentDbId,
+      email: localStorage.getItem('currentUserEmail') || '',
+      managementToken: localStorage.getItem('managementToken') || '',
       sheetName: exitSheetName
     })
   })
@@ -17517,7 +17821,7 @@ function loadExitSheetStudents(exitSheetName) {
       Swal.fire({
         icon: 'error',
         title: 'Imeshindikana',
-        text: data.message,
+        text: getFriendlyServerMessage_(data, 'Taarifa za kuingia hazijakubalika. Hakiki barua pepe na nenosiri kisha ujaribu tena.'),
         confirmButtonColor: '#4361ee'
       });
     }
@@ -17896,6 +18200,8 @@ function editStudent(encodedJina, jinsi, darasa) {
             const data = {
                 action: "editStudent",
                 dbId: currentDbId,
+                email: localStorage.getItem('currentUserEmail') || '',
+                managementToken: localStorage.getItem('managementToken') || '',
                 oldJina: decodedJina,
                 newJina: newJina,
                 jinsi: newJinsi,
@@ -18018,6 +18324,8 @@ function deleteStudent(encodedJina, darasa) {
             const data = {
                 action: "deleteStudent",
                 dbId: currentDbId,
+                email: localStorage.getItem('currentUserEmail') || '',
+                managementToken: localStorage.getItem('managementToken') || '',
                 jina: decodedJina,
                 darasa: darasa
             };
@@ -20322,6 +20630,7 @@ function loadSystemSettings() {
 // LOAD EXIT SHEETS FROM CACHE - No loading indicator
 // ============================================
 function loadExitSheetsFromCache() {
+  if(String(localStorage.getItem('userType')||'').toLowerCase()==='staff' && !studentClassAllowed_('Darasa la Saba'))return;
   const cachedExitSheets = localStorage.getItem('exitSheetsCache');
   if (cachedExitSheets) {
     try {
@@ -20344,7 +20653,9 @@ function loadExitSheetsAutomatically() {
       method: "POST",
       body: JSON.stringify({
         action: "getAllExitSheets",
-        dbId: currentDbId
+        dbId: currentDbId,
+        email: localStorage.getItem('currentUserEmail') || '',
+        managementToken: localStorage.getItem('managementToken') || ''
       })
     })
     .then(res => res.json())
@@ -20408,7 +20719,9 @@ function loadExitSheetsList() {
       method: "POST",
       body: JSON.stringify({
         action: "getAllExitSheets",
-        dbId: currentDbId
+        dbId: currentDbId,
+        email: localStorage.getItem('currentUserEmail') || '',
+        managementToken: localStorage.getItem('managementToken') || ''
       })
     })
     .then(res => res.json())
@@ -20467,7 +20780,9 @@ function loadGraduationClassesList() {
     method: "POST",
     body: JSON.stringify({
       action: "getAllExitSheets",
-      dbId: currentDbId
+      dbId: currentDbId,
+      email: localStorage.getItem('currentUserEmail') || '',
+      managementToken: localStorage.getItem('managementToken') || ''
     })
   })
   .then(res => res.json())
@@ -21978,6 +22293,8 @@ function handleSuccessfulLogin(data, email) {
     return;
   }
   localStorage.setItem('schoolLevel', authenticatedLevel);
+  localStorage.setItem('userType', data.userType || 'owner');
+  localStorage.removeItem('studentAccessClasses'); localStorage.removeItem('studentAccessRole'); localStorage.removeItem('studentListCanViewAllClasses'); localStorage.removeItem('studentAccessScopeAt');
   if (typeof applySchoolLevelUI === 'function') applySchoolLevelUI(authenticatedLevel);
   currentDbId = data.dbId;
   currentSchoolName = String(data.schoolName || '').trim().toLocaleUpperCase();
@@ -22000,6 +22317,8 @@ function handleSuccessfulLogin(data, email) {
   localStorage.setItem('schoolName', data.schoolName);
   localStorage.setItem('userType', data.userType || "owner");
   localStorage.setItem('currentUserEmail', email);
+  if(data.managementToken)localStorage.setItem('managementToken',data.managementToken);else localStorage.removeItem('managementToken');
+  localStorage.removeItem('studentAccessClasses'); localStorage.removeItem('studentAccessRole');
       if (!localStorage.getItem('siwitiUserLanguage')) localStorage.setItem('siwitiUserLanguage','sw');
   if (typeof applyServerLanguage === 'function') applyServerLanguage(data.language || localStorage.getItem('siwitiUserLanguage') || 'sw');
   
@@ -22029,6 +22348,9 @@ function handleSuccessfulLogin(data, email) {
     }
     setTimeout(() => preloadStaffTimetable(), 0);
   }
+
+  // Load server-authorized class scope before student-management controls are used.
+  setTimeout(function(){loadStudentAccessClasses_();},0);
 
   // Go to appropriate dashboard
   const savedDashboard = data.userType === 'staff' ? ((data.timetableRole === 'academic') ? 'timetable' : 'staffTimetable') : (localStorage.getItem('currentDashboard') || 'student');
@@ -22168,26 +22490,22 @@ function handleTrialExpired(data, email) {
     console.log("🏫 School name updated in sidebar (trial expired):", data.schoolName);
   }
   
-  // Show trial expired warning with payment info
+  // Keep expiry notices short; detailed payment information remains in the
+  // dashboard payment overlay rather than being repeated in this alert.
+  var expiryIsStaff = data.userType === 'staff';
+  var expiryLanguage = (localStorage.getItem('siwitiUserLanguage') || 'sw').toLowerCase();
+  var expiryIsEnglish = expiryLanguage.indexOf('en') === 0;
+  var expiryNotice = expiryIsEnglish
+    ? (expiryIsStaff ? 'The school subscription has expired. Please contact the school administrator.' : 'Your subscription has expired. Please renew to continue using the system.')
+    : (expiryIsStaff ? 'Muda wa matumizi ya shule umeisha. Tafadhali wasiliana na uongozi wa shule.' : 'Muda wa matumizi umeisha. Tafadhali lipia kifurushi ili kuendelea kutumia mfumo.');
   Swal.fire({
     icon: 'warning',
-    title: 'Trial/subscription Period Ended',
-    html: `
-      <div style="text-align: center;">
-        <p>${data.message}</p>
-        <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; margin: 15px 0;">
-          <p><strong>💰 Monthly Fee:</strong> TZS ${data.paymentInfo?.monthly || '2,500'}</p>
-          <p><strong>💰 Yearly Fee:</strong> TZS ${data.paymentInfo?.yearly || '30,000'}</p>
-        </div>
-        <p><strong>Payment via:</strong></p>
-        <p>📱 M-Pesa: <strong>${data.paymentInfo?.mpesa || '+255750183275'}</strong></p>
-        <p>📱 Mix By Yas: <strong>${data.paymentInfo?.mix || '+255652343371'}</strong></p>
-      </div>
-    `,
-    confirmButtonText: 'Continue to Dashboard',
+    title: expiryIsEnglish ? 'Subscription Expired' : 'Muda wa Matumizi Umeisha',
+    text: expiryNotice,
+    confirmButtonText: expiryIsEnglish ? 'Continue' : 'Endelea',
     confirmButtonColor: '#4361ee',
     showCancelButton: true,
-    cancelButtonText: 'Cancel',
+    cancelButtonText: expiryIsEnglish ? 'Cancel' : 'Funga',
     cancelButtonColor: '#f72585'
   }).then((result) => {
     if (result.isConfirmed) {
@@ -22247,6 +22565,7 @@ function handleRegularUserLogin(data, email) {
   localStorage.setItem('schoolLevel', resolvedLevel);
   applySchoolLevelUI(resolvedLevel);
   localStorage.setItem('userType', data.userType || "owner");
+  if(data.managementToken)localStorage.setItem('managementToken',data.managementToken);else localStorage.removeItem('managementToken');
   
   if (data.userType === "staff") {
     localStorage.setItem('staffName', data.staffName || "Staff");
@@ -22350,6 +22669,8 @@ function deleteAllStudents(darasa) {
     const data = {
         action: "deleteAllStudents",
         dbId: currentDbId,
+        email: localStorage.getItem('currentUserEmail') || '',
+        managementToken: localStorage.getItem('managementToken') || '', 
         darasa: darasa
     };
 
@@ -22365,6 +22686,8 @@ function deleteAllStudents(darasa) {
                 const individualAction = {
                     action: "deleteStudent",
                     dbId: currentDbId,
+                email: localStorage.getItem('currentUserEmail') || '',
+                managementToken: localStorage.getItem('managementToken') || '',
                     jina: student.jina,
                     darasa: darasa
                 };
@@ -22440,6 +22763,8 @@ function deleteAllStudents(darasa) {
             const individualAction = {
                 action: "deleteStudent",
                 dbId: currentDbId,
+                email: localStorage.getItem('currentUserEmail') || '',
+                managementToken: localStorage.getItem('managementToken') || '',
                 jina: student.jina,
                 darasa: darasa
             };
@@ -25945,15 +26270,20 @@ function applySchoolLevelUI(level) {
     : [{value:'Awali',sw:'Awali',en:'Pre - Primary'},{value:'Darasa la Kwanza',sw:'Darasa la Kwanza',en:'Standard I'},{value:'Darasa la Pili',sw:'Darasa la Pili',en:'Standard II'},{value:'Darasa la Tatu',sw:'Darasa la Tatu',en:'Standard III'},{value:'Darasa la Nne',sw:'Darasa la Nne',en:'Standard IV'},{value:'Darasa la Tano',sw:'Darasa la Tano',en:'Standard V'},{value:'Darasa la Sita',sw:'Darasa la Sita',en:'Standard VI'},{value:'Darasa la Saba',sw:'Darasa la Saba',en:'Standard VII'}];
   var langKey=String(localStorage.getItem('siwitiUserLanguage') || localStorage.getItem('siwitiLanguage') || 'sw').toLowerCase();
   var isEnglish=langKey.indexOf('en')===0;
+  var studentScopedIds=['darasaRegister','darasaTemplate','darasaList'];
+  var savedStudentScope=null;try{savedStudentScope=JSON.parse(localStorage.getItem('studentAccessClasses')||'null');}catch(e){}
   ['darasaRegister','darasaTemplate','darasaList','studentStreamsClass','darasaResults','bulkDarasaSelect','darasaReport','darasaTemplateSelect','studentClassSelect','staffClassSelect','classSelect','darasaPromotion','darasaGraduates','darasaReportSettings'].forEach(function(id) {
     var el=document.getElementById(id); if(!el || el.tagName!=='SELECT') return;
     var old=el.value;
     var first=el.options.length && (el.options[0].value==='' || /chagua|select/i.test(el.options[0].textContent)) ? {value:el.options[0].value,text:el.options[0].textContent} : null;
+    var scoped=studentScopedIds.indexOf(id)>=0 && String(localStorage.getItem('userType')||'').toLowerCase()==='staff';
+    var options=scoped?classOptions.filter(function(item){return Array.isArray(savedStudentScope)&&savedStudentScope.indexOf(item.value)>=0;}):classOptions;
     el.innerHTML='';
-    if(first){var ph=document.createElement('option');ph.value=first.value;ph.textContent=first.text;el.appendChild(ph);}
-    classOptions.forEach(function(item){var o=document.createElement('option');o.value=item.value;o.textContent=isEnglish?item.en:item.sw;el.appendChild(o);});
-    if(classOptions.some(function(item){return item.value===old;}))el.value=old;
-    else if(!first)el.selectedIndex=0;
+    if(first||scoped){var ph=document.createElement('option');ph.value='';ph.textContent=options.length?(first?first.text:(isEnglish?'Select class':'Chagua darasa')):(isEnglish?'No class assigned':'Hakuna darasa ulilogawiwa');el.appendChild(ph);}
+    options.forEach(function(item){var o=document.createElement('option');o.value=item.value;o.textContent=isEnglish?item.en:item.sw;el.appendChild(o);});
+    if(options.some(function(item){return item.value===old;}))el.value=old;
+    else if(!scoped&&!first)el.selectedIndex=0;
+    el.disabled=scoped&&options.length===0;
   });
   // Mark the document and hide primary-only controls/sections in secondary mode.
   document.documentElement.setAttribute('data-school-level', level);
@@ -26007,6 +26337,8 @@ function enforceSchoolLevelClassOptions_() {
     : [{value:'Awali',sw:'Awali',en:'Pre - Primary'},{value:'Darasa la Kwanza',sw:'Darasa la Kwanza',en:'Standard I'},{value:'Darasa la Pili',sw:'Darasa la Pili',en:'Standard II'},{value:'Darasa la Tatu',sw:'Darasa la Tatu',en:'Standard III'},{value:'Darasa la Nne',sw:'Darasa la Nne',en:'Standard IV'},{value:'Darasa la Tano',sw:'Darasa la Tano',en:'Standard V'},{value:'Darasa la Sita',sw:'Darasa la Sita',en:'Standard VI'},{value:'Darasa la Saba',sw:'Darasa la Saba',en:'Standard VII'}];
   var isEnglish = String(localStorage.getItem('siwitiUserLanguage') || localStorage.getItem('siwitiLanguage') || 'sw').toLowerCase().indexOf('en') === 0;
   var ids = ['darasaRegister','darasaTemplate','darasaList','studentStreamsClass','darasaResults','bulkDarasaSelect','darasaReport','darasaTemplateSelect','studentClassSelect','staffClassSelect','classSelect','darasaPromotion','darasaGraduates','darasaReportSettings'];
+  var studentScopedIds=['darasaRegister','darasaTemplate','darasaList'];
+  var savedStudentScope=null;try{savedStudentScope=JSON.parse(localStorage.getItem('studentAccessClasses')||'null');}catch(e){}
   var primaryValues=['Awali','Darasa la Kwanza','Darasa la Pili','Darasa la Tatu','Darasa la Nne','Darasa la Tano','Darasa la Sita','Darasa la Saba'];
   var secondaryValues=['Form I','Form II','Form III','Form IV'];
   var selectSet=new Set();
@@ -26020,7 +26352,9 @@ function enforceSchoolLevelClassOptions_() {
     var old = el.value;
     var placeholder = null;
     if (el.options.length && (el.options[0].value === '' || /chagua|select/i.test(el.options[0].textContent))) placeholder = {value:el.options[0].value,text:el.options[0].textContent};
-    var validValues = classes.map(function(c){return c.value;});
+    var scoped=studentScopedIds.indexOf(el.id)>=0 && String(localStorage.getItem('userType')||'').toLowerCase()==='staff';
+    var classOptionsForSelect=scoped?classes.filter(function(c){return Array.isArray(savedStudentScope)&&savedStudentScope.indexOf(c.value)>=0;}):classes;
+    var validValues = classOptionsForSelect.map(function(c){return c.value;});
     var currentValues = Array.from(el.options).map(function(o){return o.value;}).filter(function(v){return v!=='';});
     var correct = currentValues.length === validValues.length && validValues.every(function(v){return currentValues.indexOf(v)!==-1;});
     if (correct) {
@@ -26028,10 +26362,11 @@ function enforceSchoolLevelClassOptions_() {
       return;
     }
     el.innerHTML='';
-    if (placeholder) { var ph=document.createElement('option'); ph.value=placeholder.value; ph.textContent=placeholder.text; el.appendChild(ph); }
-    classes.forEach(function(c){var o=document.createElement('option');o.value=c.value;o.textContent=isEnglish?c.en:c.sw;el.appendChild(o);});
+    if(scoped||placeholder){var ph=document.createElement('option');ph.value='';ph.textContent=classOptionsForSelect.length?(placeholder?placeholder.text:(isEnglish?'Select class':'Chagua darasa')):(isEnglish?'No class assigned':'Hakuna darasa ulilogawiwa');el.appendChild(ph);}
+    classOptionsForSelect.forEach(function(c){var o=document.createElement('option');o.value=c.value;o.textContent=isEnglish?c.en:c.sw;el.appendChild(o);});
     if (validValues.indexOf(old)!==-1) el.value=old;
-    else if (placeholder) el.value=placeholder.value;
+    else if (scoped||placeholder) el.value='';
+    el.disabled=scoped&&classOptionsForSelect.length===0;
   });
   document.documentElement.setAttribute('data-school-level', level);
 }
@@ -27548,8 +27883,10 @@ function preloadMainSheetStudents() {
   
   console.log("Preloading students from main sheets...");
   
-  const classes = ["Awali", "Darasa la Kwanza", "Darasa la Pili", "Darasa la Tatu", 
-                  "Darasa la Nne", "Darasa la Tano", "Darasa la Sita", "Darasa la Saba"];
+  const defaultClasses = getActiveSchoolLevel_()==='secondary' ? ['Form I','Form II','Form III','Form IV'] : ["Awali", "Darasa la Kwanza", "Darasa la Pili", "Darasa la Tatu", "Darasa la Nne", "Darasa la Tano", "Darasa la Sita", "Darasa la Saba"];
+  const scopedClasses = studentAccessClasses_();
+  const classes = scopedClasses===null ? defaultClasses : defaultClasses.filter(function(c){return scopedClasses.indexOf(c)>=0;});
+  if(!classes.length){console.info('No assigned classes to preload for this Staff account.');return;}
   
   let classesLoaded = 0;
   
@@ -27559,6 +27896,8 @@ function preloadMainSheetStudents() {
       body: JSON.stringify({
         action: "listStudents",
         dbId: currentDbId,
+        email: localStorage.getItem('currentUserEmail') || '',
+        managementToken: localStorage.getItem('managementToken') || '',
         darasa: darasa
       })
     })
@@ -27928,6 +28267,7 @@ function preloadGradeSettings() {
 // ============================================
 function downloadStudentTemplate() {
     const darasa = document.getElementById("darasaTemplate").value;
+    if (darasa && !studentClassAllowed_(darasa)) { Notiflix.Notify.failure('Darasa hili halijagawiwa kwenye akaunti yako.'); return; }
     
     if (!darasa) {
         Notiflix.Notify.warning('Tafadhali chagua darasa kwanza', {
@@ -27958,6 +28298,8 @@ function downloadStudentTemplate() {
     const data = {
         action: "downloadStudentTemplate",
         dbId: currentDbId,
+        email: localStorage.getItem('currentUserEmail') || '',
+        managementToken: localStorage.getItem('managementToken') || '',
         darasa: darasa
     };
 
@@ -28224,6 +28566,7 @@ function uploadStudentTemplate() {
   const fileInput = document.getElementById('studentTemplateFile');
   const file = fileInput.files[0];
   const darasa = document.getElementById("darasaTemplate").value;
+  if (darasa && !studentClassAllowed_(darasa)) { Notiflix.Notify.failure('Darasa hili halijagawiwa kwenye akaunti yako.'); fileInput.value=''; return; }
 
   if (!file) {
     Notiflix.Notify.warning('Tafadhali chagua faili ya Excel', {
@@ -28284,6 +28627,8 @@ function uploadStudentTemplate() {
     const data = {
       action: "uploadStudentTemplate",
       dbId: currentDbId,
+      email: localStorage.getItem('currentUserEmail') || '',
+      managementToken: localStorage.getItem('managementToken') || '',
       darasa: darasa,
       fileName: file.name,
       fileData: base64Data
