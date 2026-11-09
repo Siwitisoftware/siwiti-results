@@ -7195,7 +7195,7 @@ html[data-school-level="primary"] #secondaryDivisionSettingsSection { display:no
 </div>
   <script>
 //AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
-    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxAEt-pRyG9dDzErZYq4lTzAPLYhGyDh8Qm7RT12OSXy5vAhowW-sHpxyBNn5htljio/exec';
+    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyCRdrh-H-3gHSxseTF03TupeGJvHQy5WpJlxiA3wfFqeWbJ8KYm1RlB5_U53qvWy0o/exec';
 
 
     // ============================================
@@ -8431,58 +8431,110 @@ function updateCacheAfterSync(action, responseData) {
 // SYNC OFFLINE QUEUE - Improved with better error handling
 // ============================================
 var __offlineSyncInProgress_=false;
+function readOfflineQueueSafe_() {
+  try {
+    var parsed = JSON.parse(localStorage.getItem('offlineQueue') || '[]');
+    return Array.isArray(parsed) ? parsed : [];
+  } catch (e) {
+    console.warn('Offline queue is unreadable; preserving storage for diagnosis:', e);
+    return [];
+  }
+}
+function isValidOfflineAction_(item) {
+  return !!(item && typeof item === 'object' && !Array.isArray(item) &&
+    typeof item.action === 'string' && item.action.trim());
+}
+function isOfflineActionForCurrentAccount_(item) {
+  if (!isValidOfflineAction_(item)) return false;
+  // Legacy actions without dbId are retained for backward compatibility.
+  // Actions explicitly belonging to another school must never be sent here.
+  return !item.dbId || String(item.dbId) === String(currentDbId || '');
+}
 function syncOfflineQueue() {
   if(!isOnline()||!currentDbId||__offlineSyncInProgress_)return;
-  let snapshot=[];try{snapshot=JSON.parse(localStorage.getItem('offlineQueue')||'[]')||[];}catch(e){}
+  var storedQueue=readOfflineQueueSafe_();
+  if(!storedQueue.length)return;
+  var snapshot=storedQueue.filter(isOfflineActionForCurrentAccount_);
   if(!snapshot.length)return;
   __offlineSyncInProgress_=true;
   const markKey=a=>[String(a.dbId||currentDbId||''),String(a.darasa||''),String(a.termId||''),String(a.streamName||'')].join('::');
-  // Coalesce legacy duplicate marks saves before sending them. Keep non-mark actions intact.
-  const markMap=new Map(), outgoing=[];
-  snapshot.forEach(a=>{
-    if(a&&a.action==='saveTermResults'){
-      const k=markKey(a);if(!markMap.has(k))markMap.set(k,a);else {const old=markMap.get(k);markMap.set(k,{...old,...a,results:mergeResultsFast(old.results,a.results),idempotencyKey:a.idempotencyKey||old.idempotencyKey});}
-    } else outgoing.push(a);
+  const markMap=new Map(),outgoing=[],studentRegistrations=[];
+  snapshot.forEach(function(a,index){
+    if(a.action==='saveTermResults'){
+      const k=markKey(a);if(!markMap.has(k))markMap.set(k,a);else{const old=markMap.get(k);markMap.set(k,{...old,...a,results:mergeResultsFast(old.results,a.results),idempotencyKey:a.idempotencyKey||old.idempotencyKey});}
+    }else if(a.action==='registerStudent'){
+      studentRegistrations.push({action:a,clientKey:String(a.queueId||('legacy_student_'+index))});
+    }else outgoing.push(a);
   });
   markMap.forEach(a=>outgoing.push(a));
-  const visible=outgoing.filter(a=>a.action!=='saveReportSettings');
-  if(visible.length)Notiflix.Notify.info(`Inasawazisha vitendo ${visible.length} vilivyohifadhiwa nje ya mtandao...`,{timeout:3000,position:'right-top'});
-  Promise.all(outgoing.map(action=>fetchWithServerRetry(SCRIPT_URL,{method:'POST',body:JSON.stringify(action)}).then(res=>{if(!res.ok)throw new Error('HTTP '+res.status);return res.json();}).then(data=>({action,data,success:data&&data.status==='success'})).catch(error=>({action,error:error.message,success:false}))))
-  .then(results=>{
-    const failed=[], succeeded=[];
-    results.forEach(r=>{
-      if(r.success){
-        succeeded.push(r.action);
-        try { updateCacheAfterSync(r.action,r.data); }
-        catch(cacheError) { console.warn('Marks synced; cache refresh skipped:',cacheError); }
-      } else {
-        failed.push(r.action);
-        console.warn('Offline sync failed:',r.action.action,r.error||r.data&&r.data.message);
-      }
+  // All offline student registrations for this school are sent in ONE request.
+  // The server writes each class roster in bulk and returns an acknowledgement
+  // per student, so a partial failure never causes acknowledged names to vanish.
+  var tasks=outgoing.map(function(action){
+    return fetchWithServerRetry(SCRIPT_URL,{method:'POST',body:JSON.stringify(action)})
+      .then(function(res){if(!res.ok)throw new Error('HTTP '+res.status);return res.json();})
+      .then(function(data){return {action:action,data:data,success:data&&data.status==='success'};})
+      .catch(function(error){return {action:action,error:error.message,success:false};});
+  });
+  if(studentRegistrations.length){
+    var bulkPayload={action:'registerStudentsBulk',dbId:currentDbId,email:localStorage.getItem('currentUserEmail')||'',managementToken:localStorage.getItem('managementToken')||'',students:studentRegistrations.map(function(entry){return {clientKey:entry.clientKey,jina:entry.action.jina,jinsi:entry.action.jinsi,darasa:entry.action.darasa,dbId:entry.action.dbId||currentDbId,email:entry.action.email||localStorage.getItem('currentUserEmail')||'',managementToken:entry.action.managementToken||localStorage.getItem('managementToken')||''};})};
+    tasks.push(fetchWithServerRetry(SCRIPT_URL,{method:'POST',body:JSON.stringify(bulkPayload)})
+      .then(function(res){if(!res.ok)throw new Error('HTTP '+res.status);return res.json();})
+      .then(function(data){
+        var byKey=new Map();(Array.isArray(data&&data.results)?data.results:[]).forEach(function(item){byKey.set(String(item.clientKey),item);});
+        return studentRegistrations.map(function(entry){var ack=byKey.get(entry.clientKey);return {action:entry.action,data:ack,success:!!(ack&&(ack.status==='success'||ack.status==='already_registered')) ,error:ack&&ack.message||(!ack?'Server haijathibitisha mwanafunzi huyu.':undefined)};});
+      })
+      .catch(function(error){return studentRegistrations.map(function(entry){return {action:entry.action,error:error.message,success:false};});})
+    );
+  }
+  const visibleCount=outgoing.filter(a=>isValidOfflineAction_(a)&&a.action!=='saveReportSettings').length+studentRegistrations.length;
+  if(!tasks.length){__offlineSyncInProgress_=false;return;}
+  if(visibleCount){
+    var syncingMessage=visibleCount===1?'Inasawazisha kitendo 1 kilichohifadhiwa nje ya mtandao...':`Inasawazisha vitendo ${visibleCount} vilivyohifadhiwa nje ya mtandao...`;
+    Notiflix.Notify.info(syncingMessage,{timeout:3000,position:'right-top'});
+  }
+  Promise.all(tasks).then(function(taskResults){
+    var results=[];
+    taskResults.forEach(function(item){if(Array.isArray(item))results=results.concat(item);else results.push(item);});
+    const failed=[],succeeded=[];
+    results.forEach(function(r){if(r.success){succeeded.push(r.action);try{updateCacheAfterSync(r.action,r.data);}catch(cacheError){console.warn('Offline sync acknowledged; cache refresh skipped:',cacheError);}}else{failed.push(r.action);console.warn('Offline sync failed:',r.action&&r.action.action,r.error||r.data&&r.data.message);}});
+    // Re-read the queue and remove only individually acknowledged snapshot items.
+    // New registrations added during sync and every failed registration remain queued.
+    var current=readOfflineQueueSafe_();
+    var remaining=current.filter(function(item){
+      if(!isValidOfflineAction_(item))return false;
+      if(item.dbId&&String(item.dbId)!==String(currentDbId||''))return true;
+      var matched=snapshot.find(function(old){
+        if(!old||old.action!==item.action)return false;
+        if(item.queueId||old.queueId)return String(item.queueId||'')===String(old.queueId||'');
+        if(item.action==='saveTermResults')return markKey(old)===markKey(item)&&String(old.idempotencyKey||'')===String(item.idempotencyKey||'');
+        try{return JSON.stringify(old)===JSON.stringify(item);}catch(e){return old===item;}
+      });
+      if(!matched)return true;
+      return failed.some(function(action){
+        if(!action||action.action!==item.action)return false;
+        if(item.queueId||action.queueId)return String(item.queueId||'')===String(action.queueId||'');
+        if(item.action==='saveTermResults')return markKey(action)===markKey(item);
+        try{return JSON.stringify(action)===JSON.stringify(item);}catch(e){return action===item;}
+      });
     });
-    // Merge with actions added while the network requests were in flight; never overwrite newer edits.
-    let current=[];try{current=JSON.parse(localStorage.getItem('offlineQueue')||'[]')||[];}catch(e){}
-    const newItems=current.filter(a=>a&&a.action==='saveTermResults'?!snapshot.some(old=>old&&old.action==='saveTermResults'&&markKey(old)===markKey(a)&&String(old.idempotencyKey||'')===String(a.idempotencyKey||'')):!snapshot.some(old=>JSON.stringify(old)===JSON.stringify(a)));
-    const merged=new Map();
-    failed.forEach(a=>{if(a&&a.action==='saveTermResults'){const k=markKey(a);merged.set(k,a);}else merged.set('other:'+JSON.stringify(a),a);});
-    newItems.forEach(a=>{if(a&&a.action==='saveTermResults'){const k=markKey(a);if(merged.has(k)){const old=merged.get(k);merged.set(k,{...old,...a,results:mergeResultsFast(old.results,a.results),idempotencyKey:a.idempotencyKey||old.idempotencyKey});}else merged.set(k,a);}else merged.set('other:'+JSON.stringify(a),a);});
-    try{localStorage.setItem('offlineQueue',JSON.stringify(Array.from(merged.values())));}catch(e){console.error('Could not persist remaining offline actions',e);}
+    try{localStorage.setItem('offlineQueue',JSON.stringify(remaining));}catch(e){console.error('Could not persist remaining offline actions',e);}
     const failedVisible=failed.filter(a=>a.action!=='saveReportSettings');
     const succeededVisible=succeeded.filter(a=>a.action!=='saveReportSettings');
-    if(succeededVisible.length&&!failedVisible.length)Notiflix.Notify.success(`Vitendo ${succeededVisible.length} vimesawazishwa kikamilifu`,{timeout:2000,position:'right-top'});
-    else if(succeededVisible.length&&failedVisible.length)Notiflix.Notify.warning(`Vitendo ${succeededVisible.length} vimesawazishwa, ${failedVisible.length} vimesalia`,{timeout:3000,position:'right-top'});
-    else if(failedVisible.length)Notiflix.Notify.warning(`Vitendo ${failedVisible.length} havijasawazishwa. Vitasawazishwa baadaye.`,{timeout:3000,position:'right-top'});
-    if(currentDashboard==='student')loadStudents();else if(currentDashboard==='subject')loadSubjects();else if(currentDashboard==='results')loadResults();else if(currentDashboard==='report')loadReport();else if(currentDashboard==='staff')loadStaffMembers();
-  }).finally(()=>{__offlineSyncInProgress_=false;});
+    if(succeededVisible.length&&!failedVisible.length){var successMessage=succeededVisible.length===1?'Kitendo 1 kimesawazishwa kikamilifu':`Vitendo ${succeededVisible.length} vimesawazishwa kikamilifu`;Notiflix.Notify.success(successMessage,{timeout:2000,position:'right-top'});}
+    else if(succeededVisible.length&&failedVisible.length){var successPart=succeededVisible.length===1?'Kitendo 1 kimesawazishwa':`Vitendo ${succeededVisible.length} vimesawazishwa`;var failedPart=failedVisible.length===1?'kitendo 1 kimesalia':`vitendo ${failedVisible.length} vimesalia`;Notiflix.Notify.warning(`${successPart}, ${failedPart}`,{timeout:3000,position:'right-top'});}
+    else if(failedVisible.length){var failedMessage=failedVisible.length===1?'Kitendo 1 hakijasawazishwa. Kitasawazishwa baadaye.':`Vitendo ${failedVisible.length} havijasawazishwa. Vitasawazishwa baadaye.`;Notiflix.Notify.warning(failedMessage,{timeout:3000,position:'right-top'});}
+    if(succeeded.length){if(currentDashboard==='student')loadStudents();else if(currentDashboard==='subject')loadSubjects();else if(currentDashboard==='results')loadResults();else if(currentDashboard==='report')loadReport();else if(currentDashboard==='staff')loadStaffMembers();}
+  }).catch(function(error){console.error('Offline queue sync processing failed:',error);})
+  .finally(function(){__offlineSyncInProgress_=false;});
 }
-
 // ============================================
 // RETRY FAILED SYNC - Call this periodically
 // ============================================
 function retryFailedSync() {
-  const offlineQueue = JSON.parse(localStorage.getItem('offlineQueue')) || [];
+  const offlineQueue = readOfflineQueueSafe_().filter(isOfflineActionForCurrentAccount_);
   if (offlineQueue.length > 0 && isOnline() && currentDbId) {
-    console.log(`🔄 Retrying sync for ${offlineQueue.length} failed actions...`);
+    console.log(`🔄 Retrying sync for ${offlineQueue.length} pending actions...`);
     syncOfflineQueue();
   }
 }
@@ -17432,6 +17484,7 @@ function registerStudent() {
 
   const data = {
     action: "registerStudent",
+    queueId: 'student_' + Date.now() + '_' + Math.random().toString(36).slice(2,10),
     dbId: currentDbId,
     email: localStorage.getItem('currentUserEmail') || '',
     managementToken: localStorage.getItem('managementToken') || '',
@@ -17442,23 +17495,10 @@ function registerStudent() {
 
   if (!isOnline()) {
     setTimeout(() => {
-      let offlineQueue = JSON.parse(localStorage.getItem('offlineQueue')) || [];
+      let offlineQueue = readOfflineQueueSafe_();
       offlineQueue.push(data);
       localStorage.setItem('offlineQueue', JSON.stringify(offlineQueue));
-
-      // Student cache
-      let studentCache = JSON.parse(localStorage.getItem('studentCache')) || {};
-      if (!studentCache[darasa]) studentCache[darasa] = [];
-      studentCache[darasa].push({ jina: jina, jinsi: jinsi });
-      localStorage.setItem('studentCache', JSON.stringify(studentCache));
-
-      // Report cache - ensure it's an array
-      let reportCache = JSON.parse(localStorage.getItem('reportCache')) || {};
-      if (!reportCache[darasa] || !Array.isArray(reportCache[darasa])) {
-        reportCache[darasa] = [];
-      }
-      reportCache[darasa].push({ jina: jina, jinsi: jinsi, scores: {}, total: 0, average: 0, position: 0, grade: '' });
-      localStorage.setItem('reportCache', JSON.stringify(reportCache));
+      updateLocalCachesAfterRegistration(jina, jinsi, darasa);
 
       if (registerBtn) {
         registerBtn.innerHTML = originalButtonHTML;
@@ -17525,7 +17565,14 @@ function registerStudent() {
     }
     
     console.error("Error:", error);
-    
+    // A network/timeout failure may occur after the server received nothing or
+    // after it committed the row but before the response arrived. Queue with a
+    // stable client id; the bulk endpoint is idempotent by student name/class.
+    let retryQueue=readOfflineQueueSafe_();
+    if(!retryQueue.some(item=>item&&item.queueId===data.queueId)){
+      retryQueue.push(data);
+      try{localStorage.setItem('offlineQueue',JSON.stringify(retryQueue));}catch(queueError){console.error('Could not queue failed student registration:',queueError);}
+    }
     // Still update cache on error
     let studentCache = JSON.parse(localStorage.getItem('studentCache')) || {};
     if (!studentCache[darasa]) studentCache[darasa] = [];
@@ -18541,7 +18588,10 @@ function deleteStudent(encodedJina, darasa) {
 // Handle offline delete
 function handleOfflineDeleteStudent(data, studentName, darasa) {
     let offlineQueue = JSON.parse(localStorage.getItem('offlineQueue')) || [];
-    offlineQueue.push(data);
+    const alreadyQueued = offlineQueue.some(item => item && item.action === 'deleteStudent' &&
+        String(item.dbId || '') === String(data.dbId || '') && String(item.darasa || '') === String(darasa) &&
+        String(item.jina || '').trim().toLowerCase() === String(studentName || '').trim().toLowerCase());
+    if (!alreadyQueued) offlineQueue.push(data);
     localStorage.setItem('offlineQueue', JSON.stringify(offlineQueue));
     
     updateCachesAfterDeletion(studentName, darasa);
@@ -22844,45 +22894,21 @@ function deleteAllStudents(darasa) {
     };
 
     if (!isOnline()) {
-        // OFFLINE MODE
-        Notiflix.Loading.standard(`Inafuta wanafunzi ${studentsInClass.length} nje ya mtandao...`);
-        
-        setTimeout(() => {
-            let offlineQueue = JSON.parse(localStorage.getItem('offlineQueue')) || [];
-            
-            // Add individual delete actions for each student (for better sync)
-            studentsInClass.forEach(student => {
-                const individualAction = {
-                    action: "deleteStudent",
-                    dbId: currentDbId,
-                email: localStorage.getItem('currentUserEmail') || '',
-                managementToken: localStorage.getItem('managementToken') || '',
-                    jina: student.jina,
-                    darasa: darasa
-                };
-                offlineQueue.push(individualAction);
-            });
-            
-            localStorage.setItem('offlineQueue', JSON.stringify(offlineQueue));
-
-            // Update all caches
-            updateCachesAfterDeleteAll(darasa);
-
-            Notiflix.Loading.remove();
-            
-            Swal.fire({
-                icon: 'success',
-                title: 'Imefanikiwa',
-                html: `
-                    <p>Wanafunzi ${studentsInClass.length} wamefutwa nje ya mtandao.</p>
-                    <p style="font-size: 14px; color: #666;">Data itasawazishwa ukiwa mtandaoni.</p>
-                `,
-                confirmButtonColor: '#4361ee'
-            }).then(() => {
-                displayStudents();
-                refreshAllRelatedDashboards(darasa);
-            });
-        }, 1500);
+        // Queue one atomic bulk-delete operation instead of N individual requests.
+        let offlineQueue = JSON.parse(localStorage.getItem('offlineQueue')) || [];
+        const alreadyQueued = offlineQueue.some(item => item && item.action === 'deleteAllStudents' &&
+            String(item.dbId || '') === String(currentDbId || '') && String(item.darasa || '') === darasa);
+        if (!alreadyQueued) offlineQueue.push(data);
+        localStorage.setItem('offlineQueue', JSON.stringify(offlineQueue));
+        updateCachesAfterDeleteAll(darasa);
+        displayStudents();
+        refreshAllRelatedDashboards(darasa);
+        Swal.fire({
+            icon: 'success',
+            title: 'Imehifadhiwa Nje ya Mtandao',
+            html: `<p>Wanafunzi ${studentsInClass.length} wameondolewa kwenye kifaa hiki.</p><p style="font-size:14px;color:#666">Ufutaji wote utasawazishwa kwa ombi moja ukiwa mtandaoni.</p>`,
+            confirmButtonColor: '#4361ee'
+        });
         return;
     }
 
@@ -22924,22 +22950,11 @@ function deleteAllStudents(darasa) {
     .catch(error => {
         Notiflix.Loading.remove();
         
-        // Fallback: queue for later sync and update cache
+        // Network outcome may be uncertain: queue the same idempotent bulk action once.
         let offlineQueue = JSON.parse(localStorage.getItem('offlineQueue')) || [];
-        
-        // Add individual delete actions for each student
-        studentsInClass.forEach(student => {
-            const individualAction = {
-                action: "deleteStudent",
-                dbId: currentDbId,
-                email: localStorage.getItem('currentUserEmail') || '',
-                managementToken: localStorage.getItem('managementToken') || '',
-                jina: student.jina,
-                darasa: darasa
-            };
-            offlineQueue.push(individualAction);
-        });
-        
+        const alreadyQueued = offlineQueue.some(item => item && item.action === 'deleteAllStudents' &&
+            String(item.dbId || '') === String(currentDbId || '') && String(item.darasa || '') === darasa);
+        if (!alreadyQueued) offlineQueue.push(data);
         localStorage.setItem('offlineQueue', JSON.stringify(offlineQueue));
 
         // Update caches for immediate UI update
