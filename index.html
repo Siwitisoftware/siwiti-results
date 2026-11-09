@@ -6157,6 +6157,34 @@ html[data-school-level="primary"] #secondaryDivisionSettingsSection { display:no
   </small>
 </div>
       
+      <!-- Compact entry point; shown only for a teacher whose assignment was verified online -->
+      <div id="marksStandardizationEntry" class="hidden" style="margin:8px 0 10px;display:none;">
+        <button type="button" id="openMarksStandardizationBtn" onclick="toggleMarksStandardizationPanel_(true)" aria-expanded="false" style="display:inline-flex;align-items:center;gap:5px;padding:5px 10px;border:1px solid #4361ee;border-radius:7px;background:rgba(67,97,238,.08);color:#3152c7;font-size:11px;font-weight:700;line-height:1.2;box-shadow:none;cursor:pointer;">
+          <i class="fas fa-sliders-h" style="font-size:10px;"></i> Standardize
+        </button>
+      </div>
+      <div id="marksStandardizationPanel" class="hidden" style="display:none;margin:10px 0 16px;padding:14px;border:2px solid #4361ee;border-radius:12px;background:linear-gradient(135deg,rgba(67,97,238,.07),rgba(46,196,182,.06));">
+        <div style="display:flex;justify-content:flex-end;margin:-4px -4px 5px;">
+          <button type="button" onclick="toggleMarksStandardizationPanel_(false)" aria-label="Funga Standardization" style="padding:3px 7px;border:0;border-radius:6px;background:transparent;color:var(--text-secondary,#64748b);font-size:16px;cursor:pointer;"><i class="fas fa-times"></i></button>
+        </div>
+        <div id="marksStandardizationPermissionMessage" style="display:none;margin:0 0 10px;padding:8px 10px;border-radius:8px;background:#fff7ed;color:#9a3412;font-size:12px;"></div>
+        <div style="display:flex;align-items:center;gap:9px;margin-bottom:8px;">
+          <i class="fas fa-sliders-h" style="color:#4361ee;font-size:19px;"></i>
+          <strong style="font-size:15px;">Standardize Alama za Wanafunzi</strong>
+          <span id="marksStandardizationStatus" style="margin-left:auto;font-size:11px;font-weight:700;"></span>
+        </div>
+        <div style="font-size:12px;color:var(--text-secondary,#64748b);margin-bottom:12px;">Alama Original huhifadhiwa bila kubadilishwa. Matokeo na ripoti zitatumia Alama za Sasa.</div>
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(145px,1fr));gap:9px;align-items:end;">
+          <div><label for="marksStandardizationMode" style="display:block;font-size:12px;margin-bottom:5px;">Aina ya Ongezeko</label>
+            <select id="marksStandardizationMode" style="width:100%;padding:9px;border:1px solid #cbd5e1;border-radius:8px;"><option value="fixed">Ongezeko la kawaida (+ Alama)</option><option value="percent">Ongezeko kwa Asilimia (%)</option></select></div>
+          <div><label for="marksStandardizationAmount" style="display:block;font-size:12px;margin-bottom:5px;">Kiwango cha Ongezeko</label>
+            <input id="marksStandardizationAmount" type="number" min="0" max="100" step="0.01" inputmode="decimal" placeholder="Mf. 5 au 10" style="width:100%;padding:9px;border:1px solid #cbd5e1;border-radius:8px;box-sizing:border-box;"></div>
+          <div style="display:flex;gap:7px;flex-wrap:wrap;">
+            <button type="button" class="btn btn-primary" id="applyMarksStandardizationBtn" onclick="applyMarksStandardizationFromUI()" style="flex:1;min-width:120px;"><i class="fas fa-check"></i> Tumia Alama</button>
+            <button type="button" class="btn btn-secondary" id="resetMarksStandardizationBtn" onclick="resetMarksStandardizationFromUI()" style="flex:1;min-width:110px;"><i class="fas fa-undo"></i> Reset</button></div></div>
+        <div id="marksStandardizationNote" style="font-size:11px;margin-top:10px;color:var(--text-secondary,#64748b);"></div>
+      </div>
+
       <!-- Table Container with Horizontal Scroll -->
       <div class="table-container">
         <table id="resultsTable">
@@ -6791,6 +6819,41 @@ html[data-school-level="primary"] #secondaryDivisionSettingsSection { display:no
 </div>
 </div>
       
+      <div class="system-settings-section" id="developerClassRestrictionSection" style="margin:0 0 24px;border:1px solid #c7d2fe;border-radius:18px;padding:0;overflow:hidden;background:#fff;box-shadow:0 10px 28px rgba(37,99,235,.10);">
+        <div style="padding:18px 20px;background:linear-gradient(120deg,#172554 0%,#1d4ed8 55%,#4f46e5 100%);color:#fff;display:flex;align-items:center;gap:14px;flex-wrap:wrap;">
+          <div style="width:48px;height:48px;border-radius:14px;background:rgba(255,255,255,.16);display:flex;align-items:center;justify-content:center;font-size:22px;flex:0 0 auto;"><i class="fas fa-shield-alt"></i></div>
+          <div style="flex:1;min-width:190px;">
+            <h3 style="margin:0;color:#fff;font-size:19px;"><i class="fas fa-ban"></i> Udhibiti wa Madarasa</h3>
+            <div style="margin-top:5px;color:rgba(255,255,255,.86);font-size:13px;">Zuia au ruhusu madarasa kwa shule husika bila kufuta taarifa zake.</div>
+          </div>
+          <span style="padding:6px 10px;border:1px solid rgba(255,255,255,.35);border-radius:999px;font-size:11px;font-weight:700;letter-spacing:.3px;"><i class="fas fa-user-shield"></i> DEVELOPER</span>
+        </div>
+        <div style="padding:18px 20px 20px;">
+          <p style="margin:0 0 15px;color:#475569;line-height:1.6;font-size:14px;">Chagua shule, kisha weka tiki kwenye madarasa unayotaka yasitumike. Vizuizi vinaathiri shule hiyo pekee.</p>
+          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:12px;align-items:end;">
+            <div class="input-group" style="margin:0;">
+              <label for="developerRestrictionSchoolSearch" style="font-weight:700;color:#1e293b;"><i class="fas fa-search"></i> Tafuta shule kwa jina au email</label>
+              <input id="developerRestrictionSchoolSearch" type="search" placeholder="Andika jina la shule..." autocomplete="off" oninput="filterDeveloperRestrictionSchools_()" style="width:100%;box-sizing:border-box;padding:11px 13px;border:1px solid #cbd5e1;border-radius:10px;background:#f8fafc;">
+            </div>
+            <div class="input-group" style="margin:0;">
+              <label for="developerRestrictionSchool" style="font-weight:700;color:#1e293b;"><i class="fas fa-school"></i> Chagua shule</label>
+              <select id="developerRestrictionSchool" onchange="loadDeveloperClassRestrictionsForSelectedSchool_()" style="width:100%;padding:11px 12px;border:1px solid #cbd5e1;border-radius:10px;background:#fff;min-height:44px;"><option value="">Chagua shule...</option></select>
+            </div>
+          </div>
+          <small id="developerRestrictionSearchCount" style="display:block;margin:7px 0 12px;color:#64748b;">Tafuta shule kwa kuandika sehemu ya jina lake.</small>
+          <div id="developerRestrictionSchoolMeta" style="font-size:13px;color:#1d4ed8;font-weight:700;margin:4px 0 12px;padding:9px 11px;border-radius:9px;background:#eff6ff;"></div>
+          <div style="display:flex;align-items:center;gap:8px;margin:0 0 9px;color:#334155;font-weight:700;font-size:13px;"><i class="fas fa-list-check"></i> Madarasa ya shule</div>
+          <div id="developerRestrictionClasses" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:9px;padding:13px;border:1px solid #e2e8f0;border-radius:12px;background:#f8fafc;min-height:54px;">
+            <span style="color:#64748b;">Chagua shule ili kuona madarasa.</span>
+          </div>
+          <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:15px;">
+            <button class="btn btn-primary" type="button" onclick="saveDeveloperClassRestrictions_()"><i class="fas fa-save"></i> Hifadhi Vizuizi</button>
+            <button class="btn btn-warning" type="button" onclick="clearDeveloperClassRestrictions_()"><i class="fas fa-unlock"></i> Ruhusu Madarasa Yote</button>
+            <button class="btn btn-light" type="button" onclick="loadDeveloperClassRestrictionsForSelectedSchool_(true)"><i class="fas fa-sync"></i> Pakia Upya</button>
+          </div>
+          <small id="developerRestrictionStatus" aria-live="polite" style="display:block;margin-top:11px;color:#64748b;"></small>
+        </div>
+      </div>
       <div class="system-settings-section">
         <h3><i class="fas fa-users"></i> Akaunti Zote za Watumiaji</h3>
         <div class="settings-buttons" style="margin-bottom: 14px;">
@@ -6839,8 +6902,11 @@ html[data-school-level="primary"] #secondaryDivisionSettingsSection { display:no
           <small style="display:block;margin-top:10px;color:#555;">Bonyeza <b>Plan</b> kwenye akaunti husika ili kuweka aina ya Account na Basic/Gold. Basic hairuhusu kutengeneza Ratiba; Gold huruhusu kutengeneza na kutuma Ratiba kwa Head of School kwa Approval.</small>
         </div>
       </div>
+
     </div>
   </div>
+
+
 
   <!-- Modals -->
   <div class="modal-overlay hidden" id="reportSettingsOverlay"></div>
@@ -7129,7 +7195,7 @@ html[data-school-level="primary"] #secondaryDivisionSettingsSection { display:no
 </div>
   <script>
 //AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
-    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxFN76mBlkfAdU8RJLhg1-SD9_vaedH16mG-X6UeRiiEvzji_jP_npBWmdY0Fi-7U2b/exec';
+    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbx3qJJZtzjevRuQEUUQBGwbaI2jgdKetL7qZvZ-SRwMpNh-l-kWN0ydEYhyOJBcduG7/exec';
 
 
     // ============================================
@@ -9537,7 +9603,8 @@ function showDeveloperDashboard() {
     dateElement.textContent = formattedDate;
   }
   
-  // Load users
+  // Load users and populate school-specific class restrictions manager.
+  populateDeveloperRestrictionSchools_();
   loadAllUsers();
 }
 
@@ -9580,6 +9647,7 @@ function loadAllUsers(forceRefresh) {
     developerUsersAll = cache.users;
     filterDeveloperUsers();
     updateUsersStats(cache);
+    populateDeveloperRestrictionSchools_();
   } else if (!developerUsersAll.length && !navigator.onLine) {
     tableBody.innerHTML = '<tr><td colspan="8" style="text-align:center;padding:28px;color:#64748b"><i class="fas fa-wifi-slash"></i><p>Hakuna orodha iliyohifadhiwa kwenye kifaa hiki. Unganisha mtandao mara moja ili kuipakia.</p></td></tr>';
     return;
@@ -9603,6 +9671,7 @@ function loadAllUsers(forceRefresh) {
       developerUsersAll = data.users;
       filterDeveloperUsers();
       updateUsersStats(data);
+      populateDeveloperRestrictionSchools_();
       if (status) status.textContent = 'Imesasishwa sasa';
     }).catch(function(error) {
       console.warn('[Developer] Background user refresh failed; keeping cached list.', error);
@@ -9615,6 +9684,60 @@ function loadAllUsers(forceRefresh) {
 }
 window.addEventListener('online', function(){ if(document.getElementById('developerDashboard') && !document.getElementById('developerDashboard').classList.contains('hidden')) loadAllUsers(); });
 
+
+// ============================================================
+// DEVELOPER CLASS RESTRICTIONS — school-scoped and persistent
+// ============================================================
+var developerRestrictionCurrentSchool_=null;
+function developerClassCatalog_(level){
+  return String(level||'').toLowerCase()==='secondary'
+    ? ['Form I','Form II','Form III','Form IV']
+    : ['Awali','Darasa la Kwanza','Darasa la Pili','Darasa la Tatu','Darasa la Nne','Darasa la Tano','Darasa la Sita','Darasa la Saba'];
+}
+function populateDeveloperRestrictionSchools_(){
+  var el=document.getElementById('developerRestrictionSchool');if(!el)return;
+  var old=el.value;el.innerHTML='<option value="">Chagua shule...</option>';
+  (developerUsersAll||[]).forEach(function(u){if(!u||!u.dbId||!u.email)return;var o=document.createElement('option');o.value=u.dbId;o.dataset.email=u.email;o.dataset.level=u.schoolLevel||'primary';o.textContent=(u.schoolName||u.email)+' — '+u.email;el.appendChild(o);});
+  if(Array.from(el.options).some(function(o){return o.value===old;}))el.value=old;
+  filterDeveloperRestrictionSchools_();
+}
+function filterDeveloperRestrictionSchools_(){
+  var search=document.getElementById('developerRestrictionSchoolSearch'),sel=document.getElementById('developerRestrictionSchool'),count=document.getElementById('developerRestrictionSearchCount');
+  if(!sel)return;
+  var q=String(search&&search.value||'').trim().toLowerCase(),visible=0,total=0;
+  Array.from(sel.options).forEach(function(o,i){if(!o.value){o.hidden=false;return;}total++;var match=!q||String(o.textContent||'').toLowerCase().indexOf(q)!==-1;o.hidden=!match;if(match)visible++;});
+  if(count)count.textContent=q?(visible+' kati ya '+total+' shule zinaendana na utafutaji.'):('Jumla ya shule: '+total+'. Andika jina au email kuchuja orodha.');
+  if(sel.value){var chosen=sel.options[sel.selectedIndex];if(chosen&&chosen.hidden){sel.value='';loadDeveloperClassRestrictionsForSelectedSchool_();}}
+}
+function renderDeveloperClassRestrictionOptions_(level,restricted){
+  var box=document.getElementById('developerRestrictionClasses');if(!box)return;
+  var set={};(restricted||[]).forEach(function(x){set[String(x).toLowerCase()]=1;});
+  box.innerHTML='';developerClassCatalog_(level).forEach(function(name){var label=document.createElement('label');label.style.cssText='display:flex;align-items:center;gap:9px;padding:10px;background:#fff;border:1px solid #e2e8f0;border-radius:8px;';var cb=document.createElement('input');cb.type='checkbox';cb.value=name;cb.checked=!!set[name.toLowerCase()];cb.className='developer-restricted-class';cb.style.width='18px';cb.style.height='18px';var span=document.createElement('span');span.textContent=name;label.appendChild(cb);label.appendChild(span);box.appendChild(label);});
+}
+function loadDeveloperClassRestrictionsForSelectedSchool_(force){
+  var sel=document.getElementById('developerRestrictionSchool'),status=document.getElementById('developerRestrictionStatus'),meta=document.getElementById('developerRestrictionSchoolMeta');if(!sel)return Promise.resolve();
+  var dbId=sel.value,option=sel.options[sel.selectedIndex];if(!dbId){renderDeveloperClassRestrictionOptions_('primary',[]);if(meta)meta.textContent='';if(status)status.textContent='';return Promise.resolve();}
+  var school=developerUsersAll.find(function(u){return String(u.dbId)===String(dbId);})||{};var level=(option&&option.dataset.level)||school.schoolLevel||'primary';
+  developerRestrictionCurrentSchool_={dbId:dbId,level:level,email:(option&&option.dataset.email)||school.email||'',schoolName:school.schoolName||''};
+  if(meta)meta.textContent=(school.schoolName||'Shule')+' · '+(level==='secondary'?'Secondary O-Level':'Primary');
+  var cached=null;try{cached=JSON.parse(localStorage.getItem('developerClassRestrictions::'+dbId)||'null');}catch(e){}
+  renderDeveloperClassRestrictionOptions_(level,cached&&cached.restrictedClasses||[]);
+  if(!navigator.onLine){if(status)status.textContent=cached?'Offline: mipangilio ya mwisho iliyohifadhiwa imeonyeshwa.':'Offline: hakuna nakala ya vizuizi.';return Promise.resolve(cached);}
+  if(status)status.textContent='Inasoma mipangilio kutoka server...';
+  return fetchWithServerRetry(SCRIPT_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({action:'developerGetSchoolClassRestrictions',developerKey:'developer123',dbId:dbId})})
+    .then(function(r){return r.json();}).then(function(d){if(!d||d.status!=='success')throw new Error(d&&d.message||'Imeshindikana kusoma.');localStorage.setItem('developerClassRestrictions::'+dbId,JSON.stringify(d));renderDeveloperClassRestrictionOptions_(d.schoolLevel||level,d.restrictedClasses||[]);if(meta)meta.textContent=(d.schoolName||school.schoolName||'Shule')+' · '+(d.schoolLevel==='secondary'?'Secondary O-Level':'Primary');if(status)status.textContent='Mipangilio imesasishwa.';return d;})
+    .catch(function(e){if(status)status.textContent='Server haipatikani; inaonyesha cache ya kifaa. '+e.message;return cached;});
+}
+function saveDeveloperClassRestrictions_(){
+  var school=developerRestrictionCurrentSchool_,status=document.getElementById('developerRestrictionStatus');if(!school||!school.dbId){if(status)status.textContent='Chagua shule kwanza.';return;}
+  if(!navigator.onLine){if(status)status.textContent='Unganisha mtandao ili kuhifadhi mabadiliko ya Developer.';return;}
+  var restricted=Array.from(document.querySelectorAll('#developerRestrictionClasses .developer-restricted-class:checked')).map(function(x){return x.value;});
+  if(status)status.textContent='Inahifadhi vizuizi...';
+  fetchWithServerRetry(SCRIPT_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({action:'developerSaveSchoolClassRestrictions',developerKey:'developer123',developerEmail:'Developer',dbId:school.dbId,restrictedClasses:restricted})})
+    .then(function(r){return r.json();}).then(function(d){if(!d||d.status!=='success')throw new Error(d&&d.message||'Imeshindikana kuhifadhi.');localStorage.setItem('developerClassRestrictions::'+school.dbId,JSON.stringify(d));renderDeveloperClassRestrictionOptions_(d.schoolLevel||school.level,d.restrictedClasses||[]);if(status)status.textContent=d.message+' Dropdown za shule zitasasishwa watumiaji watakapounganisha mtandao.';})
+    .catch(function(e){if(status)status.textContent='Hitilafu: '+e.message;});
+}
+function clearDeveloperClassRestrictions_(){document.querySelectorAll('#developerRestrictionClasses .developer-restricted-class').forEach(function(x){x.checked=false;});saveDeveloperClassRestrictions_();}
 
 // ============================================
 // DISPLAY USERS - Complete and reliable
@@ -11533,6 +11656,8 @@ function siwitiGenderCode_(value) {
 }
 
 function saveResults() {
+  if(currentMarksStandardization&&currentMarksStandardization.active){if(window.Swal)Swal.fire('Standardization imewashwa','Reset kwanza kabla ya kuhifadhi mabadiliko ya Alama Original.','info');return;}
+
   const darasa = document.getElementById("darasaResults").value;
   const termId = document.getElementById("termSelect").value;
   const streamName = document.getElementById('manualStreamSelect')?.value || '';
@@ -14891,6 +15016,7 @@ function setResultsRouteVisibility_(dashboard) {
 }
 
 function showDashboard(dashboard) {
+  try { if(typeof refreshSchoolClassRestrictions_==='function') refreshSchoolClassRestrictions_(); } catch(e) {}
   setResultsRouteVisibility_(dashboard);
   refreshSidebarStaffIdentity();
   // Hide all containers first
@@ -22339,6 +22465,7 @@ function handleSuccessfulLogin(data, email) {
 
   // Save to localStorage
   localStorage.setItem('dbId', data.dbId);
+  refreshSchoolClassRestrictions_(true);
   // Important: applySchoolLevelUI() is called above, before dbId is assigned.
   // Reload Secondary Settings now that the authenticated database ID is known.
   if (authenticatedLevel === 'secondary' && typeof loadSecondaryDivisionSettings === 'function') {
@@ -22578,6 +22705,7 @@ function handleRegularUserLogin(data, email) {
   currentSchoolName = String(data.schoolName || '').trim().toLocaleUpperCase();
   data.schoolName = currentSchoolName;
   localStorage.setItem('dbId', data.dbId);
+  refreshSchoolClassRestrictions_(true);
   localStorage.setItem('schoolName', currentSchoolName);
   // The authenticated server response takes priority over cached browser state.
   // Accept legacy field names too; do not let a stale Primary cache override Secondary.
@@ -23298,6 +23426,7 @@ function updateLocalCacheImmediately(studentName, subject, value, termId, darasa
     const numericValue = parseFloat(value);
     if (!isNaN(numericValue) && numericValue >= 0 && numericValue <= 100) result.scores[subject] = numericValue;
   }
+  if(!result.standardized)result.originalScores=Object.assign({},result.scores);
   localStorage.setItem('resultsCache', JSON.stringify(resultsCache));
   bumpMarksRevision_(darasa, termId, streamName);
 }
@@ -23343,6 +23472,8 @@ function displayStudentResults(results, selectedSubject, termId, darasa) {
       input.min = '0';
       input.max = '100';
       input.className = 'score-input';
+      input.disabled=!!currentMarksStandardization.active;
+      if(currentMarksStandardization.active){input.style.background='#eef2ff';input.title='Standardization imewashwa. Reset kwanza ili kuhariri Alama Original.';}
       input.setAttribute('data-subject', selectedSubject);
       input.setAttribute('data-student', result.jina);
       input.setAttribute('data-term', termId);
@@ -23495,6 +23626,200 @@ async function handleResultsClassChange(){
   loadResults();
 }
 
+
+// ============================================
+// MARKS STANDARDIZATION UI - server-authorized Staff Assignments only
+// ============================================
+var currentMarksStandardization={active:false,mode:"fixed",amount:0};
+var marksStandardizationAllowed=false;
+var currentMarksStandardizationScope='';
+function marksStandardizationCacheKey_(dbId,email,darasa,termId,streamName){
+  return [String(dbId||''),String(email||'').trim().toLowerCase(),String(darasa||'').trim().toLowerCase(),String(termId||'').trim().toLowerCase(),String(streamName||'').trim().toLowerCase()].join('::');
+}
+function readMarksStandardizationCache_(darasa,termId,streamName){
+  try{
+    var all=JSON.parse(localStorage.getItem('marksStandardizationAccessCache')||'{}')||{};
+    var key=marksStandardizationCacheKey_(currentDbId,localStorage.getItem('currentUserEmail')||userEmail,darasa,termId,streamName);
+    var entry=all[key];
+    // A previously server-verified assignment is retained for offline use on this exact scope.
+    return entry&&entry.allowed===true?entry:null;
+  }catch(e){return null;}
+}
+function writeMarksStandardizationCache_(darasa,termId,streamName,config){
+  try{
+    var all=JSON.parse(localStorage.getItem('marksStandardizationAccessCache')||'{}')||{};
+    var key=marksStandardizationCacheKey_(currentDbId,localStorage.getItem('currentUserEmail')||userEmail,darasa,termId,streamName);
+    all[key]={allowed:true,config:config||{active:false,mode:'fixed',amount:0},verifiedAt:Date.now(),dbId:String(currentDbId||''),darasa:String(darasa||''),termId:String(termId||''),streamName:String(streamName||'')};
+    localStorage.setItem('marksStandardizationAccessCache',JSON.stringify(all));
+  }catch(e){console.warn('Could not cache verified Standardization access:',e);}
+}
+function toggleMarksStandardizationPanel_(open){
+  var panel=document.getElementById('marksStandardizationPanel'),entry=document.getElementById('marksStandardizationEntry'),btn=document.getElementById('openMarksStandardizationBtn');
+  if(!panel||!marksStandardizationAllowed)return;
+  var show=!!open;
+  panel.style.display=show?'block':'none';panel.classList.toggle('hidden',!show);
+  if(entry)entry.style.display='block';
+  if(btn)btn.setAttribute('aria-expanded',show?'true':'false');
+}
+function marksStandardizationRequest_(action,extra){
+  return Object.assign({action:action,dbId:currentDbId,email:localStorage.getItem('currentUserEmail')||userEmail||'',
+    managementToken:localStorage.getItem('managementToken')||'',userType:localStorage.getItem('userType')||'',timetableRole:localStorage.getItem('timetableRole')||'',darasa:document.getElementById('darasaResults')?.value||'',
+    termId:document.getElementById('termSelect')?.value||'',streamName:document.getElementById('manualStreamSelect')?.value||''},extra||{});
+}
+function setMarksInputsLocked_(locked){
+  document.querySelectorAll('#resultsTable input.score-input').forEach(function(input){input.disabled=!!locked;input.title=locked?'Standardization imewashwa. Reset kwanza ili kuhariri Alama Original.':'';input.style.background=locked?'#eef2ff':'';});
+  var saveBtn=document.querySelector('#resultsDashboard button[onclick="saveResults()"]');
+  if(saveBtn){saveBtn.disabled=!!locked;saveBtn.title=locked?'Reset Standardization kabla ya kubadilisha Alama Original.':'';}
+}
+function renderMarksStandardizationPanel_(allowed,config,keepOpen){
+  var panel=document.getElementById('marksStandardizationPanel'),entry=document.getElementById('marksStandardizationEntry');if(!panel||!entry)return;
+  marksStandardizationAllowed=!!allowed;currentMarksStandardization=config||{active:false,mode:'fixed',amount:0};
+  entry.style.display=allowed?'block':'none';entry.classList.toggle('hidden',!allowed);
+  if(!allowed){panel.style.display='none';panel.classList.add('hidden');return;}
+  var wasOpen=!!keepOpen&&panel.style.display!=='none';
+  panel.style.display=wasOpen?'block':'none';panel.classList.toggle('hidden',!wasOpen);
+  var toggle=document.getElementById('openMarksStandardizationBtn');if(toggle)toggle.setAttribute('aria-expanded',wasOpen?'true':'false');
+  var mode=document.getElementById('marksStandardizationMode'),amount=document.getElementById('marksStandardizationAmount');
+  if(mode)mode.value=currentMarksStandardization.mode==='percent'?'percent':'fixed';
+  if(amount)amount.value=currentMarksStandardization.amount||'';
+  var status=document.getElementById('marksStandardizationStatus'),note=document.getElementById('marksStandardizationNote'),reset=document.getElementById('resetMarksStandardizationBtn'),applyBtn=document.getElementById('applyMarksStandardizationBtn');
+  if(status){status.textContent=currentMarksStandardization.active?'STANDARDIZED':'ORIGINAL';status.style.color=currentMarksStandardization.active?'#15803d':'#64748b';}
+  if(note)note.textContent=currentMarksStandardization.active?(currentMarksStandardization.mode==='percent'?'Ongezeko: +'+currentMarksStandardization.amount+'% ya alama ya awali. Alama ya mwisho haizidi 100.':'Ongezeko: +'+currentMarksStandardization.amount+' alama kwa kila alama halisi. Alama ya mwisho haizidi 100.'):'Hakuna Standardization inayotumika kwa darasa, muhula na mkondo huu.';
+  var isAcademicUser=String(localStorage.getItem('timetableRole')||'').toLowerCase()==='academic';
+  var academicProtected=!!currentMarksStandardization.protectedByAcademic;
+  if(reset){
+    reset.disabled=!currentMarksStandardization.active||(academicProtected&&!isAcademicUser);
+    reset.title=academicProtected&&!isAcademicUser?'Standardization hii imewekwa na Mtaaluma; Mtaaluma pekee ndiye anayeweza ku-reset.':'';
+  }
+  if(applyBtn){
+    applyBtn.disabled=academicProtected&&!isAcademicUser;
+    applyBtn.title=academicProtected&&!isAcademicUser?'Standardization hii imelindwa na Mtaaluma; Mtaaluma pekee ndiye anayeweza kuibadilisha.':'';
+  }
+  if(note&&academicProtected&&!isAcademicUser)note.textContent+=' Standardization hii imelindwa na Mtaaluma; mwalimu na Head of School hawawezi kuibadilisha au kuirudisha.';
+  setMarksInputsLocked_(!!currentMarksStandardization.active);
+}
+async function loadMarksStandardizationControls_(darasa,termId,streamName){
+  var panel=document.getElementById('marksStandardizationPanel');if(!panel)return;
+  var requestedScope=[String(currentDbId||''),String(darasa||''),String(termId||''),String(streamName||'')].join('::');
+  var sameScope=requestedScope===currentMarksStandardizationScope;
+  if(!sameScope){currentMarksStandardization={active:false,mode:'fixed',amount:0};currentMarksStandardizationScope=requestedScope;setMarksInputsLocked_(false);}
+  if(!currentDbId||!darasa||!termId){renderMarksStandardizationPanel_(false,{active:false});return;}
+  // An unsynced local Standardization/Reset is newer than the server snapshot.
+  try{
+    var pendingQueue=JSON.parse(localStorage.getItem('offlineQueue')||'[]')||[];
+    var pendingAction=pendingQueue.filter(function(a){return a&&['saveMarksStandardization','resetMarksStandardization'].includes(a.action)&&String(a.dbId||'')===String(currentDbId)&&String(a.darasa||'')===String(darasa)&&String(a.termId||'')===String(termId)&&String(a.streamName||'')===String(streamName||'');}).sort(function(a,b){return Number(b.clientUpdatedAt||0)-Number(a.clientUpdatedAt||0);})[0];
+    if(pendingAction){var pendingConfig=pendingAction.action==='saveMarksStandardization'?{active:true,mode:pendingAction.mode||'fixed',amount:Number(pendingAction.amount)||0}:{active:false,mode:'fixed',amount:0};renderMarksStandardizationPanel_(true,pendingConfig,sameScope);return;}
+  }catch(e){}
+  if(!isOnline()){
+    var offlineEntry=readMarksStandardizationCache_(darasa,termId,streamName);
+    if(offlineEntry){renderMarksStandardizationPanel_(true,offlineEntry.config||{active:false,mode:'fixed',amount:0},sameScope);}
+    else renderMarksStandardizationPanel_(false,{active:false,mode:'fixed',amount:0});
+    return;
+  }
+  try{
+    var payload=marksStandardizationRequest_('getMarksStandardization');payload.darasa=darasa;payload.termId=termId;payload.streamName=streamName||'';
+    var response=await fetchWithServerRetry(SCRIPT_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(payload)}),data=await response.json();
+    if(String(document.getElementById('darasaResults')?.value||'')!==String(darasa)||String(document.getElementById('termSelect')?.value||'')!==String(termId)||String(document.getElementById('manualStreamSelect')?.value||'')!==String(streamName||''))return;
+    var allowed=data.status==='success'&&data.allowed;
+    if(allowed)writeMarksStandardizationCache_(darasa,termId,streamName,data.config||{active:false,mode:'fixed',amount:0});
+    renderMarksStandardizationPanel_(allowed,data.config||{active:false,mode:'fixed',amount:0},sameScope);
+    var panelMessage=document.getElementById('marksStandardizationPermissionMessage');
+    if(panelMessage){panelMessage.textContent=allowed?'':(data.message||'Sehemu hii inapatikana kwa Staff aliyegawiwa darasa hili kupitia Staff Assignments.');panelMessage.style.display=allowed?'none':'block';}
+    if(!allowed)console.info('Standardization panel hidden:',data.message||data.status);
+  }catch(e){
+    // On a transient network failure, retain only a previously verified exact-scope permission.
+    var cached=readMarksStandardizationCache_(darasa,termId,streamName);
+    if(cached)renderMarksStandardizationPanel_(true,cached.config||{active:false,mode:'fixed',amount:0},sameScope);
+    else renderMarksStandardizationPanel_(false,{active:false,mode:'fixed',amount:0});
+    console.warn('Standardization permission/config could not be refreshed:',e);
+  }
+}
+
+function syncStandardizedMarksCache_(darasa,termId,streamName,config){
+  function updateRows(rows){
+    if(!Array.isArray(rows))return;
+    rows.forEach(function(r){
+      if(!r||!r.scores)return;
+      // If an older cached server report already contains standardized scores
+      // but predates originalScores, do not add the increase a second time.
+      // A fresh server getTermSheetData response now includes originalScores.
+      if(r.standardized===true&&(!r.originalScores||typeof r.originalScores!=='object'))return;
+      var originals=r.originalScores&&typeof r.originalScores==='object'?Object.assign({},r.originalScores):Object.assign({},r.scores);
+      r.originalScores=Object.assign({},originals);
+      var next={};Object.keys(originals).forEach(function(subject){var v=originals[subject];
+        if(config&&config.active&&v!==''&&v!==null&&v!==undefined&&v!=='-'&&!isNaN(Number(v))){var n=Number(v),a=Number(config.amount)||0;n=config.mode==='percent'?n+(n*a/100):n+a;next[subject]=Math.round(Math.max(0,Math.min(100,n))*100)/100;}else next[subject]=v;
+      });
+      r.scores=next;r.standardized=!!(config&&config.active);
+    });
+  }
+  var key=termScopedKey_(termId,streamName||'');
+  try{var cache=JSON.parse(localStorage.getItem('resultsCache')||'{}')||{};if(cache[darasa])updateRows(cache[darasa][key]);localStorage.setItem('resultsCache',JSON.stringify(cache));}catch(e){console.warn('Could not update results cache:',e);}
+  // Preserve other report cache scopes; update only this database/class/term/stream.
+  try{var report=JSON.parse(localStorage.getItem('reportCache')||'{}')||{};var root=report[currentDbId]&&typeof report[currentDbId]==='object'?report[currentDbId]:report;var scope=root[darasa];if(scope&&typeof scope==='object'){
+      [key,(!streamName?String(termId):'')].filter(Boolean).forEach(function(k){var item=scope[k];if(item&&Array.isArray(item.results)){updateRows(item.results);item.standardization=config;}else if(Array.isArray(item))updateRows(item);});
+    }localStorage.setItem('reportCache',JSON.stringify(report));}catch(e){console.warn('Could not update report cache:',e);}
+  try{writeMarksStandardizationCache_(darasa,termId,streamName,config);}catch(e){}
+  bumpMarksRevision_(darasa,termId,streamName);
+}
+function queueOfflineMarksStandardization_(payload){
+  var queue=[];try{queue=JSON.parse(localStorage.getItem('offlineQueue')||'[]')||[];}catch(e){}
+  var scope=[payload.dbId,payload.darasa,payload.termId,payload.streamName||''].join('::');
+  // Keep only the latest pending standardization action for this exact scope.
+  queue=queue.filter(function(a){return !(a&&['saveMarksStandardization','resetMarksStandardization'].includes(a.action)&&[a.dbId,a.darasa,a.termId,a.streamName||''].join('::')===scope);});
+  payload.clientUpdatedAt=Date.now();queue.push(payload);localStorage.setItem('offlineQueue',JSON.stringify(queue));
+}
+
+async function applyMarksStandardizationFromUI(){
+  if(!marksStandardizationAllowed)return;
+  var mode=document.getElementById('marksStandardizationMode')?.value||'fixed',amount=Number(document.getElementById('marksStandardizationAmount')?.value);
+  if(!isFinite(amount)||amount<0||amount>100){if(window.Swal)Swal.fire('Kiwango si sahihi','Weka kiwango kati ya 0 na 100.','warning');return;}
+  var label=mode==='percent'?amount+'%':'alama '+amount;
+  var confirm=window.Swal?await Swal.fire({title:'Thibitisha Standardization',text:'Unaongeza '+label+'. Alama Original hazitabadilishwa; alama za sasa hazitazidi 100.',icon:'question',showCancelButton:true,confirmButtonText:'Endelea',cancelButtonText:'Ghairi'}):{isConfirmed:window.confirm('Thibitisha kuongeza '+label+'?')};
+  if(!confirm.isConfirmed)return;
+  var btn=document.getElementById('applyMarksStandardizationBtn');if(btn){btn.disabled=true;btn.dataset.old=btn.innerHTML;btn.innerHTML='<i class="fas fa-spinner fa-spin"></i> Inahifadhi...';}
+  try{
+    var payload=marksStandardizationRequest_('saveMarksStandardization',{mode:mode,amount:amount});
+    var nextConfig={active:true,mode:mode,amount:amount};
+    if(isOnline()){
+      var response=await fetchWithServerRetry(SCRIPT_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(payload)}),data=await response.json();
+      if(data.status!=='success')throw new Error(data.message||'Imeshindikana kuhifadhi Standardization.');
+      if(window.Swal)await Swal.fire('Imefanikiwa',data.message||'Standardization imehifadhiwa.','success');
+    }else{
+      queueOfflineMarksStandardization_(payload);
+      if(window.Swal)await Swal.fire('Imehifadhiwa kwenye kifaa','Standardization itasawazishwa mtandao utakaporejea.','success');
+    }
+    currentMarksStandardization=nextConfig;syncStandardizedMarksCache_(payload.darasa,payload.termId,payload.streamName,nextConfig);
+    renderMarksStandardizationPanel_(true,nextConfig,true);loadResults();
+  }catch(e){if(window.Swal)Swal.fire('Hitilafu',e.message||String(e),'error');else alert(e.message||String(e));}
+  finally{if(btn){btn.disabled=false;btn.innerHTML=btn.dataset.old||'<i class="fas fa-check"></i> Tumia Alama';}}
+}
+async function resetMarksStandardizationFromUI(){
+  if(!marksStandardizationAllowed||!currentMarksStandardization.active)return;
+  var isAcademicUser=String(localStorage.getItem('timetableRole')||'').toLowerCase()==='academic';
+  if(currentMarksStandardization.protectedByAcademic&&!isAcademicUser){
+    if(window.Swal)Swal.fire('Hairuhusiwi','Standardization hii imewekwa na Mtaaluma. Ni Mtaaluma pekee anayeruhusiwa kuirudisha Original.','warning');
+    return;
+  }
+  var confirm=window.Swal?await Swal.fire({title:'Rudisha Alama Original?',text:'Matokeo na ripoti zitatumia tena alama halisi zilizohifadhiwa. Alama Original hazitafutwa.',icon:'warning',showCancelButton:true,confirmButtonText:'Reset',cancelButtonText:'Ghairi'}):{isConfirmed:window.confirm('Rudisha Alama Original?')};
+  if(!confirm.isConfirmed)return;
+  var btn=document.getElementById('resetMarksStandardizationBtn');if(btn){btn.disabled=true;btn.dataset.old=btn.innerHTML;btn.innerHTML='<i class="fas fa-spinner fa-spin"></i> Inarudisha...';}
+  try{
+    var payload=marksStandardizationRequest_('resetMarksStandardization');
+    var originalConfig={active:false,mode:'fixed',amount:0};
+    if(isOnline()){
+      var response=await fetchWithServerRetry(SCRIPT_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(payload)}),data=await response.json();
+      if(data.status!=='success')throw new Error(data.message||'Imeshindikana kurejesha Alama Original.');
+      if(window.Swal)await Swal.fire('Imefanikiwa',data.message||'Alama Original zimerejeshwa.','success');
+    }else{
+      queueOfflineMarksStandardization_(payload);
+      if(window.Swal)await Swal.fire('Reset imehifadhiwa kwenye kifaa','Alama Original zitawekwa rasmi server mtandao utakaporejea.','success');
+    }
+    currentMarksStandardization=originalConfig;syncStandardizedMarksCache_(payload.darasa,payload.termId,payload.streamName,originalConfig);
+    renderMarksStandardizationPanel_(true,originalConfig,true);loadResults();
+  }catch(e){if(window.Swal)Swal.fire('Hitilafu',e.message||String(e),'error');else alert(e.message||String(e));}
+  finally{if(btn){btn.disabled=false;btn.innerHTML=btn.dataset.old||'<i class="fas fa-undo"></i> Reset';}}
+}
+
 var __loadResultsRevision_=0;
 function loadResults() {
   const requestRevision=++__loadResultsRevision_;
@@ -23506,6 +23831,7 @@ function loadResults() {
   
   const streamGroup = document.getElementById('manualStreamGroup');
   const streamName = document.getElementById('manualStreamSelect')?.value || '';
+  loadMarksStandardizationControls_(darasa,termId,streamName);
   if(streamGroup && !streamGroup.classList.contains('hidden') && !streamName){ const t=document.querySelector('#resultsTable tbody'); if(t)t.innerHTML='<tr><td colspan="10" style="text-align:center;padding:28px">Chagua mkondo kwanza.</td></tr>'; return; }
   // Ensure table layout is fixed for responsiveness
   if (resultsTable) {
@@ -23561,7 +23887,9 @@ function loadResults() {
   
   // Show cached data immediately
   if (hasTermCache) {
-    displayStudentResults(resultsCache[darasa][scopedTermKey], selectedSubject, termId, darasa);
+    const cachedMarks=resultsCache[darasa][scopedTermKey]||[];
+    if(cachedMarks.some(r=>r&&r.standardized))currentMarksStandardization={active:true,mode:'fixed',amount:0};
+    displayStudentResults(cachedMarks, selectedSubject, termId, darasa);
     showCacheIndicator(true);
   } else if (hasStudentCache) {
     const emptyResults = studentCache[darasa].map(student => ({
@@ -23596,6 +23924,7 @@ function loadResults() {
       if (requestRevision !== __loadResultsRevision_ || String(document.getElementById("darasaResults")?.value||'') !== String(darasa) || String(document.getElementById("termSelect")?.value||'') !== String(termId) || String(document.getElementById("manualStreamSelect")?.value||'') !== String(streamName)) return;
       if (readMarksRevision_(darasa, termId, streamName) !== marksRevisionAtRequest) return;
       if (data.status === "success") {
+        if(data.standardization){currentMarksStandardization=data.standardization;setMarksInputsLocked_(!!data.standardization.active);}
         // If a local save is pending, never replace it with an older server snapshot.
         let queueNow=[];try{queueNow=JSON.parse(localStorage.getItem('offlineQueue')||'[]')||[];}catch(e){}
         const pending=queueNow.some(a=>a&&a.action==='saveTermResults'&&String(a.dbId||currentDbId)===String(currentDbId)&&String(a.darasa)===String(darasa)&&String(a.termId)===String(termId)&&String(a.streamName||'')===String(streamName));
@@ -24003,6 +24332,8 @@ function mergeResults(existingResults, newResults) {
 // UPDATE SCORE - Fixed to accept 0 as valid score
 // ============================================
 function updateScore(studentName, subject, value, termId) {
+  if(currentMarksStandardization&&currentMarksStandardization.active){if(window.Notiflix&&Notiflix.Notify)Notiflix.Notify.warning('Reset Standardization kwanza ili kubadilisha Alama Original.');return;}
+
   if (typeof __loadResultsRevision_ !== 'undefined') __loadResultsRevision_++;
   const darasa = document.getElementById("darasaResults").value;
   const streamName = document.getElementById('manualStreamSelect')?.value || '';
@@ -26238,6 +26569,11 @@ function loadReportFromTermSheet(darasa, termId, streamName) {
       if (requestRevision !== __loadReportRevision_ || String(document.getElementById('darasaReport')?.value || '') !== String(darasa) || String(document.getElementById('termReport')?.value || '') !== String(termId) || String(document.getElementById('reportStreamSelect')?.value || '') !== String(streamName)) return;
       if (readMarksRevision_(darasa, termId, streamName) !== marksRevisionAtRequest) return;
       if (data.status === "success") {
+        // Cache the exact stream's Standardization config separately; a stream
+        // must never inherit another stream's active/reset state.
+        if(data.standardization){
+          try{writeMarksStandardizationCache_(darasa,termId,streamName,data.standardization);}catch(e){}
+        }
         // If offline marks are still queued for this class/term, do not let
         // the older server snapshot overwrite what the user just entered.
         const queueNow = JSON.parse(localStorage.getItem('offlineQueue')) || [];
@@ -26295,6 +26631,40 @@ function loadReportFromTermSheet(darasa, termId, streamName) {
 // ============================================
 
 // ============================================
+// Developer class restrictions are cached per authenticated school DB_ID.
+// Online refresh updates this cache; offline dropdowns use only that school's snapshot.
+function getCurrentSchoolRestrictedClasses_(){
+  var db=String(currentDbId||localStorage.getItem('dbId')||'');if(!db)return [];
+  try{var d=JSON.parse(localStorage.getItem('schoolClassRestrictions::'+db)||'null');return d&&Array.isArray(d.restrictedClasses)?d.restrictedClasses:[];}catch(e){return [];}
+}
+function isSchoolClassRestricted_(className){var key=String(className||'').trim().toLowerCase();return !!key&&getCurrentSchoolRestrictedClasses_().some(function(x){return String(x||'').trim().toLowerCase()===key;});}
+function applyClassRestrictionsToAllDropdowns_(){
+  var restricted=getCurrentSchoolRestrictedClasses_().map(function(x){return String(x||'').trim().toLowerCase();});
+  document.querySelectorAll('select').forEach(function(sel){
+    Array.from(sel.options||[]).forEach(function(opt){
+      var value=String(opt.value||'').trim();if(!value)return;
+      // Preserve stream-specific values such as "Darasa la Tatu - A" while
+      // hiding them whenever their base class is restricted.
+      var base=value.split(/\s+-\s+/)[0].trim().toLowerCase();
+      var hidden=restricted.indexOf(base)!==-1;
+      opt.hidden=hidden;opt.disabled=hidden;
+      if(hidden&&opt.selected){sel.selectedIndex=0;}
+    });
+  });
+}
+function refreshSchoolClassRestrictions_(force){
+  var db=String(currentDbId||localStorage.getItem('dbId')||'');if(!db)return Promise.resolve([]);
+  var cacheKey='schoolClassRestrictions::'+db,cached=[];try{var c=JSON.parse(localStorage.getItem(cacheKey)||'null');if(c&&Array.isArray(c.restrictedClasses))cached=c.restrictedClasses;}catch(e){}
+  try{enforceSchoolLevelClassOptions_();}catch(e){}
+  if(!isOnline())return Promise.resolve(cached);
+  if(window.__schoolClassRestrictionsRequestDb===db&&!force&&Date.now()-(window.__schoolClassRestrictionsLastFetchAt||0)<60000)return Promise.resolve(cached);
+  window.__schoolClassRestrictionsRequestDb=db;window.__schoolClassRestrictionsLastFetchAt=Date.now();
+  return fetchWithServerRetry(SCRIPT_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({action:'getSchoolClassRestrictions',dbId:db})})
+    .then(function(r){return r.json();}).then(function(d){if(!d||d.status!=='success'||String(d.dbId)!==db)throw new Error(d&&d.message||'Restriction response invalid');localStorage.setItem(cacheKey,JSON.stringify(d));window.__schoolClassRestrictionsRequestDb=db;enforceSchoolLevelClassOptions_();applyClassRestrictionsToAllDropdowns_();return d.restrictedClasses||[];})
+    .catch(function(e){console.warn('[Class restrictions] Using school-scoped cache:',e);window.__schoolClassRestrictionsRequestDb='';return cached;});
+}
+window.addEventListener('online',function(){refreshSchoolClassRestrictions_(true);});
+
 // SCHOOL LEVEL SUPPORT — Primary remains the default
 // ============================================
 function getActiveSchoolLevel_() {
@@ -26318,13 +26688,13 @@ function applySchoolLevelUI(level) {
     var old=el.value;
     var first=el.options.length && (el.options[0].value==='' || /chagua|select/i.test(el.options[0].textContent)) ? {value:el.options[0].value,text:el.options[0].textContent} : null;
     var scoped=studentScopedIds.indexOf(id)>=0 && String(localStorage.getItem('userType')||'').toLowerCase()==='staff';
-    var options=scoped?classOptions.filter(function(item){return Array.isArray(savedStudentScope)&&savedStudentScope.indexOf(item.value)>=0;}):classOptions;
+    var options=(scoped?classOptions.filter(function(item){return Array.isArray(savedStudentScope)&&savedStudentScope.indexOf(item.value)>=0;}):classOptions).filter(function(item){return !isSchoolClassRestricted_(item.value);});
     el.innerHTML='';
-    if(first||scoped){var ph=document.createElement('option');ph.value='';ph.textContent=options.length?(first?first.text:(isEnglish?'Select class':'Chagua darasa')):(isEnglish?'No class assigned':'Hakuna darasa ulilogawiwa');el.appendChild(ph);}
+    if(first||scoped||!options.length){var ph=document.createElement('option');ph.value='';ph.textContent=options.length?(first?first.text:(isEnglish?'Select class':'Chagua darasa')):(isEnglish?'No classes available':'Hakuna madarasa yanayopatikana');el.appendChild(ph);}
     options.forEach(function(item){var o=document.createElement('option');o.value=item.value;o.textContent=isEnglish?item.en:item.sw;el.appendChild(o);});
     if(options.some(function(item){return item.value===old;}))el.value=old;
     else if(!scoped&&!first)el.selectedIndex=0;
-    el.disabled=scoped&&options.length===0;
+    el.disabled=options.length===0;
   });
   // Mark the document and hide primary-only controls/sections in secondary mode.
   document.documentElement.setAttribute('data-school-level', level);
@@ -26365,6 +26735,8 @@ function applySchoolLevelUI(level) {
   if(isSecondary)loadSecondaryDivisionSettings();
   installSchoolLevelClassGuard_();
   enforceSchoolLevelClassOptions_();
+  applyClassRestrictionsToAllDropdowns_();
+  if(currentDbId||localStorage.getItem('dbId')) refreshSchoolClassRestrictions_();
 }
 // LEVEL CONSISTENCY GUARD: re-apply the authenticated school level after async
 // loaders redraw class dropdowns, and when the page is refreshed. Internal class
@@ -26394,7 +26766,7 @@ function enforceSchoolLevelClassOptions_() {
     var placeholder = null;
     if (el.options.length && (el.options[0].value === '' || /chagua|select/i.test(el.options[0].textContent))) placeholder = {value:el.options[0].value,text:el.options[0].textContent};
     var scoped=studentScopedIds.indexOf(el.id)>=0 && String(localStorage.getItem('userType')||'').toLowerCase()==='staff';
-    var classOptionsForSelect=scoped?classes.filter(function(c){return Array.isArray(savedStudentScope)&&savedStudentScope.indexOf(c.value)>=0;}):classes;
+    var classOptionsForSelect=(scoped?classes.filter(function(c){return Array.isArray(savedStudentScope)&&savedStudentScope.indexOf(c.value)>=0;}):classes).filter(function(c){return !isSchoolClassRestricted_(c.value);});
     var validValues = classOptionsForSelect.map(function(c){return c.value;});
     var currentValues = Array.from(el.options).map(function(o){return o.value;}).filter(function(v){return v!=='';});
     var correct = currentValues.length === validValues.length && validValues.every(function(v){return currentValues.indexOf(v)!==-1;});
@@ -26403,12 +26775,13 @@ function enforceSchoolLevelClassOptions_() {
       return;
     }
     el.innerHTML='';
-    if(scoped||placeholder){var ph=document.createElement('option');ph.value='';ph.textContent=classOptionsForSelect.length?(placeholder?placeholder.text:(isEnglish?'Select class':'Chagua darasa')):(isEnglish?'No class assigned':'Hakuna darasa ulilogawiwa');el.appendChild(ph);}
+    if(scoped||placeholder||!classOptionsForSelect.length){var ph=document.createElement('option');ph.value='';ph.textContent=classOptionsForSelect.length?(placeholder?placeholder.text:(isEnglish?'Select class':'Chagua darasa')):(isEnglish?'No classes available':'Hakuna madarasa yanayopatikana');el.appendChild(ph);}
     classOptionsForSelect.forEach(function(c){var o=document.createElement('option');o.value=c.value;o.textContent=isEnglish?c.en:c.sw;el.appendChild(o);});
     if (validValues.indexOf(old)!==-1) el.value=old;
     else if (scoped||placeholder) el.value='';
-    el.disabled=scoped&&classOptionsForSelect.length===0;
+    el.disabled=classOptionsForSelect.length===0;
   });
+  applyClassRestrictionsToAllDropdowns_();
   document.documentElement.setAttribute('data-school-level', level);
 }
 function installSchoolLevelClassGuard_() {
@@ -26815,7 +27188,23 @@ function displaySecondaryReportWithSubjects(results,subjects) {
     .catch(function(e){console.warn('Server-side Secondary calculation unavailable; using offline/local calculation.',e);});
 }
 
+function applyCachedMarksStandardizationToRows_(results,darasa,termId,streamName){
+  var entry=readMarksStandardizationCache_(darasa,termId,streamName);
+  if(!entry||!Array.isArray(results))return results;
+  var cfg=entry.config||{active:false};
+  return results.map(function(row){
+    if(!row||!row.scores)return row;
+    // Server data may already be standardized. Older cached rows lacked the
+    // originalScores field; preserve them rather than applying the increase twice.
+    if(row.standardized===true&&(!row.originalScores||typeof row.originalScores!=='object'))return row;
+    var copy=Object.assign({},row),originals=row.originalScores&&typeof row.originalScores==='object'?row.originalScores:Object.assign({},row.scores),scores={};
+    Object.keys(originals).forEach(function(subject){var v=originals[subject];if(cfg.active&&v!==''&&v!==null&&v!==undefined&&v!=='-'&&!isNaN(Number(v))){var n=Number(v),a=Number(cfg.amount)||0;n=cfg.mode==='percent'?n+(n*a/100):n+a;scores[subject]=Math.round(Math.max(0,Math.min(100,n))*100)/100;}else scores[subject]=v;});
+    copy.originalScores=Object.assign({},originals);copy.scores=scores;copy.standardized=!!cfg.active;return copy;
+  });
+}
 function displayReportWithSubjects(results, subjects, gradeSettings, subjectGradeSettings) {
+  var reportClass=document.getElementById('darasaReport')?.value||'',reportTerm=document.getElementById('termReport')?.value||'',reportStream=document.getElementById('reportStreamSelect')?.value||'';
+  results=applyCachedMarksStandardizationToRows_(results,reportClass,reportTerm,reportStream);
   if (getActiveSchoolLevel_() === 'secondary') { displaySecondaryReportWithSubjects(results, subjects); return; }
   hideSecondaryFrontendReportSections_();
   const tableBody = document.getElementById("reportTable").getElementsByTagName('tbody')[0];
@@ -29528,9 +29917,9 @@ function loadStaffTimetableDashboard(){
   if(!currentDbId||!(userEmail||localStorage.getItem('currentUserEmail'))){if(box)box.innerHTML='<div class="tt-message">Akaunti ya Staff haijakamilika.</div>';return;}
   var email=userEmail||localStorage.getItem('currentUserEmail')||'';
   var cache=null;try{cache=JSON.parse(localStorage.getItem(ttStaffCacheKey())||'null');}catch(e){}
-  if(cache&&cache.status==='success'&&Array.isArray(cache.schedule)&&cache.schedule.length){ttRenderStaffSchedule(cache);}
+  if(cache&&cache.status==='success'&&cache.scheduleSource==='approvedSchedule'&&Number(cache.approvedVersion)>=1&&Array.isArray(cache.schedule)&&cache.schedule.length){ttRenderStaffSchedule(cache);}
   if(!isOnline()){
-    if(!cache||cache.status!=='success'||!Array.isArray(cache.schedule)||!cache.schedule.length){if(box)box.innerHTML='<div class="tt-message">Ratiba ya Masomo ya Staff haipatikani offline. Unganisha mtandao ili ipakie.</div>';}
+    if(!cache||cache.status!=='success'||cache.scheduleSource!=='approvedSchedule'||Number(cache.approvedVersion)<1||!Array.isArray(cache.schedule)||!cache.schedule.length){if(box)box.innerHTML='<div class="tt-message">Ratiba iliyoidhinishwa haipatikani kwenye cache hii. Unganisha mtandao ili kupata Ratiba sahihi.</div>';}
     return;
   }
   /* Always refresh from Server. The cached copy is only a fast first paint. */
@@ -29871,11 +30260,28 @@ function ttGroupRowsClient(group){
     return false;
   });
 }
-function ttPendingGroupClient(group){var h=Array.isArray(ttData.requestHistory)?ttData.requestHistory:((ttData.workflow&&ttData.workflow.requests)||[]);return h.find(function(r){return r&&r.status==='pending'&&r.group===group;})||null;}
+function ttPendingGroupClient(group){var h=(ttData.workflow&&Array.isArray(ttData.workflow.requests))?ttData.workflow.requests:(Array.isArray(ttData.requestHistory)?ttData.requestHistory:[]);return h.find(function(r){return r&&String(r.status||'').toLowerCase()==='pending'&&String(r.group||'').toLowerCase()===String(group||'').toLowerCase();})||null;}
+/* Reconcile an offline/old cache with server workflow state before first paint.
+   Pending snapshots are replaced by the last approved rows for that group. */
+function ttMaskPendingDraftForDisplay_(data){
+  if(!data||typeof data!=='object')return data;
+  var history=Array.isArray(data.requestHistory)?data.requestHistory:((data.workflow&&Array.isArray(data.workflow.requests))?data.workflow.requests:[]);
+  var pending={};history.forEach(function(r){if(r&&String(r.status||'').toLowerCase()==='pending'&&['awali','lower','upper'].indexOf(String(r.group||''))>=0)pending[String(r.group)]=true;});
+  var keys=Object.keys(pending);if(!keys.length)return data;
+  var cfg=data.config||{},draft=Array.isArray(data.draftSchedule)?data.draftSchedule:[],approved=Array.isArray(data.approvedSchedule)?data.approvedSchedule:(Array.isArray(data.schedule)?data.schedule:[]);
+  var visible=draft.filter(function(row){return !pending[ttResolvedGroupClient_(row,cfg)];});
+  keys.forEach(function(group){visible=visible.concat(approved.filter(function(row){return ttResolvedGroupClient_(row,cfg)===group;}));});
+  data.draftSchedule=visible;return data;
+}
 function ttGroupSubmissionStateClient_(group){
+  /* Pending is a server workflow state, not a property of the currently
+     displayed draft (which is intentionally masked with approved rows). */
+  var h=(ttData.workflow&&Array.isArray(ttData.workflow.requests))?ttData.workflow.requests:(Array.isArray(ttData.requestHistory)?ttData.requestHistory:[]);
+  var pending=h.find(function(r){return r&&String(r.group||'').toLowerCase()===String(group||'').toLowerCase()&&String(r.status||'').toLowerCase()==='pending';});
+  if(pending)return 'pending';
   var rows=ttGroupRowsClient(group),canonical=ttCanonicalScheduleClient_(rows);
   if(!canonical)return '';
-  var h=Array.isArray(ttData.requestHistory)?ttData.requestHistory:((ttData.workflow&&ttData.workflow.requests)||[]),matches=[];
+  var matches=[];
   h.forEach(function(r){if(!r||String(r.group||'')!==String(group||''))return;var hash=String(r.scheduleHash||'');if(hash&&hash===canonical)matches.push(r);});
   /* A terminal server decision for this exact snapshot outranks an old cached/pending duplicate. */
   var decisions=Array.isArray(ttData.workflow&&ttData.workflow.decisions)?ttData.workflow.decisions:[];
@@ -29902,7 +30308,7 @@ function ttRequestGroupInfo(req){
 }
 function ttRenderPendingRequests(){
   var box=document.getElementById('ttPendingRequests');if(!box)return;
-  var history=Array.isArray(ttData.requestHistory)?ttData.requestHistory:((ttData.workflow&&Array.isArray(ttData.workflow.requests))?ttData.workflow.requests:[]);
+  var history=(ttData.workflow&&Array.isArray(ttData.workflow.requests))?ttData.workflow.requests:(Array.isArray(ttData.requestHistory)?ttData.requestHistory:[]);
   history=history.filter(function(r){return r&&String(r.status||'pending').toLowerCase()==='pending';});
   if(!history.length){box.innerHTML='<div class="tt-message">Hakuna Ratiba iliyo kwenye Pending Requests kwa sasa.</div>';return;}
   history=history.slice().sort(function(a,b){return String(b.submittedAt||b.createdAt||'').localeCompare(String(a.submittedAt||a.createdAt||''));});
@@ -29928,7 +30334,7 @@ function ttRenderPendingRequests(){
   }
   box.querySelectorAll('.tt-request-group-preview').forEach(function(btn){btn.onclick=function(){ttPreviewRequest(btn.getAttribute('data-request-id'),btn.getAttribute('data-group'));};});
 }
-function ttFindRequestClient(id){var h=Array.isArray(ttData.requestHistory)?ttData.requestHistory:((ttData.workflow&&ttData.workflow.requests)||[]);return h.find(function(r){return String(r.id)===String(id);})||null;}
+function ttFindRequestClient(id){var h=(ttData.workflow&&Array.isArray(ttData.workflow.requests))?ttData.workflow.requests:(Array.isArray(ttData.requestHistory)?ttData.requestHistory:[]);return h.find(function(r){return String(r.id)===String(id);})||null;}
 function ttPreviewRequest(id,group){
   var req=ttFindRequestClient(id),pc=document.getElementById('ttRequestPreview_'+id);if(!req||!pc)return;
   /* A Pending request must always be previewable. If the local cached copy is
@@ -30015,7 +30421,7 @@ function ttApprovePendingRequest(btn,requestId){
         if(d.status!=='success')throw new Error(d.message||'Approval imeshindikana.');
         if(d.workflow){ttData.workflow=d.workflow;ttData.requestHistory=Array.isArray(d.workflow.requests)?d.workflow.requests:[];}
         localStorage.setItem('timetableCache_'+currentDbId,JSON.stringify(ttData));
-        ttRenderPendingRequests();
+        ttRenderPendingRequests();ttRenderGroupActionStates();
         ttShowOwnerActionResult_('success','Approval imekamilika','Ratiba ime-Approved kikamilifu. Mtaaluma amewekewa ujumbe wa Approval.');
         ttModernToast_('success','Approval imekamilika','Ratiba ime-Approved kikamilifu.');
         return ttPostJson({action:'getTimetableData',dbId:currentDbId,userType:'owner',email:userEmail||localStorage.getItem('currentUserEmail')||'',timetableRole:'owner',ownerTeacherName:localStorage.getItem('staffName')||localStorage.getItem('headSchoolName')||''},45000).then(function(fresh){
@@ -30048,7 +30454,7 @@ function ttDenyPendingRequest(btn,requestId){
         if(d.status!=='success')throw new Error(d.message||'Deny imeshindikana.');
         if(d.workflow){ttData.workflow=d.workflow;ttData.requestHistory=Array.isArray(d.workflow.requests)?d.workflow.requests:[];}
         localStorage.setItem('timetableCache_'+currentDbId,JSON.stringify(ttData));
-        ttRenderPendingRequests();
+        ttRenderPendingRequests();ttRenderGroupActionStates();
         ttShowOwnerActionResult_('success','Deny imehifadhiwa','Ratiba imekataliwa kikamilifu. Sababu imetumwa kwa Mtaaluma.');
         ttModernToast_('success','Deny imehifadhiwa','Ratiba imekataliwa kikamilifu.');
         return ttPostJson({action:'getTimetableData',dbId:currentDbId,userType:'owner',email:userEmail||localStorage.getItem('currentUserEmail')||'',timetableRole:'owner',ownerTeacherName:localStorage.getItem('staffName')||localStorage.getItem('headSchoolName')||''},45000).then(function(fresh){
@@ -30177,8 +30583,20 @@ function ttSubmitGroupForApproval(group,btn){
   ttConfirmAction_('Tuma Ratiba kwa Approval','Ratiba ya '+label+' iko tayari kutumwa kwa Mwalimu Mkuu kwa ajili ya kuipitia.','Tuma Ratiba','Rudi',function(){
     var old=btn.innerHTML;btn.disabled=true;btn.innerHTML='<i class="fas fa-spinner fa-spin"></i> Inatuma...';
     ttPostJson({action:'submitTimetableForApproval',dbId:currentDbId,email:userEmail||localStorage.getItem('currentUserEmail')||'',targetGroup:group},45000)
-      .then(function(d){if(d.status!=='success')throw new Error(d.message||'Ratiba haikutumwa.');ttData.workflow=d.workflow||{};ttData.requestHistory=Array.isArray(d.workflow&&d.workflow.requests)?d.workflow.requests:[];localStorage.setItem('timetableCache_'+currentDbId,JSON.stringify(ttData));ttRenderGroupActionStates();ttRenderAcademicDecisionNotices();ttModernToast_('success','Ratiba imetumwa','Ratiba ya '+label+' imetumwa kwa Mwalimu Mkuu kwa ajili ya Approval.');})
-      .catch(function(e){ttModernToast_('error','Haikutumwa',e.message||'Imeshindikana kutuma Ratiba.')})
+      .then(function(d){if(d.status!=='success')throw new Error(d.message||'Ratiba haikutumwa.');ttData.workflow=d.workflow||{};ttData.requestHistory=Array.isArray(d.workflow&&d.workflow.requests)?d.workflow.requests:[];localStorage.setItem('timetableCache_'+currentDbId,JSON.stringify(ttData));ttRenderGroupActionStates();ttRenderAcademicDecisionNotices();if(d.alreadyProcessed){ttModernToast_('info','Tayari imetumwa','Ratiba ya '+label+' tayari imetumwa na inasubiri idhini.');}else{ttModernToast_('success','Ratiba imetumwa','Ratiba ya '+label+' imetumwa kwa Mwalimu Mkuu kwa ajili ya Approval.');}})
+      .catch(function(e){
+        /* A network timeout may happen after the server has committed the
+           request. Re-read authoritative workflow before telling the user it
+           failed; this avoids a false "Haikutumwa" message. */
+        ttPostJson({action:'getTimetableData',dbId:currentDbId,email:userEmail||localStorage.getItem('currentUserEmail')||'',userType:'academic'},30000)
+          .then(function(fresh){if(fresh&&fresh.status==='success'){
+            ttData.workflow=fresh.workflow||{};ttData.requestHistory=Array.isArray(fresh.requestHistory)?fresh.requestHistory:[];
+            localStorage.setItem('timetableCache_'+currentDbId,JSON.stringify(ttData));ttRenderGroupActionStates();ttRenderAcademicDecisionNotices();
+            if(ttGroupSubmissionStateClient_(group)==='pending'){ttModernToast_('info','Tayari imetumwa','Server imethibitisha kuwa Ratiba ya '+label+' tayari imetumwa na inasubiri idhini.');return;}
+          }
+          ttModernToast_('error','Haikutumwa',e.message||'Imeshindikana kuthibitisha utumaji wa Ratiba. Angalia hali ya Pending kabla ya kujaribu tena.');
+        }).catch(function(){ttModernToast_('error','Haijathibitishwa', 'Server haikutoa uthibitisho wa mwisho. Tafadhali onyesha upya taarifa za Ratiba kabla ya kujaribu kutuma tena.');});
+      })
       .finally(function(){btn.disabled=false;btn.innerHTML=old;});
   });
 }
@@ -30327,7 +30745,7 @@ function loadTimetableDashboard(){
   try{
     var c=JSON.parse(localStorage.getItem('timetableCache_'+dbId)||'null');
     if(c && ttSessionIsCurrent_(session,role,dbId,email)){
-      ttData=c;if(Array.isArray(ttData.approvedSchedule))ttData.schedule=ttData.approvedSchedule;
+      ttData=ttMaskPendingDraftForDisplay_(c);if(Array.isArray(ttData.approvedSchedule))ttData.schedule=ttData.approvedSchedule;
       ttRenderDays((c.config&&c.config.days)||[]);ttApplyConfig();
       ttRenderBreaks(((c.config&&c.config.lower)||c.config||{}).breaks||[],'lower');
       ttRenderBreaks(((c.config&&c.config.upper)||c.config||{}).breaks||[],'upper');
@@ -30735,6 +31153,10 @@ function ttGenerateGroup(button,group){
   if(ratibaPlanGateBeforeGenerate_())return;
   if(ttCurrentRole()!=='academic'){Notiflix.Notify.warning('Kutengeneza Ratiba ni jukumu la Mtaaluma pekee.');return;}
   group=ttIsSecondary_()?'upper':((group==='awali'||group==='lower'||group==='upper')?group:'upper');
+  if(ttGroupSubmissionStateClient_(group)==='pending'){
+    ttModernToast_('warning','Kuna Ratiba Inasubiri Idhini','Ratiba ya kundi hili tayari imetumwa na inasubiri idhini ya Head of School. Subiri uamuzi kabla ya kutengeneza Ratiba nyingine.');
+    return;
+  }
   var cfg=ttCollectConfig();
   if(!cfg.days.length){Notiflix.Notify.warning('Chagua angalau siku moja ya masomo.');return;}
   if(!cfg.awali||!cfg.lower||!cfg.upper||(ttIsSecondary_()?cfg.upper.startTime>=cfg.upper.endTime:(cfg.awali.startTime>=cfg.awali.endTime||cfg.lower.startTime>=cfg.lower.endTime||cfg.upper.startTime>=cfg.upper.endTime))){
@@ -31055,7 +31477,23 @@ window.SIWITI_LANG_KEY='siwitiUserLanguage';
     "EXAMINATION CENTRE OVERALL PERFORMANCE":"EXAMINATION CENTRE OVERALL PERFORMANCE","EXAMINATION CENTRE DIVISION PERFORMANCE":"EXAMINATION CENTRE DIVISION PERFORMANCE","EXAMINATION CENTRE SUBJECTS PERFORMANCE":"EXAMINATION CENTRE SUBJECTS PERFORMANCE",
     "TOTAL PASSED CANDIDATES":"TOTAL PASSED CANDIDATES","EXAMINATION CENTRE GPA":"EXAMINATION CENTRE GPA","SUBJECT NAME":"SUBJECT NAME","COMPETENCY LEVEL":"COMPETENCY LEVEL","REGISTERED":"REGISTERED","ABSENT":"ABSENT","WITHHELD":"WITHHELD","CLEAN":"CLEAN","PASS":"PASS","GRADE RANGES":"GRADE RANGES","SUBJECT GRADE SETTINGS":"SUBJECT GRADE SETTINGS"
   });
-  Object.keys(__resultsReportsLanguagePatch).forEach(function(k){window.SIWITI_LANGUAGE.en[k]=__resultsReportsLanguagePatch[k];});
+  Object.assign(__resultsReportsLanguagePatch,{
+    "Standardize Alama za Wanafunzi":"Standardize Student Marks",
+    "Alama Original huhifadhiwa bila kubadilishwa. Matokeo na ripoti zitatumia Alama za Sasa.":"Original marks are preserved unchanged. Results and reports will use current marks.",
+    "Aina ya Ongezeko":"Adjustment Type",
+    "Ongezeko la kawaida (+ Alama)":"Fixed Increase (+ Marks)",
+    "Ongezeko kwa Asilimia (%)":"Percentage Increase (%)",
+    "Kiwango cha Ongezeko":"Increase Amount",
+    "Mf. 5 au 10":"e.g. 5 or 10",
+    "Tumia Alama":"Apply Marks",
+    "Hakuna Standardization inayotumika kwa darasa, muhula na mkondo huu.":"No standardization is active for this class, term and stream.",
+    "Ongezeko: ":"Increase: ",
+    " ya alama ya awali. Alama ya mwisho haizidi 100.":" of the original mark. Final marks cannot exceed 100.",
+    " alama kwa kila alama halisi. Alama ya mwisho haizidi 100.":" marks added to each original mark. Final marks cannot exceed 100.",
+    "Standardization imewashwa. Reset kwanza ili kuhariri Alama Original.":"Standardization is active. Reset first to edit original marks.",
+    "Reset Standardization kwanza ili kubadilisha Alama Original.":"Reset standardization first to edit original marks."
+});
+Object.keys(__resultsReportsLanguagePatch).forEach(function(k){window.SIWITI_LANGUAGE.en[k]=__resultsReportsLanguagePatch[k];});
   Object.keys(__loadingLanguagePatch).forEach(function(k){window.SIWITI_LANGUAGE.en[k]=__loadingLanguagePatch[k];});
   var OVERRIDE_SW_EN={
     'MATOKEO NA RIPOTI':'RESULTS & REPORTS','Matokeo na Ripoti':'Results & Reports',
