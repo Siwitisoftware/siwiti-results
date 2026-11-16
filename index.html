@@ -5481,6 +5481,9 @@ html[data-school-level="primary"] #secondaryDivisionSettingsSection { display:no
       <li id="timetableMenuLi"><a href="#" onclick="showDashboard(localStorage.getItem('userType')==='staff' && localStorage.getItem('timetableRole')!=='academic'?'staffTimetable':'timetable'); return false;" id="timetableMenu">
         <i class="fas fa-calendar-days"></i> <span>Ratiba</span>
       </a></li>
+      <li id="schoolSmsMenuLi" class="hidden"><a href="#" onclick="showDashboard('schoolSms'); return false;" id="schoolSmsMenu">
+        <i class="fas fa-comment-sms"></i> <span>Tuma SMS</span>
+      </a></li>
       <li id="staffMenuLi" class="hidden">
         <a href="#" onclick="showDashboard('staff'); return false;" id="staffMenu">
           <i class="fas fa-users-gear"></i> <span>Usimamizi wa Staff</span>
@@ -5678,6 +5681,11 @@ html[data-school-level="primary"] #secondaryDivisionSettingsSection { display:no
     <div class="input-group">
       <label for="regEmail"><i class="fas fa-envelope"></i> Barua Pepe</label>
       <input type="email" id="regEmail" placeholder="Weka barua pepe yako">
+    </div>
+    <div class="input-group">
+      <label for="regPhone"><i class="fas fa-phone"></i> Namba ya Simu <span style="color:#dc2626">*</span></label>
+      <input type="tel" id="regPhone" placeholder="07XXXXXXXX" inputmode="tel" autocomplete="tel" required aria-required="true" maxlength="20">
+      <small style="display:block;margin-top:5px;color:#64748b;">Ni lazima. Tumia 07XXXXXXXX au 2557XXXXXXXX.</small>
     </div>
     <div class="input-group password-field">
       <label for="regPassword"><i class="fas fa-lock"></i> Nenosiri</label>
@@ -6576,6 +6584,11 @@ html[data-school-level="primary"] #secondaryDivisionSettingsSection { display:no
           <label for="staffEmailRegister"><i class="fas fa-envelope"></i> Barua Pepe</label>
           <input type="email" id="staffEmailRegister" placeholder="Weka barua pepe">
         </div>
+        <div class="input-group">
+          <label for="staffPhoneRegister"><i class="fas fa-phone"></i> Namba ya Simu</label>
+          <input type="tel" id="staffPhoneRegister" inputmode="tel" autocomplete="tel" placeholder="07XXXXXXXX" maxlength="16">
+          <small>Namba hii itatumika kupokea taarifa za shule kupitia SMS.</small>
+        </div>
         <div class="input-group password-field">
           <label for="staffPasswordRegister"><i class="fas fa-lock"></i> Nenosiri</label>
           <div class="password-input-wrapper">
@@ -6608,6 +6621,7 @@ html[data-school-level="primary"] #secondaryDivisionSettingsSection { display:no
             <tr>
               <th><i class="fas fa-user"></i> Jina</th>
               <th><i class="fas fa-envelope"></i> Barua Pepe</th>
+              <th><i class="fas fa-phone"></i> Simu</th>
               <th><i class="fas fa-lock"></i> Nenosiri</th>
               <th><i class="fas fa-tools"></i> Vitendo</th>
             </tr>
@@ -6637,6 +6651,7 @@ html[data-school-level="primary"] #secondaryDivisionSettingsSection { display:no
         <button class="tab-btn" id="reportBrandingTabButton" onclick="openSystemTab('reportBrandingTab', this)"><i class="fas fa-stamp"></i> Utambulisho wa Ripoti</button>
         <button id="schoolNameTabButton" class="tab-btn active" onclick="openSystemTab('schoolNameTab', this)"><i class="fas fa-school"></i> Jina la Shule</button>
         <button class="tab-btn" onclick="openSystemTab('ownerEmailTab', this)"><i class="fas fa-envelope"></i> Barua Pepe ya Head of School</button>
+        <button class="tab-btn" onclick="openSystemTab('ownerPhoneTab', this)"><i class="fas fa-phone"></i> Namba ya Simu</button>
         <button class="tab-btn" onclick="openSystemTab('accountPasswordTab', this)"><i class="fas fa-key"></i> Nenosiri la Akaunti</button>
         <button class="tab-btn" onclick="openSystemTab('studentTransferTab', this)"><i class="fas fa-arrow-right-arrow-left"></i> Uhamishaji wa Wanafunzi</button>
         <button class="tab-btn" onclick="openSystemTab('graduationClassesTab', this)"><i class="fas fa-graduation-cap"></i> Orodha ya Madarasa ya Wahitimu</button>
@@ -6719,6 +6734,16 @@ html[data-school-level="primary"] #secondaryDivisionSettingsSection { display:no
         </div>
       </div>
       
+      <div id="ownerPhoneTab" class="tab-content">
+        <div class="system-settings-section">
+          <h3><i class="fas fa-phone"></i> Namba ya Simu ya Head of School</h3>
+          <p>Badilisha namba ya simu inayohusishwa na akaunti yako ya shule.</p>
+          <div class="input-group"><label for="ownerSystemPhone">Namba ya Simu</label><input type="tel" id="ownerSystemPhone" inputmode="tel" autocomplete="tel" placeholder="07XXXXXXXX"></div>
+          <button type="button" class="btn btn-primary" id="saveOwnerSystemPhoneBtn" onclick="saveOwnerPhoneFromSettings_()"><i class="fas fa-save"></i> Hifadhi Namba ya Simu</button>
+          <p id="ownerSystemPhoneStatus" role="status" aria-live="polite"></p>
+        </div>
+      </div>
+
       <div id="accountPasswordTab" class="tab-content">
         <div class="system-settings-section">
           <h3><i class="fas fa-key"></i> Nenosiri la Akaunti</h3>
@@ -6796,6 +6821,87 @@ html[data-school-level="primary"] #secondaryDivisionSettingsSection { display:no
 </div>
 </div>
 
+  <!-- School SMS Dashboard: Head of School and Academic Coordinator only -->
+  <div class="container hidden" id="schoolSmsDashboard">
+    <div class="header" style="background:linear-gradient(135deg,#14532d,#0f766e);color:#fff"><h2 style="color:#fff"><i class="fas fa-comment-sms"></i> TUMA SMS</h2></div>
+    <div class="form-container" style="padding-top:16px">
+      <div class="sms-tabs" role="tablist" style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:18px">
+        <button type="button" class="btn btn-primary" id="smsTabRegisterBtn" onclick="schoolSmsTab_('register')"><i class="fas fa-user-plus"></i> Kusajili Wazazi</button>
+        <button type="button" class="btn btn-outline-primary" id="smsTabSendBtn" onclick="schoolSmsTab_('send')"><i class="fas fa-paper-plane"></i> Tuma SMS</button>
+      </div>
+      <section id="smsRegisterTab" class="system-settings-section" style="border:1px solid #dbe4ea;border-radius:14px;padding:16px;background:#fff">
+        <h3 style="margin:0 0 14px">Sajili mzazi/mlezi</h3>
+        <div class="input-group"><label for="smsParentClass">Darasa</label><select id="smsParentClass" onchange="schoolSmsLoadStudents_('smsParentClass','smsParentStudent')"><option value="">Chagua darasa</option></select></div>
+        <div class="input-group"><label for="smsParentStudent">Mwanafunzi</label><select id="smsParentStudent"><option value="">Chagua mwanafunzi</option></select></div>
+        <div class="input-group"><label for="smsParentName">Jina la mzazi/mlezi</label><input id="smsParentName" type="text" maxlength="100" placeholder="Andika jina la mzazi"></div>
+        <div class="input-group"><label for="smsParentPhone">Namba ya simu</label><input id="smsParentPhone" type="tel" inputmode="tel" maxlength="16" placeholder="07XXXXXXXX"></div>
+        <button type="button" class="btn btn-success" id="smsParentSaveBtn" onclick="schoolSmsRegisterParent_()"><i class="fas fa-save"></i> Hifadhi Mzazi</button> <button type="button" class="btn btn-outline-secondary hidden" id="smsParentCancelEditBtn" onclick="schoolSmsCancelParentEdit_()">Ghairi kuhariri</button>
+        <div id="smsParentRegisterStatus" style="margin-top:12px" aria-live="polite"></div>
+        <section style="margin-top:22px;border-top:1px solid #e2e8f0;padding-top:16px">
+          <div style="display:flex;justify-content:space-between;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:12px">
+            <h3 style="margin:0">Orodha ya Wazazi na Wanafunzi</h3>
+            <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+              <select id="smsParentListClass" aria-label="Chuja kwa darasa" style="min-width:150px" onchange="schoolSmsRenderParentList_()"><option value="">Madarasa yote</option></select>
+              <button type="button" class="btn btn-sm btn-outline-primary" onclick="schoolSmsLoadParentList_(true)"><i class="fas fa-rotate"></i> Sasisha</button>
+            </div>
+          </div>
+          <div id="smsParentListStatus" style="font-size:13px;color:#64748b;margin-bottom:8px">Hakuna taarifa.</div>
+          <div style="overflow:auto;border:1px solid #e2e8f0;border-radius:10px">
+            <table class="table" style="width:100%;min-width:650px;margin:0">
+              <thead><tr><th>Darasa</th><th>Jina la Mzazi/Mlezi</th><th>Namba ya Simu</th><th>Wanafunzi wake</th><th>Vitendo</th></tr></thead>
+              <tbody id="smsParentListBody"><tr><td colspan="5" style="text-align:center;color:#64748b">Hakuna wazazi waliosajiliwa.</td></tr></tbody>
+            </table>
+          </div>
+        </section>
+      </section>
+      <section id="smsSendTab" class="hidden">
+        <div id="schoolSmsCreditCard" style="border:1px solid #bbf7d0;border-radius:14px;padding:14px;background:#f0fdf4;margin-bottom:16px;">
+          <div style="display:flex;justify-content:space-between;gap:10px;align-items:center;flex-wrap:wrap;">
+            <div><div id="schoolSmsCreditTitle" style="font-weight:800;color:#14532d;">Salio la SMS</div><div id="schoolSmsCreditPackage" style="font-size:12px;color:#475569;margin-top:4px;">Inapakia salio...</div></div>
+            <div id="schoolSmsCreditBalance" style="font-size:25px;font-weight:900;color:#166534;">— SMS</div>
+            <button type="button" class="btn btn-outline-success btn-sm" onclick="schoolSmsLoadCredit_(true)"><i class="fas fa-sync-alt"></i> Sasisha salio</button>
+          </div>
+          <div style="display:flex;justify-content:flex-start;margin-top:13px;">
+            <button type="button" id="schoolSmsBuyButton" onclick="schoolSmsShowPurchaseInfo_()" style="display:inline-flex;align-items:center;justify-content:center;gap:9px;min-width:150px;padding:11px 20px;border:0;border-radius:12px;background:linear-gradient(135deg,#0f766e,#059669);color:#fff;font-weight:800;font-size:14px;box-shadow:0 5px 14px rgba(5,150,105,.22);cursor:pointer;transition:transform .15s,opacity .15s;"><i class="fas fa-shopping-cart"></i><span>Nunua SMS</span></button>
+          </div>
+          <div id="schoolSmsCreditMessage" style="font-size:12px;color:#475569;margin-top:8px;" aria-live="polite">Salio lako la SMS litaonekana hapa.</div>
+        </div>
+        <div id="smsAudienceCards" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(145px,1fr));gap:12px;margin-bottom:16px">
+          <button type="button" class="sms-audience-card" id="smsChooseParentsBtn" onclick="schoolSmsSelectAudience_('parents')" style="border:1px solid #dbe4ea;border-radius:18px;padding:22px 12px;background:#eaf1ff;color:#172033;min-height:138px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:9px"><i class="fas fa-users" style="font-size:30px;color:#2453b8"></i><strong style="font-size:20px">Wazazi</strong><span style="font-size:13px;color:#64748b">Wote, darasa au mmoja</span></button>
+          <button type="button" class="sms-audience-card" id="smsChooseStaffBtn" onclick="schoolSmsSelectAudience_('staff')" style="border:1px solid #dbe4ea;border-radius:18px;padding:22px 12px;background:#eaf5ed;color:#172033;min-height:138px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:9px"><i class="fas fa-briefcase" style="font-size:30px;color:#16803d"></i><strong style="font-size:20px">Staff</strong><span style="font-size:13px;color:#64748b">Wote au mmoja</span></button>
+        </div>
+        <div id="smsAudienceWorkArea" class="hidden">
+          <button type="button" class="btn btn-outline-secondary btn-sm" onclick="schoolSmsBackToAudience_()" style="margin-bottom:12px"><i class="fas fa-arrow-left"></i> Badili kundi</button>
+          <div id="smsGeneralAudienceBar" class="system-settings-section" style="border:1px solid #dbe4ea;border-radius:14px;padding:14px;background:#fff;margin-bottom:14px">
+            <input type="hidden" id="smsAudienceType" value="parents">
+            <div id="smsParentMessageTypeWrap" class="input-group"><label for="smsSenderChoice">Aina ya Ujumbe</label><select id="smsSenderChoice" onchange="schoolSmsParentMessageChoice_()" disabled><option value="">Inapakia Aina ya Ujumbe...</option></select></div>
+            <div id="smsStaffSenderWrap" class="input-group hidden"><label for="smsStaffSenderChoice">Aina ya Ujumbe</label><select id="smsStaffSenderChoice" disabled><option value="">Inapakia Aina ya Ujumbe...</option></select></div>
+            <div id="smsStaffWrap" class="input-group hidden"><label for="smsStaffSelect">Chagua Staff mmoja au zaidi</label><select id="smsStaffSelect" multiple size="6" aria-label="Chagua Staff mmoja au zaidi" style="min-height:130px" onchange="schoolSmsUpdateSelectionCounts_()"><option value="">Staff wote</option></select><small id="smsStaffSelectionCount" aria-live="polite">0 Staff wamechaguliwa.</small><small id="smsStaffHint">Chagua Staff mwenye namba ya simu iliyosajiliwa.</small></div>
+          </div>
+          <div id="smsScopeChoices" style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px;margin-bottom:14px">
+            <button type="button" class="btn btn-outline-primary" style="padding:16px 8px" id="smsClassScopeBtn" onclick="schoolSmsChooseScope_('class')"><i class="fas fa-users"></i><br><b>Tuma kwa darasa</b></button>
+            <button type="button" class="btn btn-outline-primary" style="padding:16px 8px" onclick="schoolSmsChooseScope_('school')"><i class="fas fa-school"></i><br><b>Tuma kwa shule</b></button>
+            <button type="button" class="btn btn-outline-primary" style="padding:16px 8px" onclick="schoolSmsChooseScope_('single')"><i class="fas fa-user"></i><br><b data-sms-i18n="selectedScope">Tuma baadhi</b></button>
+          </div>
+          <div id="smsComposePanel" class="system-settings-section hidden" style="border:1px solid #dbe4ea;border-radius:14px;padding:16px;background:#fff">
+            <h3 id="smsComposeTitle" style="margin:0 0 14px">Tuma SMS</h3>
+            <div id="smsClassWrap" class="input-group"><label for="smsSendClass">Darasa</label><select id="smsSendClass" onchange="schoolSmsLoadStudents_('smsSendClass','smsSendStudent')"><option value="">Chagua darasa</option></select></div>
+            <div id="smsStudentWrap" class="input-group hidden"><label for="smsSendStudent">Chagua mwanafunzi mmoja au zaidi</label><select id="smsSendStudent" multiple size="6" aria-label="Chagua mwanafunzi mmoja au zaidi" style="min-height:130px" onchange="schoolSmsUpdateSelectionCounts_()"><option value="">Chagua mwanafunzi</option></select><small id="smsStudentSelectionCount" aria-live="polite">0 wanafunzi wamechaguliwa.</small></div>
+            <div id="smsMessageTypeWrap" class="input-group hidden" aria-hidden="true" style="display:none"><label for="smsMessageType">Aina ya Ujumbe</label><select id="smsMessageType" onchange="schoolSmsMessageTypeChanged_()"><option value="results">MATOKEO</option><option value="normal">TAARIFA</option></select></div>
+            <div id="smsTermWrap" class="input-group hidden"><label for="smsTermSelect">Muhula</label><select id="smsTermSelect"><option value="">Chagua muhula</option></select></div>
+            <div id="smsNormalMessageWrap" class="input-group hidden"><label for="smsNormalMessage">Ujumbe</label><textarea id="smsNormalMessage" rows="4" maxlength="160" placeholder="Andika taarifa unayotaka kutuma..." style="width:100%;box-sizing:border-box" oninput="schoolSmsUpdateCount_()"></textarea><small id="smsMessageCount" aria-live="polite">0 / 160 GSM-7</small></div>
+            <button type="button" class="btn btn-success" id="smsCampaignSendBtn" onclick="schoolSmsSendCampaign_()"><i class="fas fa-paper-plane"></i> Tuma SMS</button>
+          </div>
+        </div>
+        <section class="system-settings-section" style="border:1px solid #dbe4ea;border-radius:14px;padding:14px;background:#fff;margin-top:16px">
+          <div style="display:flex;justify-content:space-between;gap:10px;align-items:center;flex-wrap:wrap"><h3 style="margin:0">Historia ya SMS</h3><button class="btn btn-sm btn-outline-primary" type="button" onclick="schoolSmsLoadHistory_()"><i class="fas fa-rotate"></i> Onyesha upya</button></div>
+          <div id="schoolSmsHistoryStatus" style="margin:10px 0;color:#64748b">Hakuna historia iliyopakiwa.</div>
+          <div style="overflow:auto"><table class="table" style="width:100%;min-width:580px"><thead><tr><th>Tarehe</th><th>Namba</th><th>Ujumbe</th><th>Hali</th></tr></thead><tbody id="schoolSmsHistoryBody"><tr><td colspan="4">Hakuna taarifa.</td></tr></tbody></table></div>
+        </section>
+      </section>
+    </div>
+  </div>
+
   <!-- Developer Dashboard -->
   <div class="container hidden" id="developerDashboard">
     <div class="header" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
@@ -6819,6 +6925,158 @@ html[data-school-level="primary"] #secondaryDivisionSettingsSection { display:no
 </div>
 </div>
       
+      <section id="siwitiSmsDeveloperPanel" style="margin:0 0 24px;border:1px solid #dbe3ef;border-radius:20px;padding:0;background:#f8fafc;overflow:hidden;box-shadow:0 12px 34px rgba(15,23,42,.08);">
+        <div style="padding:20px;background:linear-gradient(125deg,#102a43,#174a72 55%,#176b68);color:#fff;">
+          <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
+            <div style="width:48px;height:48px;border-radius:15px;background:rgba(255,255,255,.16);display:flex;align-items:center;justify-content:center;font-size:22px;"><i class="fas fa-comment-sms"></i></div>
+            <div style="flex:1;min-width:180px;">
+              <h3 style="margin:0;color:#fff;font-size:20px;">SMS Control Centre</h3>
+              <p style="margin:5px 0 0;color:rgba(255,255,255,.84);font-size:13px;">Usimamizi wa providers, salio, manunuzi na Sender IDs. Shule hazinunui SMS.</p>
+            </div>
+            <span style="font-size:11px;font-weight:800;padding:7px 11px;border-radius:999px;background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.25);">DEVELOPER ONLY</span>
+          </div>
+          <div id="siwitiSmsProviderStatus" style="margin-top:14px;padding:10px 12px;border-radius:11px;background:rgba(255,255,255,.12);font-size:13px;color:#fff;">Provider anayefanya kazi atajitokeza hapa.</div>
+        </div>
+        <div style="padding:16px;display:grid;gap:15px;">
+          <section style="background:#fff;border:1px solid #dbe3ef;border-radius:15px;padding:15px;">
+            <div style="font-weight:800;color:#12314a;margin-bottom:6px;"><i class="fas fa-school"></i> School SMS Packages — Usimamizi wa vifurushi vya shule</div>
+            <p style="font-size:12px;color:#64748b;margin:0 0 12px;">Kila shule hupata SMS 3 za bure mara moja. Baada ya hapo Developer huongeza SMS baada ya kuthibitisha malipo yaliyofanywa kwa Siwiti Software.</p>
+            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:10px;align-items:end;">
+              <label style="margin:0;">Tafuta shule <span style="font-size:11px;color:#64748b;">🔎 Andika sehemu ya jina au barua pepe</span><input id="siwitiSmsSchoolAccountSearch" type="search" autocomplete="off" placeholder="Tafuta shule haraka..." oninput="siwitiSmsFilterSchoolAccounts_()" style="width:100%;box-sizing:border-box;padding:11px;border:1px solid #cbd5e1;border-radius:10px;margin-top:5px;"></label><label style="margin:0;">Chagua shule<select id="siwitiSmsSchoolAccountSelect" onchange="siwitiSmsSchoolAccountChanged_()" style="width:100%;box-sizing:border-box;padding:11px;border:1px solid #cbd5e1;border-radius:10px;background:#fff;min-height:44px;"><option value="">Chagua shule...</option></select></label>
+              
+              <label style="margin:0;">Bei ya SMS 1 (TZS)<input id="siwitiSmsGlobalUnitPrice" type="number" min="1" step="1" value="" placeholder="Weka bei ya SMS 1" oninput="siwitiSmsCalculatePackageCredits_()" style="width:100%;box-sizing:border-box;padding:11px;border:1px solid #cbd5e1;border-radius:10px;"></label><button type="button" class="btn btn-warning" onclick="siwitiSmsSaveUnitPrice_()"><i class="fas fa-tag"></i> Hifadhi Bei ya SMS 1</button>
+              <label style="margin:0;">Kiasi kilicholipwa (TZS)<input id="siwitiSmsPackagePaid" type="number" min="0" step="1" value="" placeholder="Weka kiasi kilicholipwa" oninput="siwitiSmsCalculatePackageCredits_()" style="width:100%;box-sizing:border-box;padding:11px;border:1px solid #cbd5e1;border-radius:10px;"></label>
+              <label style="margin:0;">SMS za kuongeza kwenye salio<input id="siwitiSmsPackageGrant" type="number" min="0" step="1" value="0" readonly aria-readonly="true" style="width:100%;box-sizing:border-box;padding:11px;border:1px solid #cbd5e1;border-radius:10px;background:#f1f5f9;font-weight:700;"></label>
+              <label style="display:flex;align-items:center;gap:8px;margin:0;padding:10px;"><input id="siwitiSmsPackageEnabled" type="checkbox" checked> Wezesha shule kutuma SMS</label>
+            </div>
+            <div id="siwitiSmsSchoolPackageInfo" style="margin:12px 0;padding:10px;border-radius:9px;background:#f1f5f9;color:#334155;font-size:13px;">Chagua shule ili kuona salio na kifurushi chake.</div>
+            <div style="display:flex;gap:8px;flex-wrap:wrap;">
+              <button type="button" class="btn btn-success" onclick="siwitiSmsSaveSchoolPackage_()"><i class="fas fa-save"></i> Hifadhi / Badili Kifurushi</button>
+              <button type="button" class="btn btn-warning" onclick="siwitiSmsResetSchoolTrial_()"><i class="fas fa-rotate-left"></i> Reset kuwa FREE TRIAL</button>
+              <button type="button" class="btn btn-danger" onclick="siwitiSmsRemoveSchoolPackage_()"><i class="fas fa-ban"></i> Ondoa Kifurushi</button>
+            </div>
+          </section>
+          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:12px;">
+            <div style="background:#fff;border:1px solid #dbe3ef;border-radius:15px;padding:14px;">
+              <div style="font-weight:800;color:#12314a;margin-bottom:9px;"><i class="fas fa-wallet"></i> eHUB SMS Wallet</div>
+              <div id="siwitiEhubWalletCard" style="font-size:13px;color:#475569;min-height:42px;">Salio halijapakiwa.</div>
+              <button class="btn btn-info" style="width:100%;margin-top:10px;" type="button" onclick="siwitiLoadProviderWallet_('eHUB')"><i class="fas fa-sync-alt"></i> Sasisha Salio la eHUB</button>
+            </div>
+            <div style="background:#fff;border:1px solid #dbe3ef;border-radius:15px;padding:14px;">
+              <div style="font-weight:800;color:#12314a;margin-bottom:9px;"><i class="fas fa-wallet"></i> SwalaSMS Wallet</div>
+              <div id="siwitiSwalaWalletCard" style="font-size:13px;color:#475569;min-height:42px;">Inapakia salio la SwalaSMS...</div>
+              <button class="btn btn-info" style="width:100%;margin-top:10px;" type="button" onclick="siwitiLoadProviderWallet_('SwalaSMS')"><i class="fas fa-sync-alt"></i> Sasisha Salio la SwalaSMS</button>
+            </div>
+          </div>
+
+          <div style="background:#fff;border:1px solid #dbe3ef;border-radius:15px;padding:15px;">
+            <div style="display:flex;align-items:center;gap:9px;margin-bottom:12px;">
+              <i class="fas fa-sliders-h" style="color:#2563eb;font-size:18px;"></i>
+              <strong style="color:#12314a;">Provider Switching</strong>
+            </div>
+            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:10px;align-items:end;">
+              <label style="margin:0;">SMS Provider Inayotumika
+                <select id="siwitiSmsActiveProvider" style="width:100%;box-sizing:border-box;padding:12px;border:1px solid #cbd5e1;border-radius:10px;background:#fff;"><option value="eHUB">eHUB</option><option value="SwalaSMS">SwalaSMS</option></select>
+              </label>
+              <button class="btn btn-warning" type="button" onclick="siwitiSwitchSmsProvider_()"><i class="fas fa-exchange-alt"></i> Hifadhi / Switch Provider</button>
+            </div>
+          </div>
+          <div style="background:#fff;border:1px solid #c7d2fe;border-radius:15px;padding:15px;">
+            <div style="font-weight:800;color:#263b80;margin-bottom:10px;"><i class="fas fa-gift"></i> Provider Maalum wa FREE TRIAL</div>
+            <p style="font-size:12px;color:#64748b;margin:0 0 12px;">Switcher hii inadhibiti FREE TRIAL pekee. Kifurushi cha PAID kitaendelea kutumia Provider Switching ya kawaida hapo juu bila kuathiriwa.</p>
+            <div style="display:grid;grid-template-columns:minmax(210px,1fr) auto;gap:10px;align-items:end;">
+              <label style="margin:0;">Provider wa FREE TRIAL<select id="siwitiSmsFreeTrialProvider" style="width:100%;padding:11px;border:1px solid #cbd5e1;border-radius:10px;"><option value="eHUB">eHUB</option><option value="SwalaSMS">SwalaSMS</option></select></label>
+              <button class="btn btn-warning" type="button" onclick="siwitiSaveFreeTrialProvider_()"><i class="fas fa-save"></i> Hifadhi Provider wa FREE TRIAL</button>
+            </div>
+            <div id="siwitiSmsPackageProviderStatus" style="font-size:12px;color:#475569;margin-top:10px;">FREE TRIAL itatumia provider iliyochaguliwa hapa.</div>
+          </div>
+
+          <div style="background:#fff;border:1px solid #dbe3ef;border-radius:15px;padding:15px;">
+            <div style="font-weight:800;color:#12314a;margin-bottom:12px;"><i class="fas fa-credit-card"></i> Nunua SMS – eHUB</div>
+            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:10px;align-items:end;">
+              <label style="margin:0;">Idadi ya SMS<input id="siwitiEhubBuyQuantity" type="number" min="50" step="1" value="1000" style="width:100%;box-sizing:border-box;padding:11px;border:1px solid #cbd5e1;border-radius:10px;"></label>
+              <label style="margin:0;">Namba ya Mobile Money<input id="siwitiEhubBuyPhone" type="tel" inputmode="tel" placeholder="07XXXXXXXX" style="width:100%;box-sizing:border-box;padding:11px;border:1px solid #cbd5e1;border-radius:10px;"></label>
+              <button class="btn btn-success" type="button" onclick="siwitiBuyEhubSms_()"><i class="fas fa-shopping-cart"></i> Nunua SMS kwa eHUB</button>
+            </div>
+            <div id="siwitiEhubPurchaseResult" style="margin-top:11px;font-size:13px;color:#475569;"></div>
+            <div style="font-size:12px;color:#64748b;margin-top:8px;">Malipo yataanzishwa kwa Mobile Money push. Thibitisha kwenye simu yako; SMS credits zitaongezwa baada ya malipo kukamilika.</div>
+          </div>
+
+          <div style="background:#fff;border:1px solid #dbe3ef;border-radius:15px;padding:15px;">
+            <div style="font-weight:800;color:#12314a;margin-bottom:12px;"><i class="fas fa-credit-card"></i> Nunua SMS – SwalaSMS</div>
+            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px;align-items:end;">
+              <label style="margin:0;">Idadi ya SMS<input id="siwitiSwalaBuyQuantity" type="number" min="1" max="1000000" step="1" value="1000" oninput="siwitiSwalaQuoteDebounced_()" style="width:100%;box-sizing:border-box;padding:11px;border:1px solid #cbd5e1;border-radius:10px;"></label>
+              <label style="margin:0;">Nchi / Wallet<select id="siwitiSwalaCountry" onchange="siwitiSwalaLoadPaymentMethods_();siwitiSwalaQuote_()" style="width:100%;box-sizing:border-box;padding:11px;border:1px solid #cbd5e1;border-radius:10px;"><option value="">Inapakia...</option></select></label>
+              <label style="margin:0;">Njia ya malipo<select id="siwitiSwalaGateway" style="width:100%;box-sizing:border-box;padding:11px;border:1px solid #cbd5e1;border-radius:10px;"><option value="">Chagua njia ya malipo</option></select></label>
+              <label style="margin:0;">Namba ya Mobile Money<input id="siwitiSwalaBuyPhone" type="tel" inputmode="tel" placeholder="+2557XXXXXXXX" style="width:100%;box-sizing:border-box;padding:11px;border:1px solid #cbd5e1;border-radius:10px;"></label>
+            </div>
+            <div id="siwitiSwalaQuoteResult" style="margin-top:10px;padding:10px;border-radius:9px;background:#f1f5f9;font-size:13px;color:#334155;">Bei itajitokeza baada ya kupakia taarifa za akaunti.</div>
+            <button class="btn btn-success" id="siwitiSwalaBuyButton" type="button" onclick="siwitiBuySwalaSms_()" style="width:100%;margin-top:10px;"><i class="fas fa-shopping-cart"></i> Nunua SMS kwa SwalaSMS</button>
+            <div id="siwitiSwalaPurchaseResult" style="margin-top:11px;font-size:13px;color:#475569;"></div>
+            <small style="display:block;color:#64748b;margin-top:8px;">Malipo halisi yataanzishwa baada ya kuthibitisha. Credits huongezwa baada ya malipo kuthibitishwa na SwalaSMS.</small>
+          </div>
+
+          <details style="background:#fff;border:1px solid #dbe3ef;border-radius:15px;padding:14px;">
+            <summary style="cursor:pointer;font-weight:800;color:#12314a;"><i class="fas fa-key"></i> eHUB API Configuration</summary>
+            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:10px;margin-top:13px;">
+              <label>eHUB API Key<input id="siwitiEhubKey" type="password" autocomplete="new-password" placeholder="Weka API Key" style="width:100%;box-sizing:border-box"></label>
+              <label>eHUB API Secret<input id="siwitiEhubSecret" type="password" autocomplete="new-password" placeholder="Weka API Secret" style="width:100%;box-sizing:border-box"></label>
+              <label>Sender ID UUID<input id="siwitiEhubSenderUuid" type="text" placeholder="UUID ya Sender ID iliyoidhinishwa" style="width:100%;box-sizing:border-box"></label>
+              <label>Jina la Sender ID<input id="siwitiEhubSenderName" type="text" value="MATOKEO" maxlength="11" style="width:100%;box-sizing:border-box"></label>
+            </div>
+            <label style="display:flex;align-items:center;gap:8px;margin:12px 0;"><input id="siwitiEhubEnabled" type="checkbox"> Wezesha huduma ya SMS kwa shule</label>
+            <div style="display:flex;gap:8px;flex-wrap:wrap;">
+              <button class="btn btn-primary" type="button" onclick="siwitiSaveEhubConfig_()"><i class="fas fa-lock"></i> Hifadhi Credentials</button>
+              <button class="btn btn-success" type="button" onclick="siwitiFetchSenderUuid_()">Pata UUID ya MATOKEO</button>
+              <button class="btn btn-warning" type="button" onclick="siwitiRequestSenderId_()">Omba Sender ID MATOKEO</button>
+            </div>
+            <div style="border-top:1px solid #e2e8f0;margin-top:14px;padding-top:14px;display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:10px;">
+              <label>Sender ID mpya ya kuomba<input id="siwitiNewSenderName" type="text" maxlength="11" value="TAARIFA" placeholder="TAARIFA" style="width:100%;box-sizing:border-box;text-transform:uppercase"></label>
+              <button class="btn btn-warning" type="button" onclick="siwitiRequestSenderId_(document.getElementById('siwitiNewSenderName').value)">Omba Sender ID</button>
+              <label>UUID ya Sender ID TAARIFA<input id="siwitiTaarifaSenderUuid" type="text" placeholder="UUID ya TAARIFA iliyoidhinishwa" style="width:100%;box-sizing:border-box"></label>
+              <button class="btn btn-success" type="button" onclick="siwitiFetchSenderUuidForName_('TAARIFA')">Pata UUID ya TAARIFA</button>
+              <button class="btn btn-primary" type="button" onclick="siwitiSaveSenderUuidForName_('TAARIFA')">Hifadhi UUID ya TAARIFA</button>
+              <button class="btn btn-info" type="button" onclick="siwitiFetchAllSenderIds_()">Sasisha Approved Sender IDs</button>
+            </div>
+            <div id="siwitiSenderIdsList" style="margin-top:10px"></div>
+          </details>
+
+          <details style="background:#fff;border:1px solid #dbe3ef;border-radius:15px;padding:14px;">
+            <summary style="cursor:pointer;font-weight:800;color:#12314a;"><i class="fas fa-plug"></i> SwalaSMS API Configuration</summary>
+            <p style="color:#64748b;margin:9px 0 12px;font-size:13px;">Credentials huhifadhiwa kwenye Script Properties pekee. Token haitarudishwa kwenye browser.</p>
+            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:10px;">
+              <label>SwalaSMS API Token<input id="siwitiSwalaToken" type="password" autocomplete="new-password" placeholder="Weka API Token" style="width:100%;box-sizing:border-box"></label>
+              <label>Base URL<input id="siwitiSwalaBaseUrl" type="url" value="https://swalasms.com" style="width:100%;box-sizing:border-box"></label>
+              <label>Send API Path<input id="siwitiSwalaSendPath" type="text" value="/api/v1/sms/messages" style="width:100%;box-sizing:border-box"></label>
+              <label>Approved Sender IDs API Path<input id="siwitiSwalaSendersPath" type="text" value="/api/v1/sender-ids" style="width:100%;box-sizing:border-box"></label>
+            </div>
+            <label style="display:flex;align-items:center;gap:8px;margin:12px 0;"><input id="siwitiSwalaEnabled" type="checkbox"> Wezesha SwalaSMS</label>
+            <div style="display:flex;gap:8px;flex-wrap:wrap;">
+              <button class="btn btn-primary" type="button" onclick="siwitiSaveSwalaConfig_()"><i class="fas fa-lock"></i> Hifadhi SwalaSMS</button>
+              <button class="btn btn-info" type="button" onclick="siwitiTestSwala_()">Test API Connection</button>
+              <button class="btn btn-success" type="button" onclick="siwitiFetchSwalaSenders_()">Pata Approved Sender IDs</button>
+            </div>
+            <div id="siwitiSwalaSendersList" style="margin-top:10px"></div>
+          </details>
+          <div id="siwitiSmsWallet" style="display:none;"></div>
+          <small style="color:#64748b;">API credentials hazionyeshwi tena baada ya kuhifadhi; zinabaki kwenye Script Properties.</small>
+        </div>
+
+          <section style="background:#fff;border:1px solid #dbe3ef;border-radius:15px;padding:15px;">
+            <div style="font-weight:800;color:#12314a;margin-bottom:8px;"><i class="fas fa-bullhorn"></i> SMS kwa Head of School — Developer</div>
+            <p style="font-size:12px;color:#64748b;margin:0 0 12px;">Tuma kwa wamiliki wote, baadhi ya shule au namba ulizoingiza mwenyewe. SMS hutumia salio la provider la Siwiti Software.</p>
+            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:10px;align-items:end;">
+              <label>Sender ID<select id="siwitiOwnerSmsSender" style="width:100%;padding:10px;border:1px solid #cbd5e1;border-radius:9px;"><option value="">Pakia Sender IDs...</option></select></label>
+              <label>Aina ya wapokeaji<select id="siwitiOwnerSmsAudience" onchange="siwitiOwnerSmsAudienceChanged_()" style="width:100%;padding:10px;border:1px solid #cbd5e1;border-radius:9px;"><option value="all">Wamiliki wote wenye namba</option><option value="selected">Baadhi ya wamiliki</option><option value="manual">Namba ninazoweka mwenyewe</option></select></label>
+            </div>
+            <div id="siwitiOwnerSmsSelectedWrap" style="display:none;margin-top:10px;"><label>Chagua wamiliki<select id="siwitiOwnerSmsOwners" multiple size="6" style="width:100%;min-height:130px;padding:8px;border:1px solid #cbd5e1;border-radius:9px;"></select></label></div>
+            <div id="siwitiOwnerSmsManualWrap" style="display:none;margin-top:10px;"><label>Namba za simu (moja kwa kila mstari au zitenganishwe kwa koma)<textarea id="siwitiOwnerSmsManual" rows="3" placeholder="07XXXXXXXX
+2557XXXXXXXX" style="width:100%;padding:10px;border:1px solid #cbd5e1;border-radius:9px;"></textarea></label></div>
+            <label style="display:block;margin-top:10px;">Ujumbe <textarea id="siwitiOwnerSmsMessage" rows="4" maxlength="160" placeholder="Andika ujumbe wa SMS..." style="width:100%;padding:10px;border:1px solid #cbd5e1;border-radius:9px;"></textarea><small>SMS moja: GSM-7 hadi herufi 160 au Unicode hadi 70 UTF-16 code units.</small></label>
+            <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px;"><button class="btn btn-info" type="button" onclick="siwitiOwnerSmsLoadOwners_()"><i class="fas fa-sync"></i> Sasisha wamiliki</button><button class="btn btn-success" type="button" onclick="siwitiOwnerSmsSend_()"><i class="fas fa-paper-plane"></i> Tuma SMS</button></div>
+            <div id="siwitiOwnerSmsStatus" aria-live="polite" style="margin-top:9px;color:#64748b;font-size:12px;"></div>
+          </section>
+      </section>
       <div class="system-settings-section" id="developerClassRestrictionSection" style="margin:0 0 24px;border:1px solid #c7d2fe;border-radius:18px;padding:0;overflow:hidden;background:#fff;box-shadow:0 10px 28px rgba(37,99,235,.10);">
         <div style="padding:18px 20px;background:linear-gradient(120deg,#172554 0%,#1d4ed8 55%,#4f46e5 100%);color:#fff;display:flex;align-items:center;gap:14px;flex-wrap:wrap;">
           <div style="width:48px;height:48px;border-radius:14px;background:rgba(255,255,255,.16);display:flex;align-items:center;justify-content:center;font-size:22px;flex:0 0 auto;"><i class="fas fa-shield-alt"></i></div>
@@ -6873,6 +7131,7 @@ html[data-school-level="primary"] #secondaryDivisionSettingsSection { display:no
                 <th><i class="fas fa-hashtag"></i> #</th>
                 <th><i class="fas fa-envelope"></i> Barua Pepe</th>
                 <th><i class="fas fa-id-card"></i> School Number</th>
+                <th><i class="fas fa-phone"></i> Namba ya Simu</th>
                 <th><i class="fas fa-school"></i> Jina la Shule</th>
                 <th><i class="fas fa-graduation-cap"></i> School Level</th>
                 <th><i class="fas fa-tag"></i> Aina ya Usajili</th>
@@ -6881,7 +7140,7 @@ html[data-school-level="primary"] #secondaryDivisionSettingsSection { display:no
               </tr>
             </thead>
             <tbody id="usersTableBody">
-              <tr><td colspan="8" style="text-align: center;padding:24px;color:#64748b;">Orodha itapatikana hapa ikiwa imehifadhiwa kwenye kifaa au baada ya kusawazisha.</td></tr>
+              <tr><td colspan="9" style="text-align: center;padding:24px;color:#64748b;">Orodha itapatikana hapa ikiwa imehifadhiwa kwenye kifaa au baada ya kusawazisha.</td></tr>
             </tbody>
           </table>
         </div>
@@ -7179,14 +7438,36 @@ html[data-school-level="primary"] #secondaryDivisionSettingsSection { display:no
       <p><i class="fas fa-money-bill-wave"></i> <strong>Ada ya Mwezi:</strong> <span id="expiredMonthlyFee">TSh 2,500</span></p>
       <p><i class="fas fa-money-bill-wave"></i> <strong>Ada ya Mwaka:</strong> <span id="expiredYearlyFee">TSh 30,000</span></p>
     </div>
-    <p><strong><i class="fas fa-mobile-alt"></i> Malipo Kupitia:</strong></p>
-    <p><i class="fab fa-m-pesa"></i> M-Pesa: <strong>+255750183275</strong></p>
-    <p><i class="fas fa-phone-alt"></i> Mix By Yas: <strong>+255652343371</strong></p>
-    <p style="font-size: 12px; color: #666; margin-top: 10px; text-align: center;">
-      <i class="fas fa-info-circle"></i> Baada ya malipo, wasiliana nasi kwa namba zilizo hapo juu
-    </p>
-    <button class="btn btn-primary" onclick="hidePaymentOverlay()" style="margin-top: 20px;">
-      <i class="fas fa-check"></i> Nimeelewa
+    <div style="background:#f8fafc;border:1px solid #dbe3ef;border-radius:14px;padding:16px;margin:16px 0;text-align:left;">
+      <h3 style="margin:0 0 12px;color:#173b73;"><i class="fas fa-shield-alt"></i> LIPA KWA USALAMA KUPITIA EASYPAY</h3>
+      <label for="siwitiEasyPayPlan" style="display:block;font-weight:700;margin:10px 0 5px;">Chagua Kifurushi</label>
+      <select id="siwitiEasyPayPlan" style="width:100%;padding:12px;border:1px solid #cbd5e1;border-radius:9px;">
+        <option value="BASIC_PLAN">Basic Plan</option><option value="GOLD_PLAN">Gold Plan</option>
+      </select>
+      <label for="siwitiEasyPayCycle" style="display:block;font-weight:700;margin:10px 0 5px;">Muda wa Malipo</label>
+      <select id="siwitiEasyPayCycle" style="width:100%;padding:12px;border:1px solid #cbd5e1;border-radius:9px;">
+        <option value="monthly">Mwezi 1</option><option value="yearly">Mwaka 1</option>
+      </select>
+      <label for="siwitiEasyPayPhone" style="display:block;font-weight:700;margin:10px 0 5px;">Namba ya Simu ya Malipo</label>
+      <input id="siwitiEasyPayPhone" type="tel" inputmode="tel" autocomplete="tel" placeholder="07XXXXXXXX" maxlength="16" style="width:100%;box-sizing:border-box;padding:12px;border:1px solid #cbd5e1;border-radius:9px;">
+      <div id="siwitiEasyPayQuote" style="margin-top:12px;padding:11px;background:#ecfdf5;border-radius:9px;color:#065f46;font-weight:800;text-align:center;">Jumla: TSh 2,500</div>
+      <button id="siwitiEasyPayPayBtn" type="button" class="btn btn-primary" onclick="siwitiEasyPayStartSubscription_()" style="width:100%;margin-top:12px;padding:13px;">
+        <i class="fas fa-mobile-alt"></i> LIPA SASA KWA SIMU
+      </button>
+      <div id="siwitiEasyPayStatus" aria-live="polite" style="font-size:13px;margin-top:10px;color:#475569;"></div>
+      <button id="siwitiEasyPayRefreshBtn" type="button" class="btn btn-outline-primary" onclick="siwitiEasyPayRefreshSubscription_()" style="display:none;width:100%;margin-top:9px;">
+        <i class="fas fa-sync-alt"></i> ANGALIA HALI YA USAJILI
+      </button>
+    </div>
+    <p style="font-size:12px;color:#64748b;text-align:center;">Baada ya kuanzisha malipo, thibitisha ombi litakalotumwa kwenye simu yako. Akaunti itaongezewa muda baada ya EasyPay kuthibitisha malipo kupitia webhook.</p>
+    <details style="margin:14px 0;text-align:left;border:1px solid #e2e8f0;border-radius:10px;padding:12px;">
+      <summary style="cursor:pointer;font-weight:700;color:#475569;">Njia ya malipo ya kawaida (Manual Payment)</summary>
+      <p style="margin:10px 0 4px;"><i class="fab fa-m-pesa"></i> M-Pesa: <strong>+255750183275</strong></p>
+      <p style="margin:4px 0;"><i class="fas fa-phone-alt"></i> Mix By Yas: <strong>+255652343371</strong></p>
+      <p style="font-size:12px;color:#64748b;margin:8px 0 0;">Baada ya kulipa kwa njia hii, wasiliana na msimamizi wa mfumo ili malipo yakaguliwe na usajili uhuishwe kwa utaratibu wa kawaida.</p>
+    </details>
+    <button class="btn btn-secondary" onclick="hidePaymentOverlay()" style="margin-top:10px;">
+      <i class="fas fa-times"></i> Funga
     </button>
   </div>
 </div>
@@ -7195,7 +7476,7 @@ html[data-school-level="primary"] #secondaryDivisionSettingsSection { display:no
 </div>
   <script>
 //AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
-    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyCRdrh-H-3gHSxseTF03TupeGJvHQy5WpJlxiA3wfFqeWbJ8KYm1RlB5_U53qvWy0o/exec';
+    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzaeZGHQqmt1dIfQEOWO8re-HW3Ya3mPLGyyR2HMTTx59GQZ_XRGuwJe9JsbRRkKzYX/exec';
 
 
     // ============================================
@@ -9619,6 +9900,7 @@ function toggleSidebar() {
 
 function showDeveloperDashboard() {
   setResultsRouteVisibility_('developer');
+  setTimeout(function(){siwitiSmsPost_({action:'smsDeveloperBootstrap',developerSessionToken:localStorage.getItem('siwitiDeveloperSessionToken')||''}).then(function(r){if(r.status==='success'){var en=document.getElementById('siwitiEhubEnabled');if(en)en.checked=!!r.enabled;var sn=document.getElementById('siwitiEhubSenderName');if(sn)sn.value=r.senderName||'MATOKEO';var mu=document.getElementById('siwitiEhubSenderUuid');if(mu)mu.value=r.senderUuid||'';var tu=document.getElementById('siwitiTaarifaSenderUuid');if(tu)tu.value=r.taarifaSenderUuid||'';var ap=document.getElementById('siwitiSmsActiveProvider');if(ap)ap.value=r.activeProvider||'eHUB';var fp=document.getElementById('siwitiSmsFreeTrialProvider');if(fp)fp.value=r.freeTrialProvider||'eHUB';var pps=document.getElementById('siwitiSmsPackageProviderStatus');if(pps)pps.textContent='FREE TRIAL: '+(r.freeTrialProvider||'eHUB')+' | PAID: inatumia Provider Switching ya kawaida ('+(r.activeProvider||'eHUB')+').';var sb=document.getElementById('siwitiSwalaBaseUrl');if(sb)sb.value=r.swalaBaseUrl||'https://swalasms.com';var sp=document.getElementById('siwitiSwalaSendPath');if(sp)sp.value=r.swalaSendPath||'/api/v1/sms/messages';var ssp=document.getElementById('siwitiSwalaSendersPath');if(ssp)ssp.value=r.swalaSendersPath||'/api/v1/sender-ids';var se=document.getElementById('siwitiSwalaEnabled');if(se)se.checked=!!r.swalaEnabled;var ps=document.getElementById('siwitiSmsProviderStatus');if(ps)ps.textContent='Provider inayotumika sasa: '+(r.activeProvider||'eHUB')+' | eHUB: '+(r.configured?'Configured':'Not configured')+' | SwalaSMS: '+(r.swalaConfigured?'Configured':'Not configured');siwitiLoadEhubWallet_();siwitiSmsLoadSchoolAccounts_().catch(function(){});siwitiOwnerSmsLoadOwners_().catch(function(){});siwitiSmsPost_(Object.assign({action:'smsDeveloperSenders'},siwitiOwnerSmsAuth_())).then(function(r){var el=document.getElementById('siwitiOwnerSmsSender');if(el&&r.status==='success')el.innerHTML=(r.senders||[]).filter(function(x){return String(x.name||'').toUpperCase()!=='MATOKEO';}).map(function(x){return '<option value="'+schoolSmsEscape_(x.name)+'">'+schoolSmsEscape_(x.name)+'</option>';}).join('')||'<option value="">Hakuna Sender ID iliyoidhinishwa</option>';}).catch(function(){});}}).catch(function(){});},500);
   try {
     localStorage.setItem('currentDashboard', 'developer');
     localStorage.setItem('isDeveloper', 'true');
@@ -9701,10 +9983,10 @@ function loadAllUsers(forceRefresh) {
     updateUsersStats(cache);
     populateDeveloperRestrictionSchools_();
   } else if (!developerUsersAll.length && !navigator.onLine) {
-    tableBody.innerHTML = '<tr><td colspan="8" style="text-align:center;padding:28px;color:#64748b"><i class="fas fa-wifi-slash"></i><p>Hakuna orodha iliyohifadhiwa kwenye kifaa hiki. Unganisha mtandao mara moja ili kuipakia.</p></td></tr>';
+    tableBody.innerHTML = '<tr><td colspan="9" style="text-align:center;padding:28px;color:#64748b"><i class="fas fa-wifi-slash"></i><p>Hakuna orodha iliyohifadhiwa kwenye kifaa hiki. Unganisha mtandao mara moja ili kuipakia.</p></td></tr>';
     return;
   } else if (!cache && !developerUsersAll.length) {
-    tableBody.innerHTML = '<tr><td colspan="8" style="text-align:center;padding:24px;color:#64748b">Inapakia orodha kwa mara ya kwanza...</td></tr>';
+    tableBody.innerHTML = '<tr><td colspan="9" style="text-align:center;padding:24px;color:#64748b">Inapakia orodha kwa mara ya kwanza...</td></tr>';
   }
   if (!navigator.onLine) { if(status) status.textContent='Offline · cache'; return; }
   if (developerUsersFetchInFlight) return;
@@ -9730,7 +10012,7 @@ function loadAllUsers(forceRefresh) {
       if (status) status.textContent = cache || developerUsersAll.length ? 'Cache · haijasasishwa' : 'Imeshindikana kupakia';
       // Keep the visible cached list. Only show a message when there is no usable cache.
       if (!cache && !developerUsersAll.length) {
-        tableBody.innerHTML = '<tr><td colspan="8" style="text-align:center;padding:28px;color:#b91c1c">Orodha haikupatikana. Hakiki mtandao kisha bonyeza Pakua Upya Orodha.</td></tr>';
+        tableBody.innerHTML = '<tr><td colspan="9" style="text-align:center;padding:28px;color:#b91c1c">Orodha haikupatikana. Hakiki mtandao kisha bonyeza Pakua Upya Orodha.</td></tr>';
       }
     }).finally(function(){ developerUsersFetchInFlight = false; });
 }
@@ -9902,6 +10184,11 @@ function displayUsers(users, isFiltered) {
     // Official school number (may be blank for unregistered schools).
     html += '<td style="vertical-align: middle;font-family:monospace;white-space:nowrap;">';
     html += user.schoolNumber ? '<strong>' + escapeHtml(user.schoolNumber) + '</strong>' : '<span style="color:#94a3b8">—</span>';
+    html += '</td>';
+
+    // Registered phone number column
+    html += '<td style="vertical-align: middle;white-space:nowrap;">';
+    html += user.phone ? '<a href="tel:' + escapeHtml(user.phone) + '" style="color:#2563eb;text-decoration:none;"><i class="fas fa-phone"></i> ' + escapeHtml(user.phone) + '</a>' : '<span style="color:#dc2626;font-weight:600;">Haijawekwa</span>';
     html += '</td>';
 
     // School & DB ID column
@@ -10251,6 +10538,10 @@ function editUserAccount(email) {
                      style="width: 100%; padding: 12px; border: 2px solid #e2e8f0; border-radius: 8px; font-size: 14px;">
             </div>
             <div class="input-group" style="margin-bottom: 15px;">
+              <label style="display:block;margin-bottom:8px;font-weight:600;color:#333;">Namba ya Simu</label>
+              <input type="tel" id="editUserPhone" inputmode="tel" value="${escapeHtml(data.phone || '')}" placeholder="07XXXXXXXX" style="width:100%;padding:12px;border:2px solid #e2e8f0;border-radius:8px;font-size:14px;">
+            </div>
+            <div class="input-group" style="margin-bottom: 15px;">
               <label style="display:block;margin-bottom:8px;font-weight:600;color:#333;">Namba ya Shule</label>
               <input type="text" id="editUserSchoolNumber" value="${escapeHtml(data.schoolNumber || '')}" placeholder="Mfano: P0321 au S1676" style="width:100%;padding:12px;border:2px solid #e2e8f0;border-radius:8px;font-size:14px;">
             </div>
@@ -10316,6 +10607,7 @@ function editUserAccount(email) {
           const newEmail = document.getElementById('editUserEmail').value.trim();
           const newSchool = document.getElementById('editUserSchool').value.trim();
           const newSchoolNumber = document.getElementById('editUserSchoolNumber').value.trim();
+          const newPhone = document.getElementById('editUserPhone').value.trim();
           const newSchoolLevel = document.getElementById('editUserSchoolLevel').value;
           const newPassword = document.getElementById('editUserPassword').value;
           const subscriptionType = document.getElementById('editSubscriptionType').value;
@@ -10351,6 +10643,7 @@ function editUserAccount(email) {
             newEmail, 
             newSchool, 
             newSchoolNumber,
+            newPhone,
             newSchoolLevel,
             newPassword, 
             subscriptionType,
@@ -10360,8 +10653,8 @@ function editUserAccount(email) {
         }
       }).then(result => {
         if (result.isConfirmed) {
-          const { newEmail, newSchool, newSchoolNumber, newSchoolLevel, newPassword, subscriptionType, trialEndDate, subscriptionEndDate } = result.value;
-          performEditUser(email, newEmail, newPassword, newSchool, subscriptionType, trialEndDate, subscriptionEndDate, newSchoolNumber, newSchoolLevel);
+          const { newEmail, newSchool, newSchoolNumber, newPhone, newSchoolLevel, newPassword, subscriptionType, trialEndDate, subscriptionEndDate } = result.value;
+          performEditUser(email, newEmail, newPassword, newSchool, subscriptionType, trialEndDate, subscriptionEndDate, newSchoolNumber, newSchoolLevel, newPhone);
         }
       });
     } else {
@@ -10406,7 +10699,7 @@ function formatDateForInput(dateString) {
 // ============================================
 // PERFORM EDIT USER - Save changes
 // ============================================
-function performEditUser(oldEmail, newEmail, newPassword, newSchool, subscriptionType, trialEndDate, subscriptionEndDate, newSchoolNumber, newSchoolLevel) {
+function performEditUser(oldEmail, newEmail, newPassword, newSchool, subscriptionType, trialEndDate, subscriptionEndDate, newSchoolNumber, newSchoolLevel, newPhone) {
   console.log(`✏️ Updating user: ${oldEmail} → ${newEmail}`);
   
   Swal.fire({
@@ -10428,6 +10721,7 @@ function performEditUser(oldEmail, newEmail, newPassword, newSchool, subscriptio
     newSchoolName: newSchool,
     schoolNumber: newSchoolNumber || '',
     schoolLevel: newSchoolLevel || 'primary',
+    phone: newPhone || '',
     subscriptionType: subscriptionType,
     trialEndDate: trialEndDate,
     subscriptionEndDate: subscriptionEndDate
@@ -10970,6 +11264,7 @@ function createNewUser() {
     body: JSON.stringify({
       action: "register",
       email: email,
+      phone: normalizedPhone,
       password: password,
       schoolName: schoolName,
       schoolNumber: schoolNumber,
@@ -15075,7 +15370,7 @@ function showDashboard(dashboard) {
   const containers = [
     "auth", "register", "studentDashboard", "subjectDashboard", 
     "resultsDashboard", "reportDashboard", "staffDashboard", 
-    "systemSettingsDashboard", "timetableDashboard", "staffTimetableDashboard", "forgotPasswordModal", "developerDashboard"
+    "systemSettingsDashboard", "timetableDashboard", "staffTimetableDashboard", "schoolSmsDashboard", "forgotPasswordModal", "developerDashboard"
   ];
   
   containers.forEach(container => {
@@ -15085,6 +15380,11 @@ function showDashboard(dashboard) {
 
   const userType = localStorage.getItem('userType') || "owner";
   const isStaff = userType === "staff";
+  const canUseSchoolSms = userType === 'owner' || (isStaff && String(localStorage.getItem('timetableRole')||'').toLowerCase() === 'academic');
+  if (dashboard === 'schoolSms' && !canUseSchoolSms) {
+    dashboard = 'student';
+    if (typeof Notiflix !== 'undefined') Notiflix.Notify.warning('Tuma SMS inapatikana kwa Head of School na Academic Coordinator pekee.');
+  }
   
   // Strict check: PREVENT STAFF FROM ACCESSING REPORT DASHBOARD IF TRIAL EXPIRED
   if (isStaff && dashboard === 'report') {
@@ -15202,6 +15502,11 @@ function showDashboard(dashboard) {
       showDashboard('student');
       return;
     }
+  } else if (dashboard === 'schoolSms' && canUseSchoolSms) {
+    document.getElementById('schoolSmsDashboard').classList.remove('hidden');
+    updateActiveMenu('schoolSmsMenu');
+    schoolSmsTab_('register');
+    schoolSmsInitDashboard_();
   } else if (dashboard === 'staffTimetable' && isStaff) {
     document.getElementById('staffTimetableDashboard').classList.remove('hidden');
     updateActiveMenu('timetableMenu');
@@ -15251,7 +15556,7 @@ function showDashboard(dashboard) {
 
   // Update menu active states
   function updateActiveMenu(activeMenuId) {
-    const menuIds = ['studentMenu', 'subjectMenu', 'resultsMenu', 'reportMenu', 'timetableMenu', 'staffMenu', 'systemSettingsMenu'];
+    const menuIds = ['studentMenu', 'subjectMenu', 'resultsMenu', 'reportMenu', 'timetableMenu', 'schoolSmsMenu', 'staffMenu', 'systemSettingsMenu'];
     menuIds.forEach(menuId => {
       const menu = document.getElementById(menuId);
       if (menu) menu.classList.remove('active');
@@ -15280,6 +15585,10 @@ function showDashboard(dashboard) {
     if (staffMenuLi) staffMenuLi.classList.remove('hidden');
     if (systemMenuLi) systemMenuLi.classList.remove('hidden');
   }
+
+  // SMS menu is visible only to Head of School and Academic Coordinator.
+  const schoolSmsMenuLi = document.getElementById('schoolSmsMenuLi');
+  if (schoolSmsMenuLi) schoolSmsMenuLi.classList.toggle('hidden', !canUseSchoolSms);
 
   // Adjust sidebar for mobile/desktop
   if (window.innerWidth <= 768) {
@@ -15847,6 +16156,7 @@ function register() {
   const schoolName = registrationUsesManualSchoolName_ ? schoolIdentity : String(document.getElementById("schoolName").dataset.verifiedSchoolName || '').trim();
   const schoolNumber = registrationUsesManualSchoolName_ ? '' : String(document.getElementById("schoolName").dataset.verifiedSchoolNumber || '').trim();
   const email = document.getElementById("regEmail").value.trim();
+  const phone = document.getElementById("regPhone").value.trim();
   const password = document.getElementById("regPassword").value;
   const confirmPassword = document.getElementById("confirmPassword").value;
   
@@ -15883,6 +16193,19 @@ function register() {
     });
     return;
   }
+  
+  // Normalize Tanzania mobile numbers before sending them to the server.
+  // Accepted input: 06XXXXXXXX / 07XXXXXXXX / 2556XXXXXXXX / 2557XXXXXXXX / +255...
+  const phoneInput = document.getElementById("regPhone");
+  const phoneDigits = phone.replace(/[\s().-]/g, '').replace(/^\+/, '');
+  let normalizedPhone = phoneDigits;
+  if (/^0[67]\d{8}$/.test(phoneDigits)) normalizedPhone = '255' + phoneDigits.substring(1);
+  if (!/^255[67]\d{8}$/.test(normalizedPhone)) {
+    Swal.fire({icon:'warning',title:phoneDigits ? 'Namba ya Simu Si Sahihi' : 'Namba ya Simu Inahitajika',text:phoneDigits ? 'Tumia namba ya Tanzania yenye tarakimu 10 (06/07...) au 12 (2556/2557...).' : 'Tafadhali weka namba ya simu. Ni lazima wakati wa kujisajili.',confirmButtonColor:'#4361ee'});
+    phoneInput.focus();
+    return;
+  }
+  phoneInput.value = normalizedPhone;
   
   if (!password) {
     Swal.fire({
@@ -15963,6 +16286,7 @@ function register() {
     body: JSON.stringify({
       action: "register",
       email: email,
+      phone: phone,
       password: password,
       schoolName: schoolName,
       schoolNumber: schoolNumber,
@@ -15984,6 +16308,7 @@ function register() {
       delete document.getElementById("schoolName").dataset.verifiedSchoolNumber;
       if(registrationUsesManualSchoolName_) toggleUnregisteredSchoolMode_();
       document.getElementById("regEmail").value = "";
+      document.getElementById("regPhone").value = "";
       document.getElementById("regPassword").value = "";
       document.getElementById("confirmPassword").value = "";
       document.getElementById("acceptTerms").checked = false;
@@ -16071,6 +16396,7 @@ function showRegister() {
   // Clear form
   document.getElementById("schoolName").value = "";
   document.getElementById("regEmail").value = "";
+  document.getElementById("regPhone").value = "";
   document.getElementById("regPassword").value = "";
   document.getElementById("confirmPassword").value = "";
   document.getElementById("acceptTerms").checked = false;
@@ -16159,10 +16485,11 @@ function showLogin() {
 function registerStaffMember() {
   const name = document.getElementById("staffName").value.trim();
   const email = document.getElementById("staffEmailRegister").value.trim();
+  const phone = document.getElementById("staffPhoneRegister").value.trim();
   const password = document.getElementById("staffPasswordRegister").value;
   
-  if (!name || !email || !password) {
-    Notiflix.Notify.warning('Tafadhali jaza jina, barua pepe na nenosiri', {
+  if (!name || !email || !phone || !password) {
+    Notiflix.Notify.warning('Tafadhali jaza jina, barua pepe, namba ya simu na nenosiri', {
       timeout: 2000,
       position: 'right-top'
     });
@@ -16186,8 +16513,7 @@ function registerStaffMember() {
     });
     return;
   }
-  
-  if (!studentClassAllowed_(darasa)) { Notiflix.Notify.failure('Darasa hili halijagawiwa kwenye akaunti yako.'); return; }
+  // Namba ya simu itahifadhiwa pamoja na taarifa za Staff.
 
   // Get button and show loading
   const registerBtn = document.getElementById("registerStaffBtn");
@@ -16204,8 +16530,11 @@ function registerStaffMember() {
     body: JSON.stringify({
       action: "registerStaff",
       dbId: currentDbId,
+      actorEmail: localStorage.getItem('currentUserEmail') || '',
+      managementToken: localStorage.getItem('managementToken') || '',
       name: name,
       email: email,
+      phone: phone,
       password: password
     })
   })
@@ -16220,6 +16549,7 @@ function registerStaffMember() {
       // Clear form
       document.getElementById("staffName").value = "";
       document.getElementById("staffEmailRegister").value = "";
+      document.getElementById("staffPhoneRegister").value = "";
       document.getElementById("staffPasswordRegister").value = "";
       
       // Reset password strength
@@ -16526,6 +16856,7 @@ function displayStaffMembers(staff) {
           ${isOwnerStaff ? '<small style="display:block;color:#1d4ed8;font-weight:700;margin-top:4px"><i class="fas fa-crown"></i> Head of School</small>' : ''}
         </td>
         <td style="padding: 12px;">${escapedEmail}</td>
+        <td style="padding: 12px;">${escapeHtml(staffMember.phone || 'Haijawekwa')}</td>
         <td style="padding: 12px;">
           ${isOwnerStaff ? '<span style="color:#666">Haina nenosiri la Staff</span><small style="display:block;color:#1d4ed8;font-size:10px;margin-top:4px"><i class="fas fa-link"></i> Inatumia akaunti ya Head of School</small>' : '<span style="font-family: monospace; color: #666;">••••••••</span><small style="display: block; color: #4caf50; font-size: 10px;"><i class="fas fa-shield-alt"></i> Imelindwa</small>'}
         </td>
@@ -16759,7 +17090,7 @@ function saveAcademicFlag(email,enable){
 // ============================================
 // EDIT STAFF MEMBER - Fixed
 // ============================================
-function editStaffMember(email, name, isOwner) {
+function editStaffMember(email, name, isOwner, phone) {
   console.log("✏️ Editing staff member:", email, name, !!isOwner);
   
   Swal.fire({
@@ -16768,6 +17099,11 @@ function editStaffMember(email, name, isOwner) {
       <div class="input-group" style="margin-bottom: 15px;">
         <label for="editStaffName" style="display: block; margin-bottom: 5px; font-weight: 500;">Jina la Staff</label>
         <input type="text" id="editStaffName" value="${escapeHtml(name)}" style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #ddd;">
+      </div>
+      <div class="input-group" style="margin-bottom: 15px;">
+        <label for="editStaffPhone" style="display:block;margin-bottom:5px;font-weight:500;">Namba ya Simu</label>
+        <input type="tel" id="editStaffPhone" inputmode="tel" value="${escapeHtml(phone || '')}" placeholder="07XXXXXXXX" style="width:100%;padding:10px;border-radius:8px;border:1px solid #ddd">
+        <small style="color:#64748b">Ongeza au sahihisha namba ya Staff wa zamani.</small>
       </div>
       <div class="input-group" style="margin-bottom: 15px;">
         <label for="editStaffEmail" style="display: block; margin-bottom: 5px; font-weight: 500;">Barua Pepe</label>
@@ -16786,17 +17122,18 @@ function editStaffMember(email, name, isOwner) {
       const newEmail = isOwner ? email : document.getElementById('editStaffEmail').value.trim();
       const passwordEl = document.getElementById('editStaffPassword');
       const newPassword = passwordEl ? passwordEl.value : '';
+      const newPhone = document.getElementById('editStaffPhone').value.trim();
       
-      if (!newName || !newEmail) {
-        Swal.showValidationMessage('Jina na barua pepe ni lazima');
+      if (!newName || !newEmail || !newPhone) {
+        Swal.showValidationMessage('Jina, barua pepe na namba ya simu ni lazima');
         return false;
       }
       
-      return { newName, newEmail, newPassword };
+      return { newName, newEmail, newPassword, newPhone };
     }
   }).then(result => {
     if (result.isConfirmed) {
-      const { newName, newEmail, newPassword } = result.value;
+      const { newName, newEmail, newPassword, newPhone } = result.value;
       
       // Show loading on button
       Swal.fire({
@@ -16814,9 +17151,12 @@ function editStaffMember(email, name, isOwner) {
         body: JSON.stringify({
           action: "editStaff",
           dbId: currentDbId,
+          actorEmail: localStorage.getItem('currentUserEmail') || '',
+          managementToken: localStorage.getItem('managementToken') || '',
           oldEmail: email,
           name: newName,
           email: newEmail,
+          phone: newPhone,
           password: newPassword || undefined
         })
       })
@@ -21711,6 +22051,50 @@ function startCountdownTimer() {
 // ============================================
 // SHOW PAYMENT OVERLAY - Full screen modal
 // ============================================
+function siwitiEasyPaySchoolLevel_(){
+  var v=String(localStorage.getItem('schoolLevel')||localStorage.getItem('schoolType')||'primary').toLowerCase();
+  return (v.indexOf('secondary')>=0||v.indexOf('sekondari')>=0||v.indexOf('o-level')>=0)?'secondary':'primary';
+}
+function siwitiEasyPayPrice_(plan,cycle){
+  var l=siwitiEasyPaySchoolLevel_(),p=String(plan||'BASIC_PLAN').toUpperCase(),c=String(cycle||'monthly').toLowerCase();
+  var table={primary:{BASIC_PLAN:{monthly:2500,yearly:30000},GOLD_PLAN:{monthly:5000,yearly:60000}},secondary:{BASIC_PLAN:{monthly:5000,yearly:60000},GOLD_PLAN:{monthly:10000,yearly:120000}}};
+  return table[l][p]&&table[l][p][c]||0;
+}
+function siwitiEasyPayUpdateQuote_(){
+  var p=document.getElementById('siwitiEasyPayPlan'),c=document.getElementById('siwitiEasyPayCycle'),q=document.getElementById('siwitiEasyPayQuote');if(!p||!c||!q)return;
+  var amount=siwitiEasyPayPrice_(p.value,c.value);q.textContent='Jumla ya malipo: TSh '+amount.toLocaleString('en-US');
+}
+function siwitiEasyPayStartSubscription_(){
+  var btn=document.getElementById('siwitiEasyPayPayBtn'),status=document.getElementById('siwitiEasyPayStatus'),phone=document.getElementById('siwitiEasyPayPhone');
+  var email=String(localStorage.getItem('currentUserEmail')||''),dbId=String(currentDbId||localStorage.getItem('dbId')||'');
+  var plan=document.getElementById('siwitiEasyPayPlan').value,cycle=document.getElementById('siwitiEasyPayCycle').value,number=String(phone&&phone.value||'').trim();
+  if(!email||!dbId){if(status)status.textContent='Tafadhali ingia tena kwenye akaunti ya Head of School.';return;}
+  if(!/^((\+?255)?[\s-]?)?0?[67][0-9\s-]{8,12}$/.test(number)){if(status)status.textContent='Weka namba sahihi ya simu, mfano 0712345678.';if(phone)phone.focus();return;}
+  var requestId=localStorage.getItem('siwitiEasyPayRequestId');if(!requestId){requestId='trs-'+(window.crypto&&crypto.randomUUID?crypto.randomUUID():Date.now()+'-'+Math.random().toString(36).slice(2));localStorage.setItem('siwitiEasyPayRequestId',requestId);}
+  if(btn){btn.disabled=true;btn.innerHTML='<i class="fas fa-spinner fa-spin"></i> INATUMA OMBI...';}
+  if(status)status.textContent='Inaunganisha na EasyPay. Tafadhali subiri...';
+  fetchWithServerRetry(SCRIPT_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({action:'easypayInitiateSubscription',email:email,dbId:dbId,managementToken:localStorage.getItem('managementToken')||'',schoolName:localStorage.getItem('schoolName')||'',phone:number,plan:plan,cycle:cycle,requestId:requestId})})
+    .then(function(r){if(!r.ok)throw new Error('HTTP '+r.status);return r.json();})
+    .then(function(d){if(!d||d.status!=='success')throw new Error(d&&d.message||'EasyPay imeshindwa kuanzisha malipo.');
+      if(status)status.innerHTML='<strong style="color:#047857;">Ombi limetumwa!</strong><br>Reference: <b>'+String(d.reference||'')+'</b><br>Thibitisha ombi kwenye simu yenye namba '+number+'. Malipo yakikamilika, bonyeza Angalia Hali ya Usajili.';
+      localStorage.setItem('siwitiEasyPayPendingRef',String(d.reference||''));
+      var refresh=document.getElementById('siwitiEasyPayRefreshBtn');if(refresh)refresh.style.display='block';
+      if(typeof Swal!=='undefined')Swal.fire({icon:'info',title:'Thibitisha kwenye simu',html:'EasyPay imetuma ombi la malipo ya <b>TSh '+Number(d.amount||0).toLocaleString('en-US')+'</b> kwenye namba <b>'+number+'</b>.<br><small>Reference: '+String(d.reference||'')+'</small>',confirmButtonText:'Sawa'});
+    }).catch(function(e){if(status)status.textContent=e.message||'Imeshindikana kuanzisha malipo. Jaribu tena.';})
+    .finally(function(){if(btn){btn.disabled=false;btn.innerHTML='<i class="fas fa-mobile-alt"></i> LIPA SASA KWA SIMU';}});
+}
+function siwitiEasyPayRefreshSubscription_(){
+  var status=document.getElementById('siwitiEasyPayStatus'),email=String(localStorage.getItem('currentUserEmail')||''),dbId=String(currentDbId||localStorage.getItem('dbId')||'');
+  if(status)status.textContent='Inaangalia hali ya akaunti kwenye server...';
+  fetchWithServerRetry(SCRIPT_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({action:'getUserSubscriptionStatus',email:email,dbId:dbId})})
+    .then(function(r){return r.json();}).then(function(d){
+      var sub=d&&d.subscription||{};
+      if(d&&d.status==='success'&&['active','subscription','trial'].indexOf(String(sub.status||'').toLowerCase())>=0&&Number(sub.timeRemaining||0)>0){if(status)status.innerHTML='<strong style="color:#047857;">Malipo yamethibitishwa. Akaunti yako imehuishwa.</strong>';localStorage.removeItem('siwitiEasyPayRequestId');localStorage.removeItem('siwitiEasyPayPendingRef');if(typeof Swal!=='undefined')Swal.fire({icon:'success',title:'Malipo Yamekamilika',text:'Usajili wako umehuishwa kikamilifu.'}).then(function(){hidePaymentOverlay();checkSubscriptionStatus(false);});}
+      else if(status)status.textContent='Malipo bado hayajathibitishwa na webhook. Subiri kidogo kisha angalia tena. Usirudie malipo kama ombi la kwanza bado linaendelea.';
+    }).catch(function(){if(status)status.textContent='Imeshindikana kusoma hali ya akaunti. Hakikisha una mtandao kisha jaribu tena.';});
+}
+document.addEventListener('DOMContentLoaded',function(){var p=document.getElementById('siwitiEasyPayPlan'),c=document.getElementById('siwitiEasyPayCycle');if(p)p.addEventListener('change',siwitiEasyPayUpdateQuote_);if(c)c.addEventListener('change',siwitiEasyPayUpdateQuote_);siwitiEasyPayUpdateQuote_();});
+
 function showPaymentOverlay() {
   const overlay = document.getElementById('paymentOverlay');
   if (window.__ratibaLoggedOut === true ||
@@ -21718,6 +22102,7 @@ function showPaymentOverlay() {
     hidePaymentOverlay(); return;
   }
   if (overlay) {
+    try { siwitiEasyPayUpdateQuote_(); } catch (quoteErr) {}
     overlay.classList.remove('hidden');
     overlay.style.display = 'flex';
     overlay.style.visibility = 'visible';
@@ -22477,6 +22862,7 @@ function handleSuccessfulLogin(data, email) {
   
   // === DEVELOPER LOGIN ===
   if (data.userType === "developer") {
+    if (data.developerSessionToken) localStorage.setItem('siwitiDeveloperSessionToken', data.developerSessionToken);
     console.log("👑 Developer login detected");
     isDeveloper = true;
     localStorage.setItem('isDeveloper', 'true');
@@ -22524,7 +22910,9 @@ function handleSuccessfulLogin(data, email) {
   localStorage.setItem('schoolName', data.schoolName);
   localStorage.setItem('userType', data.userType || "owner");
   localStorage.setItem('currentUserEmail', email);
+  if(data.phoneNumber)localStorage.setItem('ownerPhoneNumber', data.phoneNumber);
   if(data.managementToken)localStorage.setItem('managementToken',data.managementToken);else localStorage.removeItem('managementToken');
+  var smsMenu=document.getElementById('schoolSmsMenuLi'); if(smsMenu) smsMenu.classList.toggle('hidden', !(String(data.userType||'').toLowerCase()==='owner' || (String(data.userType||'').toLowerCase()==='staff' && String(data.timetableRole||'').toLowerCase()==='academic')));
   localStorage.removeItem('studentAccessClasses'); localStorage.removeItem('studentAccessRole');
       if (!localStorage.getItem('siwitiUserLanguage')) localStorage.setItem('siwitiUserLanguage','sw');
   if (typeof applyServerLanguage === 'function') applyServerLanguage(data.language || localStorage.getItem('siwitiUserLanguage') || 'sw');
@@ -22648,7 +23036,9 @@ function login() {
     Notiflix.Loading.remove();
     
     if (data.status === "success") {
-      handleSuccessfulLogin(data, email);
+      if(data.userType==='owner' && data.phoneRequired){
+        siwitiRequireOwnerPhoneAfterLogin_(data,email);
+      } else { handleSuccessfulLogin(data, email); }
     } else if (data.status === "trial_expired") {
       handleTrialExpired(data, email);
     } else {
@@ -24468,6 +24858,9 @@ function openSystemTab(tabName, element) {
       loadSchoolNameSettings();
     } else if (tabName === 'ownerEmailTab') {
       loadOwnerEmailSettings();
+    } else if (tabName === 'ownerPhoneTab') {
+      var ownerPhoneInput=document.getElementById('ownerSystemPhone');
+      if(ownerPhoneInput)ownerPhoneInput.value=localStorage.getItem('ownerPhoneNumber')||'';
     } else if (tabName === 'graduationClassesTab') {
       loadGraduationClassesList();
     } else if (tabName === 'accountPasswordTab') {
@@ -31976,6 +32369,7 @@ Object.keys(__resultsReportsLanguagePatch).forEach(function(k){window.SIWITI_LAN
   };
   window.initAppLanguage=function(){captureInitialSource();var saved=normalizeLang(safeGet(window.SIWITI_LANG_KEY)||'sw');currentLang='sw';if(saved==='en')translateWholeUI('en');else{setToggle('sw');startObserver();}};
   window.applyServerLanguage=function(lang){applyAppLanguage(normalizeLang(lang));};
+  var __smsOriginalApplyAppLanguage=window.applyAppLanguage;window.applyAppLanguage=function(lang){var result=__smsOriginalApplyAppLanguage.apply(this,arguments);setTimeout(function(){if(window.schoolSmsApplyLanguage_)window.schoolSmsApplyLanguage_();},0);return result;};
   /* If the user changes language while offline, remember the desired server sync
      without blocking the UI. The localStorage value remains authoritative for the UI. */
   window.SIWITI_LANGUAGE_READY=true;
@@ -33150,7 +33544,7 @@ body.developer-dashboard-active #sidebarHeadingToggle{display:none!important;vis
           'table{width:100%;max-width:100%;border-collapse:collapse;table-layout:fixed;margin:8px 0;border:1px solid #64748b}td,th{border:1px solid #64748b;padding:7px;min-width:35px;vertical-align:top;overflow-wrap:anywhere;word-break:break-word}'+
           'blockquote{border-left:3px solid #64748b;margin:8px 0;padding:5px 12px;color:#475569}'+
           'body:empty:before{content:"Andika Agizo au Ujumbe wa Shule hapa...";color:#94a3b8;pointer-events:none}'+
-          '</style></head><body contenteditable="true" role="textbox" aria-multiline="true" spellcheck="true"></body></html>');
+          '</style></head><body contenteditable="true" role="textbox" aria-multiline="true" spellcheck="true">\n</body></html>');
         editDoc.close();editor=editDoc.body;editor.setAttribute('dir','ltr');editor.setAttribute('contenteditable','true');
         frameReady=true;
         if(pendingHtml)editor.innerHTML=pendingHtml;
@@ -33228,5 +33622,585 @@ document.addEventListener('change',function(e){
     reportBrandingRefreshStreams_();
   }
 });
-</script></body>
+</script><script id="siwiti-school-sms-js">
+var schoolSmsCache_={dbId:'',classes:null,parents:null,history:null,students:{},loadedAt:0,historyLoadedAt:0};
+function siwitiSmsPost_(payload){return fetchWithServerRetry(SCRIPT_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(payload)}).then(function(r){if(!r||!r.ok)throw new Error('Server haikujibu vizuri.');return r.json();});}
+function canUseSchoolSmsClient_(){var role=String(localStorage.getItem('userType')||'').toLowerCase();return role==='owner'||(role==='staff'&&String(localStorage.getItem('timetableRole')||'').toLowerCase()==='academic');}
+function schoolSmsAuth_(){return {dbId:currentDbId,email:localStorage.getItem('currentUserEmail')||'',managementToken:localStorage.getItem('managementToken')||''};}
+function schoolSmsEnsureCacheScope_(){var id=String(currentDbId||'');if(schoolSmsCache_.dbId!==id){schoolSmsCache_={dbId:id,classes:null,parents:null,history:null,students:{},loadedAt:0,historyLoadedAt:0};}}
+function schoolSmsTab_(tab){var reg=tab==='register';document.getElementById('smsRegisterTab').classList.toggle('hidden',!reg);document.getElementById('smsSendTab').classList.toggle('hidden',reg);document.getElementById('smsTabRegisterBtn').className=reg?'btn btn-primary':'btn btn-outline-primary';document.getElementById('smsTabSendBtn').className=reg?'btn btn-outline-primary':'btn btn-primary';schoolSmsApplyLanguage_();if(!reg)schoolSmsLoadHistory_(false);}
+function schoolSmsInitDashboard_(){if(!canUseSchoolSmsClient_())return;schoolSmsEnsureCacheScope_();schoolSmsApplyLanguage_();schoolSmsLoadCredit_(false);schoolSmsLoadClasses_(false);schoolSmsLoadParentList_(false);schoolSmsLoadSenderIds_();}
+function schoolSmsFillSelect_(id,items,firstLabel){var el=document.getElementById(id);if(!el)return;var old=el.value;el.innerHTML='';var first=document.createElement('option');first.value='';first.textContent=firstLabel||'Chagua';el.appendChild(first);(items||[]).forEach(function(v){var o=document.createElement('option');o.value=v;o.textContent=v;el.appendChild(o);});if(old&&Array.prototype.indexOf.call(el.options,old)>=0)el.value=old;}
+var schoolSmsCreditState_={balance:0,enabled:false,packageName:'',pricePerSms:0,loaded:false,offline:false};
+function schoolSmsCreditCacheKey_(){var a=schoolSmsAuth_();return 'siwitiSchoolSmsCredit_v2_'+String(a.dbId||'')+'_'+String(a.email||'').trim().toLowerCase();}
+function schoolSmsRenderCredit_(state,offline){
+ var title=document.getElementById('schoolSmsCreditTitle'),bal=document.getElementById('schoolSmsCreditBalance'),pkg=document.getElementById('schoolSmsCreditPackage'),msg=document.getElementById('schoolSmsCreditMessage');
+ schoolSmsCreditState_=Object.assign({balance:0,enabled:false,packageName:'',pricePerSms:0,loaded:false,offline:false},state||{}, {offline:!!offline});
+ var en=schoolSmsCurrentLanguage_()==='en',unit=Number(schoolSmsCreditState_.pricePerSms||0);
+ if(title)title.textContent=en?'SMS balance':'Salio la SMS';
+ if(bal)bal.textContent=Math.max(0,Number(schoolSmsCreditState_.balance)||0).toLocaleString('en-US')+' SMS';
+ if(pkg)pkg.textContent=(en?'Package: ':'Kifurushi: ')+(schoolSmsCreditState_.packageName||'—');
+ if(msg){var prefix=offline?(en?'Last saved balance (offline). ':'Salio la mwisho lililohifadhiwa (bila mtandao). '):'';
+  if(!schoolSmsCreditState_.enabled)msg.textContent=prefix+(en?'SMS sending is disabled by the Developer.':'Huduma ya SMS imesimamishwa na Developer.');
+  else if(Number(schoolSmsCreditState_.balance)>0)msg.innerHTML=schoolSmsEscape_(prefix)+(en?'Available SMS credits.':'SMS zilizopo tayari kutumika.')+(unit>0?'<br><b>'+(en?'Price per SMS: ':'Bei ya SMS 1: ')+'TZS '+unit.toLocaleString('en-US')+'</b>':'<br><b>'+(en?'SMS unit price has not been set.':'Bei ya SMS moja bado haijawekwa na Developer.')+'</b>');
+  else{var priceText=unit>0?'TZS '+unit.toLocaleString('en-US'):(en?'Not set':'Haijawekwa');msg.innerHTML=schoolSmsEscape_(prefix)+(en?'Your SMS balance is exhausted. Pay Siwiti Software to continue.':'Salio limeisha. Lipa kifurushi kwa Siwiti Software ili uendelee.')+'<br><b>'+(en?'Price per SMS: ':'Bei ya SMS 1: ')+schoolSmsEscape_(priceText)+'</b><br><b>M-Pesa:</b> 0750183275 — Fadhili Godiwell Siwiti<br><b>Mixx by Yas:</b> 0652343371 — Fadhili Godiwell Siwiti<br><small>'+(en?'After payment, contact Siwiti Software and provide your school name and payment confirmation.':'Baada ya kulipa, wasiliana na Siwiti Software ukitaja jina la shule na uthibitisho wa malipo.')+'</small>';}}
+ var card=document.getElementById('schoolSmsCreditCard');if(card){card.style.background=(!schoolSmsCreditState_.enabled||schoolSmsCreditState_.balance<=0)?'#fff7ed':'#f0fdf4';card.style.borderColor=(!schoolSmsCreditState_.enabled||schoolSmsCreditState_.balance<=0)?'#fed7aa':'#bbf7d0';}
+ var send=document.getElementById('smsCampaignSendBtn');if(send){send.disabled=!schoolSmsCreditState_.enabled||schoolSmsCreditState_.balance<=0||(typeof navigator!=='undefined'&&!navigator.onLine);send.title=send.disabled?(en?'SMS package or internet connection required':'Kifurushi cha SMS au muunganisho wa intaneti vinahitajika'):'';}
+}
+function schoolSmsLoadCredit_(force){
+ if(!canUseSchoolSmsClient_())return Promise.resolve(null);
+ var key=schoolSmsCreditCacheKey_(),cached=null;
+ try{cached=JSON.parse(localStorage.getItem(key)||'null');}catch(e){cached=null;}
+ // Show the last confirmed school balance immediately, including when this dashboard opens offline.
+ if(cached&&typeof cached==='object'&&Number.isFinite(Number(cached.balance)))schoolSmsRenderCredit_(cached,true);
+ else{var bal=document.getElementById('schoolSmsCreditBalance');if(bal)bal.textContent='...';}
+ if(typeof navigator!=='undefined'&&!navigator.onLine){if(!cached){var msg=document.getElementById('schoolSmsCreditMessage');if(msg)msg.textContent=schoolSmsCurrentLanguage_()==='en'?'Connect to the internet once to load the SMS balance.':'Unganisha intaneti angalau mara moja ili kupata salio la SMS.';}return Promise.resolve(cached);}
+ return siwitiSmsPost_(Object.assign({action:'smsSchoolBalance'},schoolSmsAuth_())).then(function(r){
+  if(r.status!=='success')throw new Error(r.message||'Salio halijapatikana.');
+  var state={balance:Number(r.balance||0),enabled:r.enabled===true,packageName:String(r.packageName||''),pricePerSms:Number(r.pricePerSms||0),loaded:true,savedAt:Date.now()};
+  schoolSmsRenderCredit_(state,false);
+  try{localStorage.setItem(key,JSON.stringify(state));}catch(storageError){console.warn('SMS balance cache could not be saved:',storageError);}
+  return r;
+ }).catch(function(e){
+  if(cached&&typeof cached==='object'){schoolSmsRenderCredit_(cached,true);}
+  else{var bal=document.getElementById('schoolSmsCreditBalance'),msg=document.getElementById('schoolSmsCreditMessage');if(bal)bal.textContent='— SMS';if(msg)msg.textContent=e.message||'Imeshindikana kupata salio.';}
+  return null;
+ });
+}
+window.addEventListener('online',function(){if(canUseSchoolSmsClient_())schoolSmsLoadCredit_(true);});
+function schoolSmsShowPurchaseInfo_(){var btn=document.getElementById('schoolSmsBuyButton');if(btn&&btn.disabled)return;var original=btn?btn.innerHTML:'<i class="fas fa-shopping-cart"></i><span>Nunua SMS</span>';if(btn){btn.disabled=true;btn.style.opacity='.72';btn.style.cursor='wait';btn.innerHTML='<i class="fas fa-circle-notch fa-spin"></i><span>Inapakia taarifa...</span>';}siwitiSmsPost_(Object.assign({action:'smsSchoolBalance'},schoolSmsAuth_())).then(function(r){if(r.status!=='success')throw new Error(r.message||'Bei haijapatikana.');var unit=Number(r.pricePerSms||0);var html='<div style="text-align:left;line-height:1.8"><b>Bei ya SMS 1: '+(unit>0?'TZS '+unit.toLocaleString('en-US'):'Bado haijawekwa na Developer')+'</b><br><br><b>M-Pesa:</b> 0750183275<br>Fadhili Godiwell Siwiti<br><br><b>Mixx by Yas:</b> 0652343371<br>Fadhili Godiwell Siwiti<br><br><small>Baada ya kulipa, wasiliana na Siwiti Software ukitaja jina la shule, idadi ya SMS unazohitaji na uthibitisho wa malipo. Developer ataongeza salio baada ya kuthibitisha malipo.</small></div>';return Swal.fire({icon:'info',title:'Nunua SMS',html:html,confirmButtonText:'Sawa'});}).catch(function(e){Swal.fire({icon:'error',title:'Taarifa za malipo hazijapatikana',text:e.message||String(e)});}).finally(function(){if(btn){btn.disabled=false;btn.style.opacity='1';btn.style.cursor='pointer';btn.innerHTML=original;}});}
+
+function schoolSmsLoadClasses_(force){if(!canUseSchoolSmsClient_())return Promise.resolve();schoolSmsEnsureCacheScope_();if(!force&&schoolSmsCache_.classes){schoolSmsApplyClasses_(schoolSmsCache_.classes);return Promise.resolve(schoolSmsCache_.classes);}return siwitiSmsPost_(Object.assign({action:'smsSchoolClasses'},schoolSmsAuth_())).then(function(r){if(r.status!=='success')throw new Error(r.message||'Madarasa hayakupatikana.');schoolSmsCache_.classes=r.classes||[];schoolSmsApplyClasses_(schoolSmsCache_.classes);return schoolSmsCache_.classes;}).catch(function(e){console.error('SMS classes:',e);return [];});}
+function schoolSmsApplyClasses_(classes){['smsParentClass','smsSendClass','smsParentListClass'].forEach(function(id){var el=document.getElementById(id);if(!el)return;var label=id==='smsParentListClass'?'Madarasa yote':'Chagua darasa';schoolSmsFillSelect_(id,classes,label);});}
+function schoolSmsLoadStudents_(classId,studentId){var cls=document.getElementById(classId).value,sel=document.getElementById(studentId);if(!cls){sel.innerHTML='<option value="">Chagua mwanafunzi</option>';return Promise.resolve([]);}schoolSmsEnsureCacheScope_();if(schoolSmsCache_.students[cls]){schoolSmsFillStudents_(sel,schoolSmsCache_.students[cls]);return Promise.resolve(schoolSmsCache_.students[cls]);}sel.innerHTML='<option value="">Inapakia...</option>';return siwitiSmsPost_(Object.assign({action:'listStudents',darasa:cls},schoolSmsAuth_())).then(function(r){if(r.status!=='success')throw new Error(r.message||'Orodha ya wanafunzi haijapatikana.');var a=(r.students||[]).map(function(st){return String(st.jina||'').trim();}).filter(Boolean);schoolSmsCache_.students[cls]=a;schoolSmsFillStudents_(sel,a);return a;}).catch(function(e){sel.innerHTML='<option value="">Imeshindikana kupakia</option>';Swal.fire({icon:'error',title:'Wanafunzi hawajapatikana',text:e.message});return [];});}
+function schoolSmsFillStudents_(sel,students){var old=Array.prototype.map.call(sel.selectedOptions||[],function(o){return o.value;});sel.innerHTML='';students.forEach(function(name){var o=document.createElement('option');o.value=name;o.textContent=name;if(old.indexOf(name)>=0)o.selected=true;sel.appendChild(o);});schoolSmsUpdateSelectionCounts_();}
+var schoolSmsEditingParent_=null;
+var schoolSmsParentGroups_=[];
+function schoolSmsCancelParentEdit_(){schoolSmsEditingParent_=null;document.getElementById('smsParentName').value='';document.getElementById('smsParentPhone').value='';document.getElementById('smsParentClass').disabled=false;document.getElementById('smsParentStudent').disabled=false;document.getElementById('smsParentSaveBtn').innerHTML='<i class="fas fa-save"></i> Hifadhi Mzazi';document.getElementById('smsParentCancelEditBtn').classList.add('hidden');}
+function schoolSmsRegisterParent_(){if(!canUseSchoolSmsClient_())return;var editing=schoolSmsEditingParent_,payload=Object.assign({action:editing?'smsParentUpdate':'smsParentRegister',darasa:editing?editing.darasa:document.getElementById('smsParentClass').value,studentName:document.getElementById('smsParentStudent').value,parentName:document.getElementById('smsParentName').value.trim(),phone:document.getElementById('smsParentPhone').value.trim()},schoolSmsAuth_());if(editing){payload.oldParentName=editing.parentName;payload.oldPhone=editing.phone;}if((!editing&&(!payload.darasa||!payload.studentName))||!payload.parentName||!payload.phone){Swal.fire({icon:'warning',title:'Taarifa hazijakamilika',text:editing?'Jaza jina na namba mpya ya mzazi.':'Chagua darasa na mwanafunzi, kisha jaza jina na namba ya mzazi.'});return;}var b=document.getElementById('smsParentSaveBtn');b.disabled=true;b.innerHTML='<i class="fas fa-spinner fa-spin"></i> Inahifadhi...';siwitiSmsPost_(payload).then(function(r){if(r.status!=='success')throw new Error(r.message||'Usajili haukufaulu.');schoolSmsCancelParentEdit_();document.getElementById('smsParentRegisterStatus').textContent=r.message;schoolSmsCache_.parents=null;return schoolSmsLoadParentList_(true).then(function(){Swal.fire({icon:'success',title:editing?'Imehaririwa':'Imehifadhiwa',text:r.message});});}).catch(function(e){Swal.fire({icon:'error',title:'Imeshindikana',text:e.message});}).finally(function(){b.disabled=false;if(!schoolSmsEditingParent_)b.innerHTML='<i class="fas fa-save"></i> Hifadhi Mzazi';});}
+function schoolSmsLoadParentList_(force){if(!canUseSchoolSmsClient_())return Promise.resolve();schoolSmsEnsureCacheScope_();var body=document.getElementById('smsParentListBody'),status=document.getElementById('smsParentListStatus');if(schoolSmsCache_.parents&&!force){schoolSmsRenderParentList_();return Promise.resolve(schoolSmsCache_.parents);}if(force&&status)status.textContent='Inasasisha orodha...';return siwitiSmsPost_(Object.assign({action:'smsParentList'},schoolSmsAuth_())).then(function(r){if(r.status!=='success')throw new Error(r.message||'Orodha ya wazazi haijapatikana.');schoolSmsCache_.parents=r.parents||[];schoolSmsRenderParentList_();return schoolSmsCache_.parents;}).catch(function(e){if(status)status.textContent=e.message;if(body)body.innerHTML='<tr><td colspan="5" style="text-align:center">Imeshindikana kupakia orodha.</td></tr>';return [];});}
+function schoolSmsRenderParentList_(){var body=document.getElementById('smsParentListBody'),status=document.getElementById('smsParentListStatus');if(!body)return;var rows=schoolSmsCache_.parents||[],filter=(document.getElementById('smsParentListClass')||{}).value||'';if(filter)rows=rows.filter(function(x){return x.darasa===filter;});var groups={};rows.forEach(function(x){var k=[x.darasa,x.phone,x.parentName].join('|');if(!groups[k])groups[k]={darasa:x.darasa,parentName:x.parentName,phone:x.phone,students:[]};if(groups[k].students.indexOf(x.studentName)<0)groups[k].students.push(x.studentName);});schoolSmsParentGroups_=Object.keys(groups).map(function(k){return groups[k];}).sort(function(a,b){return a.darasa.localeCompare(b.darasa)||a.parentName.localeCompare(b.parentName);});if(status){var en=schoolSmsCurrentLanguage_()==='en';status.textContent=en?'Parents: '+schoolSmsParentGroups_.length+' | Parent-student links: '+rows.length:'Wazazi: '+schoolSmsParentGroups_.length+' | Mahusiano ya mzazi na mwanafunzi: '+rows.length;}if(!schoolSmsParentGroups_.length){body.innerHTML='<tr><td colspan="5" style="text-align:center;color:#64748b">'+(schoolSmsCurrentLanguage_()==='en'?'No parents registered for this class.':'Hakuna wazazi waliosajiliwa kwa darasa hili.')+'</td></tr>';return;}body.innerHTML=schoolSmsParentGroups_.map(function(x,i){return '<tr><td>'+schoolSmsEscape_(x.darasa)+'</td><td>'+schoolSmsEscape_(x.parentName)+'</td><td>'+schoolSmsEscape_(x.phone)+'</td><td>'+x.students.map(schoolSmsEscape_).join('<br>')+'</td><td><button type="button" class="btn btn-sm btn-outline-primary" onclick="schoolSmsEditParent_('+i+')" title="Hariri"><i class="fas fa-edit"></i></button> <button type="button" class="btn btn-sm btn-outline-danger" onclick="schoolSmsDeleteParent_('+i+')" title="Futa"><i class="fas fa-trash"></i></button></td></tr>';}).join('');}
+function schoolSmsEditParent_(index){var x=schoolSmsParentGroups_[index];if(!x)return;schoolSmsEditingParent_=x;document.getElementById('smsParentClass').value=x.darasa;document.getElementById('smsParentClass').disabled=true;document.getElementById('smsParentStudent').disabled=true;document.getElementById('smsParentName').value=x.parentName;document.getElementById('smsParentPhone').value=x.phone;document.getElementById('smsParentSaveBtn').innerHTML='<i class="fas fa-save"></i> Hifadhi Mabadiliko';document.getElementById('smsParentCancelEditBtn').classList.remove('hidden');document.getElementById('smsParentName').scrollIntoView({behavior:'smooth',block:'center'});}
+function schoolSmsDeleteParent_(index){var x=schoolSmsParentGroups_[index];if(!x)return;Swal.fire({icon:'warning',title:'Futa usajili wa mzazi?',text:'Mzazi '+x.parentName+' ataondolewa kwenye usajili wa wanafunzi '+x.students.join(', ')+' katika '+x.darasa+'.',showCancelButton:true,confirmButtonText:'Ndiyo, futa',cancelButtonText:'Ghairi'}).then(function(c){if(!c.isConfirmed)return;siwitiSmsPost_(Object.assign({action:'smsParentDelete',darasa:x.darasa,parentName:x.parentName,phone:x.phone},schoolSmsAuth_())).then(function(r){if(r.status!=='success')throw new Error(r.message||'Imeshindikana kufuta.');schoolSmsCache_.parents=null;return schoolSmsLoadParentList_(true).then(function(){Swal.fire({icon:'success',title:'Imefutwa',text:r.message});});}).catch(function(e){Swal.fire({icon:'error',title:'Hitilafu',text:e.message});});});}
+function schoolSmsCurrentLanguage_(){try{var v=(window.siwitiCurrentLanguage&&window.siwitiCurrentLanguage())||localStorage.getItem('siwitiUserLanguage')||localStorage.getItem('siwitiLanguage')||localStorage.getItem('language')||document.documentElement.lang||'sw';return String(v).toLowerCase().indexOf('en')===0?'en':'sw';}catch(e){return 'sw';}}
+function schoolSmsTermLabelLocalized_(name,lang){
+ var raw=String(name||'').trim().replace(/\s+/g,' '),en=String(lang||'sw').toLowerCase().indexOf('en')===0;
+ if(!raw)return raw;
+ var labels=en?['First Term','Second Term','Third Term','Fourth Term']:['Muhula wa Kwanza','Muhula wa Pili','Muhula wa Tatu','Muhula wa Nne'];
+ var ord={
+  'kwanza':1,'la kwanza':1,'wa kwanza':1,'ya kwanza':1,'first':1,'1st':1,'one':1,'i':1,'1':1,
+  'pili':2,'la pili':2,'wa pili':2,'ya pili':2,'second':2,'2nd':2,'two':2,'ii':2,'2':2,
+  'tatu':3,'la tatu':3,'wa tatu':3,'ya tatu':3,'third':3,'3rd':3,'three':3,'iii':3,'3':3,
+  'nne':4,'la nne':4,'wa nne':4,'ya nne':4,'fourth':4,'4th':4,'four':4,'iv':4,'4':4
+ };
+ // Match a term label wherever it occurs, including examination names and user-entered prefixes/suffixes.
+ var token='(?:kwanza|pili|tatu|nne|first|second|third|fourth|one|two|three|four|1st|2nd|3rd|4th|i{1,3}|iv|[1-4])';
+ // Translate full examination labels first so no mixed-language fragments remain.
+ var examRules=[
+  [/\b(?:matokeo\s+ya\s+)?mtihani\s+wa\s+muhula\s+wa\s+(kwanza|pili|tatu|nne|i{1,3}|iv|[1-4])\b/ig,function(n){var k=String(n).toLowerCase(),ix=ord[k]||0;return ix?(en?labels[ix-1]+' Examination':'Mtihani wa Muhula wa '+['','Kwanza','Pili','Tatu','Nne'][ix]):n;}],
+  [/\b(?:mtihani|examination|exam)\s+(?:wa|of)\s+(?:the\s+)?(first|second|third|fourth|one|two|three|four|1st|2nd|3rd|4th)\s+term\b/ig,function(n){var k=String(n).toLowerCase(),ix=ord[k]||0;return ix?(en?labels[ix-1]+' Examination':'Mtihani wa Muhula wa '+['','Kwanza','Pili','Tatu','Nne'][ix]):n;}],
+  [/\bmtihani\s+wa\s+mwisho\s+wa\s+mwaka\b/ig,en?'End-of-Year Examination':'Mtihani wa Mwisho wa Mwaka'],
+  [/\bmtihani\s+wa\s+mwisho\s+wa\s+muhula\b/ig,en?'End-of-Term Examination':'Mtihani wa Mwisho wa Muhula'],
+  [/\bmtihani\s+wa\s+nusu\s+(?:ya\s+)?muhula\s+wa\s+(kwanza|pili|tatu)\b/ig,function(n){var ix=ord[String(n).toLowerCase()]||0;return en?labels[ix-1]+' Mid-Term Examination':'Mtihani wa Nusu ya Muhula wa '+['','Kwanza','Pili','Tatu','Nne'][ix];}]
+ ];
+ examRules.forEach(function(rule){raw=raw.replace(rule[0],typeof rule[1]==='function'?function(full,n){return rule[1](n||full);}:rule[1]);});
+ var patterns=[
+  new RegExp('\\b(?:muhula|term)\\s*(?:(?:wa|ya)\\s*)?('+token+')\\b','ig'),
+  new RegExp('\\b('+token+')\\s+(?:term|muhula)\\b','ig'),
+  new RegExp('\\b(?:term|muhula)\\s+(?:number\\s*)?('+token+')\\b','ig')
+ ];
+ patterns.forEach(function(rx){
+  raw=raw.replace(rx,function(full,n){
+   var key=String(n||'').toLowerCase(),num=ord[key]||0;
+   return num?labels[num-1]:full;
+  });
+ });
+ // Also normalize ordinal phrases without the word "term/muhula" only when they are clearly a term title.
+ raw=raw.replace(/\b(?:semester|term)\s*(?:no\.?\s*)?([1-4])\b/ig,function(full,n){return labels[Number(n)-1];});
+ return raw;
+}
+function schoolSmsApplyLanguage_(){
+ var en=schoolSmsCurrentLanguage_()==='en',lang=en?'en':'sw';
+ var aud=(document.getElementById('smsAudienceType')||{}).value||'parents';
+ var dict={
+  smsTabRegisterBtn:en?'Register Parents':'Kusajili Wazazi',smsTabSendBtn:en?'Send SMS':'Tuma SMS',
+  smsParentSaveBtn:en?'Save Parent':'Hifadhi Mzazi',smsParentCancelEditBtn:en?'Cancel editing':'Ghairi kuhariri',
+  smsChooseParentsBtn:en?'Parents':'Wazazi',smsChooseStaffBtn:'Staff',smsCampaignSendBtn:en?'Send SMS':'Tuma SMS'
+ };
+ Object.keys(dict).forEach(function(id){var el=document.getElementById(id);if(el){var icon=el.querySelector('i');if(id==='smsCampaignSendBtn'){var sending=el.dataset.smsSending==='1';if(!icon){icon=document.createElement('i');el.insertBefore(icon,el.firstChild);}icon.className=sending?'fas fa-spinner fa-spin':'fas fa-paper-plane';el.disabled=sending;el.classList.toggle('loading',sending);el.textContent='';el.appendChild(icon);el.appendChild(document.createTextNode(' '+(sending?(en?'Sending...':'Inatuma...'):dict[id])));}else{el.textContent='';if(icon)el.appendChild(icon);el.appendChild(document.createTextNode(' '+dict[id]));}}});
+ function setText(selector,value){var el=document.querySelector(selector);if(el)el.textContent=value;}
+ setText('#schoolSmsDashboard .header h2',en?'SEND SMS':'TUMA SMS');
+ setText('#schoolSmsMenu span',en?'Send SMS':'Tuma SMS');
+ setText('#smsRegisterTab > h3',en?'Register parent/guardian':'Sajili mzazi/mlezi');
+ setText('#smsRegisterTab > .input-group label[for="smsParentClass"]',en?'Class':'Darasa');
+ setText('#smsRegisterTab > .input-group label[for="smsParentStudent"]',en?'Student':'Mwanafunzi');
+ setText('label[for="smsParentName"]',en?'Parent/guardian name':'Jina la mzazi/mlezi');
+ setText('label[for="smsParentPhone"]',en?'Phone number':'Namba ya simu');
+ var pn=document.getElementById('smsParentName');if(pn)pn.placeholder=en?'Enter parent/guardian name':'Andika jina la mzazi/mlezi';
+ var pp=document.getElementById('smsParentPhone');if(pp)pp.placeholder='07XXXXXXXX';
+ setText('#smsRegisterTab section section h3',en?'Parents and students list':'Orodha ya Wazazi na Wanafunzi');
+ setText('#smsRegisterTab section section button',en?'Refresh':'Sasisha');
+ var pl=document.getElementById('smsParentListClass');if(pl){pl.setAttribute('aria-label',en?'Filter by class':'Chuja kwa darasa');if(pl.options.length&&pl.options[0].value==='')pl.options[0].textContent=en?'All classes':'Madarasa yote';}
+ setText('#smsAudienceWorkArea > button',en?'Change audience':'Badili kundi');
+ setText('label[for="smsSenderChoice"]',en?'Message type':'Aina ya Ujumbe');
+ setText('label[for="smsStaffSelect"]',en?'Select one or more staff':'Chagua Staff mmoja au zaidi');
+ setText('label[for="smsSendStudent"]',en?'Select one or more students':'Chagua mwanafunzi mmoja au zaidi');
+ setText('#smsStaffHint',en?'Select staff with a registered phone number.':'Chagua Staff mwenye namba ya simu iliyosajiliwa.');
+ var par=document.querySelector('#smsChooseParentsBtn span');if(par)par.textContent=en?'All, by class or selected':'Wote, darasa au waliochaguliwa';
+ var sta=document.querySelector('#smsChooseStaffBtn span');if(sta)sta.textContent=en?'All or selected':'Wote au waliochaguliwa';
+ var cls=document.getElementById('smsClassScopeBtn');if(cls)cls.innerHTML='<i class="fas fa-users"></i><br><b>'+(en?'Send to class':'Tuma kwa darasa')+'</b>';
+ var sch=Array.from(document.querySelectorAll('#smsScopeChoices button')).find(function(b){return String(b.getAttribute('onclick')||'').indexOf("schoolSmsChooseScope_('school')")>=0;});if(sch)sch.innerHTML='<i class="fas fa-school"></i><br><b>'+(en?'Send to school':'Tuma kwa shule')+'</b>';
+ var sel=Array.from(document.querySelectorAll('#smsScopeChoices button')).find(function(b){return String(b.getAttribute('onclick')||'').indexOf("schoolSmsChooseScope_('single')")>=0;});if(sel)sel.innerHTML='<i class="fas fa-user-check"></i><br><b>'+(en?'Send selected':'Tuma baadhi')+'</b>';
+ var compose=document.getElementById('smsComposeTitle');if(compose){var scope=schoolSmsScope_;compose.textContent=aud==='both'?(en?(scope==='class'?'Send to class parents + all staff':'Send to all parents + all staff'):(scope==='class'?'Tuma SMS kwa Wazazi wa darasa na Staff wote':'Tuma SMS kwa Wazazi na Staff wote wa shule')):en?(aud==='staff'?(scope==='single'?'Send SMS to selected staff':'Send SMS to all staff'):(scope==='class'?'Send SMS to parents in class':scope==='school'?'Send SMS to all parents':'Send SMS to selected students')):(aud==='staff'?(scope==='single'?'Tuma SMS kwa Staff waliochaguliwa':'Tuma SMS kwa Staff wote'):(scope==='class'?'Tuma SMS kwa wazazi wa darasa':scope==='school'?'Tuma SMS kwa wazazi wa shule':'Tuma SMS kwa wanafunzi waliochaguliwa'));}
+ setText('#smsSendTab > section h3',en?'SMS History':'Historia ya SMS');
+ var hist=document.querySelector('#smsSendTab section button[onclick*="schoolSmsLoadHistory_"]');if(hist)hist.innerHTML='<i class="fas fa-rotate"></i> '+(en?'Refresh':'Onyesha upya');
+ setText('label[for="smsSendClass"]',en?'Class':'Darasa');
+ setText('label[for="smsTermSelect"]',en?'Term':'Muhula');
+ setText('label[for="smsNormalMessage"]',en?'Message':'Ujumbe');
+ var msg=document.getElementById('smsNormalMessage');if(msg)msg.placeholder=en?'Enter the message you want to send...':'Andika taarifa unayotaka kutuma...';
+ var termSel=document.getElementById('smsTermSelect');if(termSel){Array.prototype.forEach.call(termSel.options,function(o){if(o.value)o.textContent=schoolSmsTermLabelLocalized_(o.getAttribute('data-original-name')||o.textContent,lang);});}
+ var historyHead=document.querySelector('#smsSendTab section table thead tr');if(historyHead){var th=historyHead.querySelectorAll('th');['Date','Phone number','Message','Status'].forEach(function(v,i){if(th[i])th[i].textContent=en?v:['Tarehe','Namba','Ujumbe','Hali'][i];});}
+ var histStatus=document.getElementById('schoolSmsHistoryStatus');if(histStatus&&(!schoolSmsCache_.history||!schoolSmsCache_.history.length))histStatus.textContent=en?'No history loaded.':'Hakuna historia iliyopakiwa.';
+ var registerBtn=document.getElementById('smsParentSaveBtn');if(registerBtn&&!schoolSmsEditingParent_)registerBtn.innerHTML='<i class="fas fa-save"></i> '+(en?'Save Parent':'Hifadhi Mzazi');
+ var parentHeaders=document.querySelectorAll('#smsRegisterTab table thead th');var parentHeadings=en?['Class','Parent/guardian name','Phone number','Linked students','Actions']:['Darasa','Jina la Mzazi/Mlezi','Namba ya Simu','Wanafunzi wake','Vitendo'];Array.prototype.forEach.call(parentHeaders,function(th,i){if(parentHeadings[i])th.textContent=parentHeadings[i];});
+ var parentStatus=document.getElementById('smsParentListStatus');if(parentStatus&&(!schoolSmsCache_.parents||!schoolSmsCache_.parents.length))parentStatus.textContent=en?'No parent records.':'Hakuna taarifa.';
+ [['smsParentClass',en?'Select class':'Chagua darasa'],['smsParentStudent',en?'Select student':'Chagua mwanafunzi'],['smsParentListClass',en?'All classes':'Madarasa yote'],['smsSendClass',en?'Select class':'Chagua darasa']].forEach(function(pair){var el=document.getElementById(pair[0]);if(el&&el.options.length&&el.options[0].value==='')el.options[0].textContent=pair[1];});
+ if(schoolSmsStaffCache_&&document.getElementById('smsStaffSelect'))schoolSmsFillStaff_(document.getElementById('smsStaffSelect'),schoolSmsStaffCache_);
+ schoolSmsUpdateSelectionCounts_();
+ if(schoolSmsCache_.parents)schoolSmsRenderParentList_();
+}
+
+function schoolSmsUpdateSelectionCounts_(){
+ var en=schoolSmsCurrentLanguage_()==='en';
+ var students=document.getElementById('smsSendStudent'),staff=document.getElementById('smsStaffSelect');
+ var sc=students?Array.prototype.filter.call(students.selectedOptions,function(o){return !!o.value;}).length:0;
+ var tc=staff?Array.prototype.filter.call(staff.selectedOptions,function(o){return !!o.value;}).length:0;
+ var so=document.getElementById('smsStudentSelectionCount'),to=document.getElementById('smsStaffSelectionCount');
+ if(so)so.textContent=en?(sc+' student(s) selected.'):(sc+' wanafunzi wamechaguliwa.');
+ if(to)to.textContent=en?(tc+' staff member(s) selected.'):(tc+' Staff wamechaguliwa.');
+}
+
+var schoolSmsStaffCache_=null;
+function schoolSmsSelectAudience_(aud){
+ if(!canUseSchoolSmsClient_())return;
+ document.getElementById('smsAudienceType').value=aud;
+ document.getElementById('smsAudienceCards').classList.add('hidden');
+ document.getElementById('smsAudienceWorkArea').classList.remove('hidden');
+ document.getElementById('smsStaffWrap').classList.add('hidden');
+ document.getElementById('smsParentMessageTypeWrap').classList.toggle('hidden',aud!=='parents');
+ document.getElementById('smsStaffSenderWrap').classList.add('hidden');
+ document.getElementById('smsMessageTypeWrap').classList.add('hidden');
+ document.getElementById('smsScopeChoices').style.gridTemplateColumns=aud==='staff'?'repeat(2,minmax(0,1fr))':'repeat(3,minmax(0,1fr))';
+ document.getElementById('smsClassScopeBtn').classList.toggle('hidden',aud==='staff');
+ if(aud==='staff'){
+   document.getElementById('smsMessageType').value='normal';
+   document.getElementById('smsTermWrap').classList.add('hidden');
+   document.getElementById('smsNormalMessageWrap').classList.remove('hidden');
+   schoolSmsLoadSenderIds_().then(function(){schoolSmsUpdateStaffSenderUI_();});
+ }else{
+   schoolSmsParentMessageChoice_();
+   schoolSmsLoadSenderIds_();
+ }
+ schoolSmsScope_='';
+ document.getElementById('smsComposePanel').classList.add('hidden');
+ schoolSmsApplyLanguage_();
+}
+function schoolSmsUpdateStaffSenderUI_(){
+ var wrap=document.getElementById('smsStaffSenderWrap'),sel=document.getElementById('smsStaffSenderChoice');
+ if(!wrap||!sel)return;
+ var audience=String((document.getElementById('smsAudienceType')||{}).value||'parents').toLowerCase();
+ // The Staff selector must never appear in the Parents workflow.
+ if(audience!=='staff'){wrap.classList.add('hidden');return;}
+ wrap.classList.remove('hidden');
+ if(!sel.value&&sel.options.length>1)sel.selectedIndex=0;
+}
+function schoolSmsBackToAudience_(){
+  schoolSmsScope_='';
+  document.getElementById('smsAudienceWorkArea').classList.add('hidden');
+  document.getElementById('smsAudienceCards').classList.remove('hidden');
+  document.getElementById('smsComposePanel').classList.add('hidden');
+  document.getElementById('smsStaffWrap').classList.add('hidden');
+  document.getElementById('smsStaffSelect').innerHTML='<option value="">Staff wote</option>';
+  document.getElementById('smsAudienceType').value='parents';schoolSmsApplyLanguage_();
+}
+function schoolSmsAudienceChanged_(){schoolSmsSelectAudience_(document.getElementById('smsAudienceType').value||'parents');}
+function schoolSmsParentMessageChoice_(){var v=String(document.getElementById('smsSenderChoice').value||'').trim().toUpperCase();document.getElementById('smsMessageType').value=v==='MATOKEO'?'results':'normal';schoolSmsMessageTypeChanged_();}
+function schoolSmsLoadStaff_(){var sel=document.getElementById('smsStaffSelect');if(!sel)return Promise.resolve([]);if(schoolSmsStaffCache_){schoolSmsFillStaff_(sel,schoolSmsStaffCache_);return Promise.resolve(schoolSmsStaffCache_);}sel.innerHTML='<option value="">'+(schoolSmsCurrentLanguage_()==='en'?'Loading staff...':'Inapakia Staff...')+'</option>';return siwitiSmsPost_(Object.assign({action:'smsSchoolStaff'},schoolSmsAuth_())).then(function(r){if(r.status!=='success')throw new Error(r.message||'Staff hawakupatikana.');schoolSmsStaffCache_=r.staff||[];schoolSmsFillStaff_(sel,schoolSmsStaffCache_);return schoolSmsStaffCache_;}).catch(function(e){sel.innerHTML='<option value="">'+(schoolSmsCurrentLanguage_()==='en'?'Staff list unavailable':'Namba za Staff hazijapatikana')+'</option>';Swal.fire({icon:'warning',title:schoolSmsCurrentLanguage_()==='en'?'Staff information':'Taarifa za Staff',text:e.message});return [];});}
+function schoolSmsFillStaff_(sel,staff){
+  var one=(schoolSmsScope_==='single'&&(document.getElementById('smsAudienceType')||{}).value==='staff');
+  var previous=sel.value;
+  var en=schoolSmsCurrentLanguage_()==='en';sel.innerHTML=one?'<option value="">'+(en?'Select staff':'Chagua Staff')+'</option>':'<option value="">'+(en?'All staff':'Staff wote')+'</option>';
+  (staff||[]).forEach(function(x){
+    var hasPhone=!!String(x.phone||'').trim();
+    var o=document.createElement('option');
+    o.value=hasPhone?String(x.email||''):'';
+    o.textContent=String(x.name||'Staff')+(hasPhone?'':(en?' — No phone number':' — Namba haijawekwa'));
+    o.disabled=!hasPhone;
+    if(!hasPhone)o.title=en?'Add a phone number in Staff Management':'Ongeza namba ya simu kupitia Usimamizi wa Staff';
+    sel.appendChild(o);
+  });
+  if(previous)sel.value=previous;
+  schoolSmsUpdateSelectionCounts_();
+}
+
+function schoolSmsSaveStaffPhone_(i){var x=(window.schoolSmsStaffRows_||[])[i],el=document.getElementById('smsStaffPhone_'+i);if(!x||!el)return;siwitiSmsPost_(Object.assign({action:'smsStaffContactSave',staffEmail:x.email,phone:el.value.trim()},schoolSmsAuth_())).then(function(r){if(r.status!=='success')throw new Error(r.message||'Imeshindikana kuhifadhi.');schoolSmsStaffCache_=null;return schoolSmsLoadStaff_().then(function(){Swal.fire({icon:'success',title:'Imehifadhiwa',text:r.message});});}).catch(function(e){Swal.fire({icon:'error',title:'Hitilafu',text:e.message});});}
+function siwitiRenderSenderIds_(senders){
+ var approved=(senders||[]).filter(function(x){return x.configured&&String(x.status||'').toLowerCase()==='approved'&&String(x.type||'').toLowerCase()!=='public';});
+ var el=document.getElementById('siwitiSenderIdsList');
+ if(el)el.innerHTML='<b>Approved Sender IDs (zisizo Public):</b> '+(approved.length?approved.map(function(x){return '<span style="display:inline-block;padding:4px 8px;border-radius:8px;background:#e0f2fe;margin:4px">'+schoolSmsEscape_(x.name)+' — approved</span>';}).join(''):'<span style="color:#b91c1c">Hakuna Sender ID inayokidhi masharti.</span>');
+ schoolSmsLoadSenderIds_();
+}
+function siwitiFetchAllSenderIds_(){var token=localStorage.getItem('siwitiDeveloperSessionToken')||'';siwitiSmsPost_({action:'smsDeveloperFetchAllSenders',developerSessionToken:token}).then(function(r){if(r.status!=='success')throw new Error(r.message||'Imeshindikana kusoma Sender IDs.');siwitiRenderSenderIds_(r.senders||[]);Swal.fire({icon:'success',title:'Sender IDs zimesasishwa',text:r.message});}).catch(function(e){Swal.fire({icon:'error',title:'Hitilafu',text:e.message});});}
+
+var schoolSmsActiveProvider_='';
+var schoolSmsScope_='';
+function schoolSmsChooseScope_(scope){var aud=document.getElementById('smsAudienceType').value||'parents';if(aud==='staff'&&scope==='class')return;schoolSmsScope_=scope;document.getElementById('smsComposePanel').classList.remove('hidden');document.getElementById('smsComposeTitle').textContent=aud==='staff'?(scope==='single'?'Tuma SMS kwa Staff waliochaguliwa':'Tuma SMS kwa Staff wote'):(scope==='class'?'Tuma SMS kwa wazazi wa darasa':scope==='school'?'Tuma SMS kwa wazazi wa shule':'Tuma SMS kwa wazazi waliochaguliwa');document.getElementById('smsClassWrap').classList.toggle('hidden',scope==='school'||aud==='staff');document.getElementById('smsStudentWrap').classList.toggle('hidden',scope!=='single'||aud==='staff');document.getElementById('smsStaffWrap').classList.toggle('hidden',!(aud==='staff'&&scope==='single'));document.getElementById('smsSendClass').value='';document.getElementById('smsSendStudent').innerHTML='';if(aud==='staff'){ 
+  document.getElementById('smsMessageType').value='normal';
+  document.getElementById('smsNormalMessageWrap').classList.remove('hidden');
+  document.getElementById('smsTermWrap').classList.add('hidden');schoolSmsUpdateCount_();
+  if(scope==='single'){
+    document.getElementById('smsStaffSelect').value='';
+    schoolSmsLoadStaff_();
+  }else{
+    document.getElementById('smsStaffSelect').innerHTML='<option value="">Staff wote</option>';
+  }
+}else schoolSmsParentMessageChoice_();schoolSmsApplyLanguage_();}
+function schoolSmsMessageTypeChanged_(){var results=document.getElementById('smsMessageType').value==='results';document.getElementById('smsTermWrap').classList.toggle('hidden',!results);document.getElementById('smsNormalMessageWrap').classList.toggle('hidden',results);if(results)schoolSmsLoadTerms_();}
+function schoolSmsLoadTerms_(){var sel=document.getElementById('smsTermSelect');if(!sel||sel.dataset.loaded==='1')return;var en=schoolSmsCurrentLanguage_()==='en';sel.innerHTML='<option value="">'+(en?'Loading terms...':'Inapakia mihula...')+'</option>';siwitiSmsPost_({action:'listTerms',dbId:currentDbId}).then(function(r){if(r.status!=='success')throw new Error(r.message||(en?'Terms unavailable':'Mihula haijapatikana.'));sel.innerHTML='<option value="">'+(schoolSmsCurrentLanguage_()==='en'?'Select term':'Chagua muhula')+'</option>';(r.terms||[]).forEach(function(t){var o=document.createElement('option');o.value=t.id;o.setAttribute('data-original-name',t.name);o.textContent=schoolSmsTermLabelLocalized_(t.name,schoolSmsCurrentLanguage_());sel.appendChild(o);});sel.dataset.loaded='1';schoolSmsApplyLanguage_();}).catch(function(e){sel.innerHTML='<option value="">'+(schoolSmsCurrentLanguage_()==='en'?'Terms unavailable':'Mihula haijapatikana')+'</option>';Swal.fire({icon:'error',title:schoolSmsCurrentLanguage_()==='en'?'Terms unavailable':'Mihula haijapatikana',text:e.message});});}
+function schoolSmsCountSegments_(value){
+ var gsmBasic="@£$¥èéùìòÇ\nØø\rÅåΔ_ΦΓΛΩΠΨΣΘΞÆæßÉ !\"#¤%&'()*+,-./0123456789:;<=>?¡ABCDEFGHIJKLMNOPQRSTUVWXYZÄÖÑÜ§¿abcdefghijklmnopqrstuvwxyzäöñüà";
+ var gsmExt="^{}\\[~]|€\f",s=String(value||''),gsm=true,units=0;
+ for(var i=0;i<s.length;i++){var c=s.charAt(i);if(gsmBasic.indexOf(c)>=0)units++;else if(gsmExt.indexOf(c)>=0)units+=2;else{gsm=false;break;}}
+ if(gsm)return {encoding:'GSM-7',count:units,limit:160,remaining:160-units,valid:units<=160};
+ var unicodeUnits=0;for(var j=0;j<s.length;j++){var code=s.charCodeAt(j);if(code>=0xD800&&code<=0xDBFF&&j+1<s.length&&s.charCodeAt(j+1)>=0xDC00&&s.charCodeAt(j+1)<=0xDFFF){unicodeUnits+=2;j++;}else unicodeUnits++;}
+ return {encoding:'Unicode',count:unicodeUnits,limit:70,remaining:70-unicodeUnits,valid:unicodeUnits<=70};
+}
+function schoolSmsUpdateCount_(){
+ var el=document.getElementById('smsNormalMessage'),out=document.getElementById('smsMessageCount');if(!el||!out)return;
+ var info=schoolSmsCountSegments_(el.value);
+ if(!info.valid){var s=el.value;while(s&& !schoolSmsCountSegments_(s).valid)s=s.slice(0,-1);el.value=s;info=schoolSmsCountSegments_(s);}
+ out.textContent=info.count+' / '+info.limit+' '+info.encoding+(info.valid?' · '+info.remaining+' left':' · LIMIT EXCEEDED');
+ out.style.color=info.valid?'#166534':'#b91c1c';
+ el.setAttribute('maxlength',info.encoding==='GSM-7'?'160':'70');
+}
+function schoolSmsSendCampaign_(){
+ if(!canUseSchoolSmsClient_()||!schoolSmsScope_)return;
+ var aud=document.getElementById('smsAudienceType').value||'parents',type=aud==='staff'?'normal':document.getElementById('smsMessageType').value,cls=document.getElementById('smsSendClass').value;
+ var studentSelect=document.getElementById('smsSendStudent'),staffSelect=document.getElementById('smsStaffSelect');
+ var studentNames=studentSelect?Array.prototype.map.call(studentSelect.selectedOptions,function(o){return o.value;}).filter(Boolean):[];
+ var staffEmails=staffSelect?Array.prototype.map.call(staffSelect.selectedOptions,function(o){return o.value;}).filter(Boolean):[];
+ var term=document.getElementById('smsTermSelect').value,message=document.getElementById('smsNormalMessage').value.trim(),senderSelect=document.getElementById('smsSenderChoice'),staffSenderSelect=document.getElementById('smsStaffSenderChoice'),senderName=aud==='staff'?String(staffSenderSelect&&staffSenderSelect.value||'').trim().toUpperCase():String(senderSelect&&senderSelect.value||'').trim().toUpperCase();
+ if(aud==='parents'&&schoolSmsScope_!=='school'&&!cls){Swal.fire({icon:'warning',title:schoolSmsCurrentLanguage_()==='en'?'Select class':'Chagua darasa'});return;}
+ if(aud==='parents'&&schoolSmsScope_==='single'&&!studentNames.length){Swal.fire({icon:'warning',title:schoolSmsCurrentLanguage_()==='en'?'Select at least one student':'Chagua angalau mwanafunzi mmoja'});return;}
+ if(aud==='staff'&&schoolSmsScope_==='single'&&!staffEmails.length){Swal.fire({icon:'warning',title:schoolSmsCurrentLanguage_()==='en'?'Select at least one staff member':'Chagua angalau Staff mmoja'});return;}
+ if(type==='results'&&(aud!=='parents'||!term)){Swal.fire({icon:'warning',title:'Chagua muhula wa matokeo'});return;}
+ if(type==='normal'&&!message){Swal.fire({icon:'warning',title:schoolSmsCurrentLanguage_()==='en'?'Enter message':'Andika taarifa unayotaka kutuma'});return;}
+ if(type==='normal'){var smsLen=schoolSmsCountSegments_(message);if(!smsLen.valid){Swal.fire({icon:'error',title:schoolSmsCurrentLanguage_()==='en'?'Single SMS limit exceeded':'Ujumbe umezidi SMS moja',text:(schoolSmsCurrentLanguage_()==='en'?'This message uses ':'Ujumbe una ')+smsLen.count+' '+smsLen.encoding+' '+(schoolSmsCurrentLanguage_()==='en'?'units; maximum is ':'; kiwango cha juu ni ')+smsLen.limit+'.'});return;}}
+ var count=aud==='staff'?(schoolSmsScope_==='single'?staffEmails.length:null):(schoolSmsScope_==='single'?studentNames.length:null);
+ var label=aud==='staff'?(count===null?'Staff wote':count+' Staff waliochaguliwa'):(schoolSmsScope_==='school'?'wazazi wa shule nzima':schoolSmsScope_==='class'?'wazazi wa '+cls:studentNames.length+' wanafunzi waliochaguliwa');
+ var en=schoolSmsCurrentLanguage_()==='en';
+ if(aud==='parents'&&!senderName){Swal.fire({icon:'warning',title:en?'Choose an approved Sender ID':'Chagua Sender ID iliyoidhinishwa',text:en?'Select an approved Sender ID before sending.':'Chagua Sender ID iliyoidhinishwa kwenye sehemu ya Aina ya Ujumbe kabla ya kutuma.'});return;}
+ if(aud==='staff'&&(!senderName||senderName==='MATOKEO')){Swal.fire({icon:'warning',title:en?'Choose a Staff Sender ID':'Chagua Aina ya Ujumbe kwa Staff',text:en?'Select an approved Sender ID other than MATOKEO.':'Chagua Sender ID iliyoidhinishwa kwa Staff. MATOKEO hairuhusiwi.'});return;}
+ Swal.fire({title:en?'Confirm sending':'Thibitisha utumaji',text:(en?'SMS will be sent to ':'Ujumbe utatumwa kwa ')+label+'.',icon:'question',showCancelButton:true,confirmButtonText:en?'Send SMS':'Tuma SMS',cancelButtonText:en?'Cancel':'Ghairi'}).then(function(c){
+  if(!c.isConfirmed)return;var b=document.getElementById('smsCampaignSendBtn');if(!b)return;b.dataset.smsSending='1';b.disabled=true;b.classList.add('loading');b.innerHTML='<i class="fas fa-spinner fa-spin"></i> '+(en?'Sending...':'Inatuma...');
+  var payload=Object.assign({action:type==='results'?'smsParentCampaign':'smsGeneralCampaign',audience:aud,scope:schoolSmsScope_,darasa:cls,studentName:studentNames[0]||'',studentNames:studentNames,staffEmail:staffEmails[0]||'',staffEmails:staffEmails,senderName:senderName,messageType:type,termId:term,message:message,language:schoolSmsCurrentLanguage_(),requestId:'campaign_'+Date.now()+'_'+Math.random().toString(36).slice(2)},schoolSmsAuth_());
+  var restoreSendButton=function(){if(!b)return;delete b.dataset.smsSending;b.disabled=!schoolSmsCreditState_.enabled||schoolSmsCreditState_.balance<=0||(typeof navigator!=='undefined'&&!navigator.onLine);b.classList.remove('loading');var enNow=schoolSmsCurrentLanguage_()==='en';b.innerHTML='<i class="fas fa-paper-plane"></i> '+(enNow?'Send SMS':'Tuma SMS');};
+  siwitiSmsPost_(payload).then(function(r){if(r.status==='success'||r.status==='partial'){restoreSendButton();var sentCount=Math.max(0,Number(r.accepted||r.sent||r.count||0));var successText;if(en){successText=sentCount===1?'1 SMS has been submitted.':(sentCount+' SMS messages have been submitted.');if(r.status==='partial')successText+=' Some messages could not be submitted. Check the SMS history.';}else{successText=sentCount===1?'SMS 1 imepokelewa kwa ajili ya kutumwa.':('SMS '+sentCount+' zimepokelewa kwa ajili ya kutumwa.');if(r.status==='partial')successText+=' Baadhi ya SMS hazikuweza kuwasilishwa. Angalia historia ya SMS.';}Swal.fire({icon:r.status==='success'?'success':'warning',title:r.status==='success'?(en?'Completed':'Imekamilika'):(en?'Partially completed':'Imekamilika kwa sehemu'),text:successText});schoolSmsLoadCredit_(true);schoolSmsLoadHistory_(true);}else throw new Error(r.message||'SMS_SUBMISSION_FAILED');}).catch(function(err){restoreSendButton();var detail=String(err&&err.message||'');Swal.fire({icon:'error',title:en?'Not completed':'Haijakamilika',text:detail&&detail!=='SMS_SUBMISSION_FAILED'?detail:(en?'SMS could not be submitted. Please try again or contact your school administrator.':'SMS hazikuweza kuwasilishwa. Tafadhali jaribu tena au wasiliana na msimamizi wa shule.')});}).finally(function(){restoreSendButton();schoolSmsApplyLanguage_();});
+ });
+}
+function schoolSmsEscape_(v){return String(v==null?'':v).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}
+function schoolSmsLoadHistory_(force){var status=document.getElementById('schoolSmsHistoryStatus'),body=document.getElementById('schoolSmsHistoryBody');if(!body||!canUseSchoolSmsClient_())return Promise.resolve();schoolSmsEnsureCacheScope_();if(schoolSmsCache_.history&&!force){schoolSmsRenderHistory_(schoolSmsCache_.history);return Promise.resolve(schoolSmsCache_.history);}if(force&&status)status.textContent='Inasasisha...';return siwitiSmsPost_(Object.assign({action:'smsSchoolHistory'},schoolSmsAuth_())).then(function(r){if(r.status!=='success')throw new Error(r.message||'Historia haijapatikana.');schoolSmsCache_.history=r.history||[];schoolSmsRenderHistory_(schoolSmsCache_.history);return schoolSmsCache_.history;}).catch(function(e){if(status)status.textContent=e.message;return [];});}
+function schoolSmsStatusLabel_(raw,en){var s=String(raw||'').toLowerCase();var m={queued:en?'Accepted – awaiting delivery':'Imepokelewa – inasubiri kutumwa',processing:en?'Processing':'Inachakatwa',sent:en?'Sent to network':'Imetumwa kwa mtandao',delivered:en?'Delivered':'Imefika kwa mpokeaji',failed:en?'Failed':'Imeshindwa',scheduled:en?'Scheduled':'Imepangwa',pending:en?'Pending':'Inasubiri'};return m[s]||raw||'-';}
+function schoolSmsRenderHistory_(rows){var status=document.getElementById('schoolSmsHistoryStatus'),body=document.getElementById('schoolSmsHistoryBody'),en=schoolSmsCurrentLanguage_()==='en';if(!body)return;if(status)status.textContent=(en?'SMS records: ':'SMS: ')+rows.length;body.innerHTML=rows.length?rows.map(function(x){return '<tr><td>'+schoolSmsEscape_(x.timestamp?new Date(x.timestamp).toLocaleString():'-')+'</td><td>'+schoolSmsEscape_(x.recipient)+'</td><td>'+schoolSmsEscape_(x.message)+'</td><td>'+schoolSmsEscape_(schoolSmsStatusLabel_(x.status,en))+'</td></tr>';}).join(''):'<tr><td colspan="4">'+(en?'No SMS records.':'Hakuna SMS zilizorekodiwa.')+'</td></tr>';}
+
+function siwitiSmsDeveloperToken_(){return localStorage.getItem('siwitiDeveloperSessionToken')||'';}
+function siwitiSaveSwalaConfig_(){var token=siwitiSmsDeveloperToken_(),apiToken=document.getElementById('siwitiSwalaToken').value.trim(),baseUrl=document.getElementById('siwitiSwalaBaseUrl').value.trim(),sendPath=document.getElementById('siwitiSwalaSendPath').value.trim(),sendersPath=document.getElementById('siwitiSwalaSendersPath').value.trim(),enabled=document.getElementById('siwitiSwalaEnabled').checked;if(!token){Swal.fire({icon:'error',title:'Ingia tena',text:'Developer session haipo.'});return;}if(!apiToken){Swal.fire({icon:'warning',title:'API Token inahitajika',text:'Weka SwalaSMS API Token mpya.'});return;}Swal.fire({title:'Inahifadhi SwalaSMS...',allowOutsideClick:false,didOpen:function(){Swal.showLoading();}});siwitiSmsPost_({action:'smsDeveloperSaveSwalaConfig',developerSessionToken:token,apiToken:apiToken,baseUrl:baseUrl,sendPath:sendPath,sendersPath:sendersPath,enabled:enabled}).then(function(r){if(r.status!=='success')throw new Error(r.message||'Imeshindikana kuhifadhi.');document.getElementById('siwitiSwalaToken').value='';Swal.fire({icon:'success',title:'Imehifadhiwa',text:r.message});}).catch(function(e){Swal.fire({icon:'error',title:'Hitilafu',text:e.message||String(e)});});}
+function siwitiTestSwala_(){siwitiSmsPost_({action:'smsDeveloperTestSwala',developerSessionToken:siwitiSmsDeveloperToken_()}).then(function(r){if(r.status!=='success')throw new Error(r.message||'Connection test imeshindwa.');Swal.fire({icon:'success',title:'Connection successful',text:r.message});}).catch(function(e){Swal.fire({icon:'error',title:'Connection failed',text:e.message||String(e)});});}
+function siwitiFetchSwalaSenders_(){Swal.fire({title:'Inatafuta Approved Sender IDs...',allowOutsideClick:false,didOpen:function(){Swal.showLoading();}});siwitiSmsPost_({action:'smsDeveloperFetchSwalaSenders',developerSessionToken:siwitiSmsDeveloperToken_()}).then(function(r){if(r.status!=='success')throw new Error(r.message||'Imeshindikana kupata Sender IDs.');siwitiRenderSenderIds_(r.senders||[]);var box=document.getElementById('siwitiSwalaSendersList');if(box)box.textContent='Approved Sender IDs zilizopatikana: '+(r.senders||[]).length;Swal.fire({icon:'success',title:'Sender IDs zimesasishwa',text:r.message});}).catch(function(e){Swal.fire({icon:'error',title:'Hitilafu',text:e.message||String(e)});});}
+function siwitiSaveFreeTrialProvider_(){var el=document.getElementById('siwitiSmsFreeTrialProvider');if(!el)return;var provider=el.value;Swal.fire({icon:'question',title:'Badilisha Provider wa FREE TRIAL?',text:'SMS za shule zenye kifurushi cha FREE TRIAL zitatumia '+provider+'. Kifurushi cha PAID kitaendelea kutumia Provider Switching ya kawaida bila kubadilika.',showCancelButton:true,confirmButtonText:'Hifadhi',cancelButtonText:'Ghairi'}).then(function(x){if(!x.isConfirmed)return;siwitiSmsPost_({action:'smsDeveloperSaveFreeTrialProvider',developerSessionToken:siwitiSmsDeveloperToken_(),freeTrialProvider:provider}).then(function(r){if(r.status!=='success')throw new Error(r.message||'Imeshindikana kuhifadhi Provider wa FREE TRIAL.');var status=document.getElementById('siwitiSmsPackageProviderStatus');if(status)status.textContent='FREE TRIAL: '+r.freeTrialProvider+' | PAID: inatumia Provider Switching ya kawaida ('+(r.activeProvider||'eHUB')+').';Swal.fire({icon:'success',title:'Imehifadhiwa',text:r.message});schoolSmsSenderCache_={items:null,provider:'',expiresAt:0,promise:null};schoolSmsLoadSenderIds_(true);}).catch(function(e){Swal.fire({icon:'error',title:'Hitilafu',text:e.message||String(e)});});});}
+function siwitiSwitchSmsProvider_(){var provider=document.getElementById('siwitiSmsActiveProvider').value;Swal.fire({icon:'question',title:'Badilisha SMS Provider?',text:'Mfumo mzima utaanza kutumia '+provider+'. Watumiaji wa shule hawataona mabadiliko.',showCancelButton:true,confirmButtonText:'Ndiyo, badilisha',cancelButtonText:'Ghairi'}).then(function(x){if(!x.isConfirmed)return;siwitiSmsPost_({action:'smsDeveloperSwitchProvider',developerSessionToken:siwitiSmsDeveloperToken_(),provider:provider}).then(function(r){if(r.status!=='success')throw new Error(r.message||'Provider switch imeshindwa.');var s=document.getElementById('siwitiSmsProviderStatus');if(s)s.textContent='Provider anayefanya kazi sasa: '+r.activeProvider;Swal.fire({icon:'success',title:'Provider amebadilishwa',text:r.message});siwitiLoadEhubWallet_();siwitiFetchAllSenderIds_();schoolSmsLoadSenderIds_();}).catch(function(e){Swal.fire({icon:'error',title:'Haikuwezekana kubadilisha',text:e.message||String(e)});});});}
+var schoolSmsSenderCache_={items:null,provider:'',expiresAt:0,promise:null};
+function schoolSmsIsDeveloperSender_(name){var n=String(name||'').toUpperCase();var blocked=['MFUMO','SOFTWARE','OTP','SIWITI','SYSTEM','MAINTENANCE','MATENGENEZO','MABORESHO','DEVELOPER','MSANIDI','UPDATE','UPDATES','SUPPORT','ADMIN','TEST'];return blocked.some(function(w){return new RegExp('(^|[^A-Z0-9])'+w+'([^A-Z0-9]|$)').test(n);});}
+function schoolSmsLoadSenderIds_(forceRefresh){
+ if(!canUseSchoolSmsClient_())return Promise.resolve([]);
+ var parentSelect=document.getElementById('smsSenderChoice');
+ var staffSelect=document.getElementById('smsStaffSenderChoice');
+ function setLoading(sel){
+  if(!sel)return;
+  sel.disabled=true;sel.innerHTML='';
+  var opt=document.createElement('option');opt.value='';opt.textContent='Inapakia Aina ya Ujumbe...';sel.appendChild(opt);
+ }
+ function fill(sel,list,previous){
+  if(!sel)return;
+  sel.innerHTML='';
+  list.forEach(function(x){var o=document.createElement('option');o.value=x.name;o.textContent=x.name;sel.appendChild(o);});
+  if(!list.length){
+   var empty=document.createElement('option');empty.value='';
+   empty.textContent='Aina za Ujumbe hazijapatikana — gusa kujaribu tena';
+   sel.appendChild(empty);sel.disabled=false;
+   sel.onfocus=function(){if(!sel.dataset.retrying){sel.dataset.retrying='1';schoolSmsLoadSenderIds_(true).finally(function(){delete sel.dataset.retrying;});}};
+   return;
+  }
+  sel.onfocus=null;
+  if(previous&&list.some(function(x){return x.name===previous;}))sel.value=previous;
+  else sel.selectedIndex=0;
+  sel.disabled=false;
+ }
+ if(!forceRefresh&&schoolSmsSenderCache_.items&&Date.now()<schoolSmsSenderCache_.expiresAt){
+  var cached=schoolSmsSenderCache_.items,provider=schoolSmsSenderCache_.provider;
+  schoolSmsActiveProvider_=provider;
+  var oldP=parentSelect?parentSelect.value:'',oldS=staffSelect?staffSelect.value:'';
+  fill(parentSelect,cached,oldP);
+  fill(staffSelect,cached.filter(function(x){return String(x.name||'').toUpperCase()!=='MATOKEO';}),oldS);
+  if(parentSelect&&String((document.getElementById('smsAudienceType')||{}).value||'parents')==='parents')schoolSmsParentMessageChoice_();
+  schoolSmsUpdateStaffSenderUI_();
+  return Promise.resolve(cached);
+ }
+ if(!forceRefresh&&schoolSmsSenderCache_.promise)return schoolSmsSenderCache_.promise;
+ setLoading(parentSelect);setLoading(staffSelect);
+ var request=siwitiSmsPost_(Object.assign({action:'smsSchoolSenders'},schoolSmsAuth_())).then(function(r){
+  if(r.status!=='success')throw new Error(r.message||'Sender IDs hazikupatikana.');
+  schoolSmsActiveProvider_=String(r.provider||'');
+  var eligible=(r.senders||[]).filter(function(x){
+   return !schoolSmsIsDeveloperSender_(x.name)&&String(x.status||'').toLowerCase()==='approved'&&x.configured===true&&x.eligible!==false&&
+    (r.provider!=='eHUB'||['own','shared'].indexOf(String(x.type||'').toLowerCase())>=0);
+  });
+  var oldP=parentSelect?parentSelect.value:'',oldS=staffSelect?staffSelect.value:'';
+  fill(parentSelect,eligible,oldP);
+  fill(staffSelect,eligible.filter(function(x){return String(x.name||'').trim().toUpperCase()!=='MATOKEO';}),oldS);
+  schoolSmsSenderCache_={items:eligible,provider:schoolSmsActiveProvider_,expiresAt:Date.now()+60000,promise:null};
+  if(parentSelect&&eligible.length&&String((document.getElementById('smsAudienceType')||{}).value||'parents')==='parents')schoolSmsParentMessageChoice_();
+  schoolSmsUpdateStaffSenderUI_();
+  if(!eligible.length)throw new Error('Hakuna aina ya ujumbe iliyoidhinishwa kwa sasa.');
+  return eligible;
+ }).catch(function(e){
+  [parentSelect,staffSelect].forEach(function(sel){
+   if(!sel)return;sel.innerHTML='';
+   var opt=document.createElement('option');opt.value='';opt.textContent='Aina za Ujumbe hazijapatikana — gusa kujaribu tena';
+   sel.appendChild(opt);sel.disabled=false;
+   sel.onfocus=function(){schoolSmsLoadSenderIds_(true);};
+  });
+  schoolSmsSenderCache_={items:null,provider:'',expiresAt:0,promise:null};
+  console.warn('SMS Sender IDs unavailable:',e.message);
+  return [];
+ }).finally(function(){schoolSmsSenderCache_.promise=null;});
+ schoolSmsSenderCache_.promise=request;
+ return request;
+}
+function siwitiSaveEhubConfig_(){var token=localStorage.getItem('siwitiDeveloperSessionToken')||'';if(!token){Swal.fire({icon:'error',title:'Ingia tena',text:'Developer session haipo.'});return;}var key=document.getElementById('siwitiEhubKey').value.trim(),secret=document.getElementById('siwitiEhubSecret').value.trim(),uuid=document.getElementById('siwitiEhubSenderUuid').value.trim(),name=document.getElementById('siwitiEhubSenderName').value.trim()||'MATOKEO',enabled=document.getElementById('siwitiEhubEnabled').checked;if(!key||!secret){Swal.fire({icon:'warning',title:'Credentials zinahitajika',text:'Weka API Key na API Secret mpya kutoka eHUB.'});return;}Swal.fire({title:'Inahifadhi...',allowOutsideClick:false,didOpen:function(){Swal.showLoading();}});siwitiSmsPost_({action:'smsDeveloperSaveConfig',developerSessionToken:token,apiKey:key,apiSecret:secret,senderUuid:uuid,senderName:name,enabled:enabled}).then(function(r){if(r.status==='success'){document.getElementById('siwitiEhubKey').value='';document.getElementById('siwitiEhubSecret').value='';Swal.fire({icon:'success',title:'Imehifadhiwa',text:r.message});}else Swal.fire({icon:'error',title:'Imeshindikana',text:r.message});}).catch(function(){Swal.fire({icon:'error',title:'Hitilafu',text:'Imeshindikana kuhifadhi mipangilio.'});});}
+function siwitiFetchSenderUuid_(){var token=localStorage.getItem('siwitiDeveloperSessionToken')||'';if(!token){Swal.fire({icon:'error',title:'Ingia tena',text:'Developer session haipo.'});return;}Swal.fire({title:'Inatafuta Sender ID...',text:'Backend inaangalia Sender IDs zilizoidhinishwa kwenye eHUB.',allowOutsideClick:false,didOpen:function(){Swal.showLoading();}});siwitiSmsPost_({action:'smsDeveloperFetchSenderUuid',developerSessionToken:token}).then(function(r){if(r.status!=='success')throw new Error(r.message||'UUID haikupatikana.');var u=document.getElementById('siwitiEhubSenderUuid');if(u)u.value=r.senderUuid;Swal.fire({icon:'success',title:'UUID imepatikana',html:'Sender ID: <b>'+schoolSmsEscape_(r.senderName)+'</b><br>Hali: <b>Approved</b><br><small>UUID imehifadhiwa moja kwa moja kwenye Script Properties.</small>',confirmButtonText:'Sawa'});}).catch(function(e){Swal.fire({icon:'error',title:'Imeshindikana kupata UUID',text:e.message||'Angalia credentials na ruhusa za eHUB.'});});}
+function siwitiFetchSenderUuidForName_(senderName){var name=String(senderName||'').trim().toUpperCase(),token=localStorage.getItem('siwitiDeveloperSessionToken')||'';if(!token){Swal.fire({icon:'error',title:'Ingia tena',text:'Developer session haipo.'});return;}Swal.fire({title:'Inatafuta UUID ya '+name+'...',allowOutsideClick:false,didOpen:function(){Swal.showLoading();}});siwitiSmsPost_({action:'smsDeveloperFetchSenderUuid',developerSessionToken:token,senderName:name}).then(function(r){if(r.status!=='success')throw new Error(r.message||'UUID haikupatikana.');var el=document.getElementById(name==='TAARIFA'?'siwitiTaarifaSenderUuid':'siwitiEhubSenderUuid');if(el)el.value=r.senderUuid||'';Swal.fire({icon:'success',title:'UUID imepatikana',text:'UUID ya '+name+' imehifadhiwa kwenye Script Properties.'});}).catch(function(e){Swal.fire({icon:'error',title:'Imeshindikana',text:e.message||String(e)});});}
+function siwitiSaveSenderUuidForName_(senderName){var name=String(senderName||'').trim().toUpperCase(),el=document.getElementById(name==='TAARIFA'?'siwitiTaarifaSenderUuid':'siwitiEhubSenderUuid'),uuid=String(el&&el.value||'').trim(),token=localStorage.getItem('siwitiDeveloperSessionToken')||'';if(!uuid){Swal.fire({icon:'warning',title:'UUID inahitajika',text:'Pata UUID iliyoidhinishwa kutoka eHUB kwanza.'});return;}Swal.fire({title:'Inahifadhi UUID...',allowOutsideClick:false,didOpen:function(){Swal.showLoading();}});siwitiSmsPost_({action:'smsDeveloperSaveSenderUuid',developerSessionToken:token,senderName:name,senderUuid:uuid}).then(function(r){if(r.status!=='success')throw new Error(r.message||'Imeshindikana.');Swal.fire({icon:'success',title:'Imehifadhiwa',text:'UUID ya '+name+' imehifadhiwa kwenye Script Properties.'});}).catch(function(e){Swal.fire({icon:'error',title:'Hitilafu',text:e.message||String(e)});});}
+var siwitiSmsSchoolAccountsCache_=[];
+var siwitiSmsSchoolAccountsFiltered_=[];
+function siwitiSmsRenderSchoolAccountOptions_(query){var sel=document.getElementById('siwitiSmsSchoolAccountSelect');if(!sel)return;var old=sel.value,q=String(query||'').trim().toLowerCase();siwitiSmsSchoolAccountsFiltered_=siwitiSmsSchoolAccountsCache_.filter(function(x){return !q||(String(x.schoolName||'').toLowerCase().indexOf(q)>=0||String(x.email||'').toLowerCase().indexOf(q)>=0);});sel.innerHTML='';var first=document.createElement('option');first.value='';first.textContent=siwitiSmsSchoolAccountsFiltered_.length?'Chagua shule ('+siwitiSmsSchoolAccountsFiltered_.length+')':'Hakuna shule iliyopatikana';sel.appendChild(first);siwitiSmsSchoolAccountsFiltered_.forEach(function(x){var o=document.createElement('option');o.value=String(x.dbId);o.textContent=(x.schoolName||x.email)+' — '+Number(x.balance||0)+' SMS';sel.appendChild(o);});if(old&&siwitiSmsSchoolAccountsFiltered_.some(function(x){return String(x.dbId)===old;}))sel.value=old;else{sel.value='';siwitiSmsSchoolAccountChanged_();}}
+function siwitiSmsFilterSchoolAccounts_(){var q=document.getElementById('siwitiSmsSchoolAccountSearch');siwitiSmsRenderSchoolAccountOptions_(q?q.value:'');}
+function siwitiSmsSaveUnitPrice_(){var el=document.getElementById('siwitiSmsGlobalUnitPrice'),price=Number(el&&el.value||0);if(!Number.isFinite(price)||price<1){Swal.fire({icon:'warning',title:'Bei si sahihi',text:'Weka bei ya SMS moja kuanzia TZS 1.'});return;}siwitiSmsPost_({action:'smsDeveloperSetUnitPrice',developerSessionToken:siwitiSmsDeveloperToken_(),pricePerSms:price}).then(function(r){if(r.status!=='success')throw new Error(r.message||'Bei haikuhifadhiwa.');Swal.fire({icon:'success',title:'Bei imehifadhiwa',text:'Bei ya SMS moja sasa ni TZS '+Number(r.pricePerSms).toLocaleString('en-US')+'.'});}).catch(function(e){Swal.fire({icon:'error',title:'Hitilafu',text:e.message||String(e)});});}
+var SIWITI_SMS_SCHOOLS_CACHE_KEY_='siwiti_sms_developer_school_accounts_v2';
+function siwitiSmsRestoreSchoolAccountsOffline_(){
+ try{var raw=localStorage.getItem(SIWITI_SMS_SCHOOLS_CACHE_KEY_);if(!raw)return false;var saved=JSON.parse(raw);if(!saved||!Array.isArray(saved.schools))return false;siwitiSmsSchoolAccountsCache_=saved.schools;var unit=document.getElementById('siwitiSmsGlobalUnitPrice');if(unit)unit.value=(Number(saved.pricePerSms)>0)?String(saved.pricePerSms):'';var search=document.getElementById('siwitiSmsSchoolAccountSearch');siwitiSmsRenderSchoolAccountOptions_(search?search.value:'');var info=document.getElementById('siwitiSmsSchoolPackageInfo');if(info)info.textContent='Orodha ya shule '+siwitiSmsSchoolAccountsCache_.length+' imepatikana kwenye kifaa hiki (offline). Itaunganishwa na taarifa mpya mtandao utakaporejea.';return true;}catch(e){return false;}
+}
+function siwitiSmsLoadSchoolAccounts_(){
+ var sel=document.getElementById('siwitiSmsSchoolAccountSelect'),info=document.getElementById('siwitiSmsSchoolPackageInfo');
+ // Reuse the exact in-memory/cached Users list already used by Udhibiti wa Madarasa.
+ // This makes the school selector usable immediately instead of waiting for the
+ // SMS ledger request to finish before drawing any options.
+ var users=Array.isArray(developerUsersAll)?developerUsersAll.slice():[];
+ if(!users.length){var saved=typeof readDeveloperUsersCache_==='function'?readDeveloperUsersCache_():null;if(saved&&Array.isArray(saved.users)){users=saved.users.slice();developerUsersAll=users;}}
+ function drawFromUsers(list){
+  var previous=siwitiSmsSchoolAccountsCache_||[],byDb={};previous.forEach(function(x){byDb[String(x.dbId)]=x;});
+  siwitiSmsSchoolAccountsCache_=(list||[]).filter(function(u){return u&&u.dbId&&u.email;}).map(function(u){var old=byDb[String(u.dbId)]||{};return Object.assign({},old,{dbId:String(u.dbId),email:String(u.email).trim().toLowerCase(),schoolName:String(u.schoolName||u.email),schoolLevel:String(u.schoolLevel||'unknown')});});
+  var search=document.getElementById('siwitiSmsSchoolAccountSearch');siwitiSmsRenderSchoolAccountOptions_(search?search.value:'');
+  if(info)info.textContent=siwitiSmsSchoolAccountsCache_.length?'Jumla ya shule: '+siwitiSmsSchoolAccountsCache_.length+'. Orodha imetumia chanzo kilekile cha Udhibiti wa Madarasa. Inasawazisha taarifa za vifurushi...':'Hakuna shule kwenye orodha ya akaunti.';
+ }
+ if(users.length){drawFromUsers(users);}
+ else if(!navigator.onLine){var restored=siwitiSmsRestoreSchoolAccountsOffline_();if(info&&!restored)info.textContent='Hakuna orodha iliyohifadhiwa kwenye kifaa hiki. Unganisha mtandao ili kupakua orodha.';return Promise.resolve(siwitiSmsSchoolAccountsCache_);}
+ var usersPromise=users.length?Promise.resolve(users):siwitiSmsPost_({action:'getAllUsers',developerKey:'developer123'}).then(function(r){if(r.status!=='success'||!Array.isArray(r.users))throw new Error(r.message||'Orodha ya shule haikupatikana.');developerUsersAll=r.users; if(typeof storeDeveloperUsersCache_==='function')storeDeveloperUsersCache_(r);if(typeof populateDeveloperRestrictionSchools_==='function')populateDeveloperRestrictionSchools_();drawFromUsers(r.users);return r.users;});
+ return usersPromise.then(function(){
+  // Enrich the shared Users list with SMS balances/packages from the SMS ledger.
+  return siwitiSmsPost_({action:'smsDeveloperSchoolAccounts',developerSessionToken:siwitiSmsDeveloperToken_()}).then(function(r){
+   if(r.status!=='success')throw new Error(r.message||'Taarifa za vifurushi hazikupatikana.');
+   var meta={};(r.schools||[]).forEach(function(x){meta[String(x.dbId)]=x;});
+   siwitiSmsSchoolAccountsCache_=siwitiSmsSchoolAccountsCache_.map(function(x){return Object.assign({},x,meta[String(x.dbId)]||{});});
+   try{localStorage.setItem(SIWITI_SMS_SCHOOLS_CACHE_KEY_,JSON.stringify({savedAt:Date.now(),schools:siwitiSmsSchoolAccountsCache_,pricePerSms:Number(r.pricePerSms)||0}));}catch(storageError){}
+   var unit=document.getElementById('siwitiSmsGlobalUnitPrice');if(unit)unit.value=(r.priceConfigured&&Number(r.pricePerSms)>0)?String(r.pricePerSms):'';
+   var search=document.getElementById('siwitiSmsSchoolAccountSearch');siwitiSmsRenderSchoolAccountOptions_(search?search.value:'');
+   if(info)info.textContent='Shule '+siwitiSmsSchoolAccountsCache_.length+' zimepakiwa na taarifa za vifurushi zimesawazishwa.';
+   return siwitiSmsSchoolAccountsCache_;
+  });
+ }).catch(function(e){
+  var restored=siwitiSmsSchoolAccountsCache_.length>0||siwitiSmsRestoreSchoolAccountsOffline_();
+  if(info)info.textContent=restored?'Orodha ya shule imepatikana kutoka Users database/cache. Taarifa za salio zitahuishwa mtandao utakaporejea.':(e.message||'Shule hazikupatikana.');
+  return siwitiSmsSchoolAccountsCache_;
+ });
+}
+
+function siwitiSmsCalculatePackageCredits_(){var paidEl=document.getElementById('siwitiSmsPackagePaid'),unitEl=document.getElementById('siwitiSmsGlobalUnitPrice'),grantEl=document.getElementById('siwitiSmsPackageGrant');if(!paidEl||!unitEl||!grantEl)return 0;var paid=Math.max(0,Number(paidEl.value||0)),unit=Number(unitEl.value||0),credits=unit>0?Math.floor((paid+1e-9)/unit):0;grantEl.value=String(credits);grantEl.title=unit>0?'Hesabu: TZS '+paid.toLocaleString('en-US')+' ÷ TZS '+unit.toLocaleString('en-US')+' kwa SMS':'Weka kwanza bei ya SMS 1.';return credits;}
+function siwitiSmsSchoolAccountChanged_(){var sel=document.getElementById('siwitiSmsSchoolAccountSelect'),x=sel&&sel.value!==''?siwitiSmsSchoolAccountsCache_.find(function(v){return String(v.dbId)===String(sel.value);}):null,info=document.getElementById('siwitiSmsSchoolPackageInfo');var paid=document.getElementById('siwitiSmsPackagePaid'),grant=document.getElementById('siwitiSmsPackageGrant');if(!x){if(info)info.textContent='Chagua shule ili kuona salio na kifurushi chake.';if(paid)paid.value='';if(grant)grant.value='0';return;}var balance=Number(x.balance||0),isPaid=Number(x.paidAmount||0)>0,packageLabel=balance<=0?'EXPIRED':(isPaid?'PAID':'FREE TRIAL');if(info)info.innerHTML='<b>'+schoolSmsEscape_(x.schoolName||x.email)+'</b><br>'+schoolSmsEscape_(x.email)+'<br>Salio: <b>'+balance.toLocaleString('en-US')+' SMS</b> | Kifurushi: <b>'+packageLabel+'</b> | Hali: '+(x.enabled?'Imewezeshwa':'Imesimamishwa');if(paid)paid.value='';if(grant)grant.value='0';document.getElementById('siwitiSmsPackageEnabled').checked=!!x.enabled;}
+function siwitiSmsSaveSchoolPackage_(){var sel=document.getElementById('siwitiSmsSchoolAccountSelect'),x=sel&&sel.value!==''?siwitiSmsSchoolAccountsCache_.find(function(v){return String(v.dbId)===String(sel.value);}):null;if(!x){Swal.fire({icon:'warning',title:'Chagua shule kwanza'});return;}var paid=Number(document.getElementById('siwitiSmsPackagePaid').value||0),unit=Number(document.getElementById('siwitiSmsGlobalUnitPrice').value||0),grant=siwitiSmsCalculatePackageCredits_();if(paid>0&&unit<1){Swal.fire({icon:'warning',title:'Bei ya SMS haijawekwa',text:'Weka na uhifadhi kwanza bei ya SMS 1.'});return;}if(paid>0&&grant<1){Swal.fire({icon:'warning',title:'Kiasi hakitoshi',text:'Kiasi kilicholipwa lazima kiwe angalau sawa na bei ya SMS 1.'});return;}if(paid<=0&&grant<=0&&document.getElementById('siwitiSmsPackageEnabled').checked===!!x.enabled){Swal.fire({icon:'info',title:'Hakuna mabadiliko',text:'Weka kiasi cha malipo au badili hali ya huduma.'});return;}var label=paid>0?'PAID':(Number(x.balance||0)>0?'FREE TRIAL':'EXPIRED');Swal.fire({icon:'question',title:'Hifadhi kifurushi?',text:(grant>0?'SMS '+grant+' zitaongezwa. ':'')+'Hali ya kifurushi: '+label+'. Shule: '+(x.schoolName||x.email)+'.',showCancelButton:true,confirmButtonText:'Hifadhi',cancelButtonText:'Ghairi'}).then(function(c){if(!c.isConfirmed)return;siwitiSmsPost_({action:'smsDeveloperSetSchoolPackage',developerSessionToken:siwitiSmsDeveloperToken_(),dbId:x.dbId,email:x.email,schoolName:x.schoolName,paidAmount:paid,enabled:document.getElementById('siwitiSmsPackageEnabled').checked}).then(function(r){if(r.status!=='success')throw new Error(r.message||'Imeshindikana kuhifadhi kifurushi.');Swal.fire({icon:'success',title:'Imehifadhiwa',text:r.message+' Salio jipya: '+r.balance+' SMS.'});return siwitiSmsLoadSchoolAccounts_();}).then(function(){var s=document.getElementById('siwitiSmsSchoolAccountSelect');if(s)siwitiSmsSchoolAccountChanged_();}).catch(function(e){Swal.fire({icon:'error',title:'Hitilafu',text:e.message||String(e)});});});}
+function siwitiSmsResetSchoolTrial_(){var sel=document.getElementById('siwitiSmsSchoolAccountSelect'),x=sel&&sel.value!==''?siwitiSmsSchoolAccountsCache_.find(function(v){return String(v.dbId)===String(sel.value);}):null;if(!x){Swal.fire({icon:'warning',title:'Chagua shule kwanza',text:'Chagua shule unayotaka kuirudishia kifurushi cha FREE TRIAL.'});return;}Swal.fire({icon:'warning',title:'Reset kifurushi kuwa FREE TRIAL?',html:'Shule: <b>'+schoolSmsEscape_(x.schoolName||x.email)+'</b><br>Salio la sasa: <b>'+Number(x.balance||0)+' SMS</b><br><br>Salio la sasa litabadilishwa na SMS 3 za FREE TRIAL. Malipo/credits za sasa hazitabaki kwenye salio, lakini kumbukumbu ya mabadiliko itaandikwa kwenye SMS_PACKAGE_LOG.',showCancelButton:true,confirmButtonText:'Ndiyo, Reset FREE TRIAL',cancelButtonText:'Ghairi',confirmButtonColor:'#d97706'}).then(function(c){if(!c.isConfirmed)return;var btns=document.querySelectorAll('#siwitiSmsDeveloperPanel button');btns.forEach(function(b){if(b.getAttribute('onclick')==='siwitiSmsResetSchoolTrial_()'){b.disabled=true;b.dataset.resetBusy='1';b.innerHTML='<i class="fas fa-spinner fa-spin"></i> Inarejesha...';}});siwitiSmsPost_({action:'smsDeveloperResetSchoolTrial',developerSessionToken:siwitiSmsDeveloperToken_(),dbId:x.dbId,email:x.email,schoolName:x.schoolName||''}).then(function(r){if(r.status!=='success')throw new Error(r.message||'Imeshindikana kurejesha FREE TRIAL.');Swal.fire({icon:'success',title:'FREE TRIAL imerejeshwa',text:r.message+' Salio jipya: '+r.balance+' SMS.'});return siwitiSmsLoadSchoolAccounts_();}).then(function(){var s=document.getElementById('siwitiSmsSchoolAccountSelect');if(s)siwitiSmsSchoolAccountChanged_();}).catch(function(e){Swal.fire({icon:'error',title:'Hitilafu',text:e.message||String(e)});}).finally(function(){document.querySelectorAll('#siwitiSmsDeveloperPanel button[data-reset-busy="1"]').forEach(function(b){b.disabled=false;b.removeAttribute('data-reset-busy');b.innerHTML='<i class="fas fa-rotate-left"></i> Reset kuwa FREE TRIAL';});});});}
+function siwitiSmsRemoveSchoolPackage_(){var sel=document.getElementById('siwitiSmsSchoolAccountSelect'),x=sel&&sel.value!==''?siwitiSmsSchoolAccountsCache_.find(function(v){return String(v.dbId)===String(sel.value);}):null;if(!x){Swal.fire({icon:'warning',title:'Chagua shule kwanza'});return;}Swal.fire({icon:'warning',title:'Ondoa kifurushi?',text:'Huduma ya SMS itasimamishwa na salio lililobaki litafutwa kwa shule hii. Historia ya SMS haitafutwa.',showCancelButton:true,confirmButtonText:'Ondoa kifurushi',cancelButtonText:'Ghairi'}).then(function(c){if(!c.isConfirmed)return;siwitiSmsPost_({action:'smsDeveloperSetSchoolPackage',developerSessionToken:siwitiSmsDeveloperToken_(),dbId:x.dbId,email:x.email,removePackage:true}).then(function(r){if(r.status!=='success')throw new Error(r.message||'Imeshindikana.');Swal.fire({icon:'success',title:'Kifurushi kimeondolewa',text:r.message});return siwitiSmsLoadSchoolAccounts_();}).catch(function(e){Swal.fire({icon:'error',title:'Hitilafu',text:e.message||String(e)});});});}
+function siwitiWalletFindNumber_(obj,keys,depth){
+ if(!obj||typeof obj!=='object'||depth>6)return null;
+ for(var i=0;i<keys.length;i++){var v=obj[keys[i]];if(v!==undefined&&v!==null&&v!==''&&isFinite(Number(v)))return Number(v);}
+ var preferred=['data','wallet','balance_data','account','credits'];
+ for(var j=0;j<preferred.length;j++){var child=obj[preferred[j]];if(child&&typeof child==='object'){var found=siwitiWalletFindNumber_(child,keys,depth+1);if(found!==null)return found;}}
+ return null;
+}
+function siwitiLoadProviderWallet_(provider){
+ var token=localStorage.getItem('siwitiDeveloperSessionToken')||'';
+ var target=document.getElementById(provider==='SwalaSMS'?'siwitiSwalaWalletCard':'siwitiEhubWalletCard');
+ if(target)target.textContent='Inapakia salio...';
+ return siwitiSmsPost_({action:'smsDeveloperWallet',developerSessionToken:token,provider:provider}).then(function(r){
+  if(r.status!=='success')throw new Error(r.message||'Salio halikupatikana.');
+  var w=r.wallet||{},raw=r.raw||{};
+  var creditKeys=['sms_balance','smsBalance','sms_credits','smsCredits','credits','available_sms','available_balance','balance_sms'];
+  var credits=siwitiWalletFindNumber_(w,creditKeys,0);
+  if(credits===null)credits=siwitiWalletFindNumber_(raw,creditKeys,0);
+
+  // SwalaSMS /v1/balance reports its SMS wallet as {balance: 93, currency: "SMS"}.
+  // In that specific case, balance is SMS credits, not money.
+  var currency=String(w.currency||raw.currency||'').trim().toUpperCase();
+  if(credits===null && provider==='SwalaSMS' && currency==='SMS'){
+    credits=siwitiWalletFindNumber_(w,['balance','wallet_balance','amount'],0);
+    if(credits===null)credits=siwitiWalletFindNumber_(raw,['balance','wallet_balance','amount'],0);
+  }
+
+  if(target){
+   if(credits===null){
+    target.innerHTML='<strong style="font-size:20px;color:#0f766e;">Salio halijapatikana</strong>';
+   }else{
+    target.innerHTML='<strong style="font-size:23px;color:#0f766e;">'+schoolSmsEscape_(credits.toLocaleString('en-US'))+' SMS</strong>';
+   }
+  }
+  if(credits===null)console.warn(provider+' wallet response did not include a recognized SMS credit field',r);
+  return r;
+ }).catch(function(e){if(target)target.textContent=e.message||'Salio halikupatikana.';throw e;});
+}
+function siwitiLoadEhubWallet_(){
+ siwitiSmsPost_({action:'smsDeveloperSenders',developerSessionToken:localStorage.getItem('siwitiDeveloperSessionToken')||''}).then(function(r){if(r.status==='success')siwitiRenderSenderIds_(r.senders||[]);}).catch(function(){});
+ siwitiLoadProviderWallet_('eHUB').catch(function(){});
+ siwitiLoadProviderWallet_('SwalaSMS').catch(function(){});
+ siwitiSwalaLoadPackages_();
+}
+function siwitiGetPurchaseIdempotencyKey_(provider,fingerprint){
+ var storageKey='siwitiPendingPurchase_'+provider,entry=null;
+ try{entry=JSON.parse(localStorage.getItem(storageKey)||'null');}catch(e){entry=null;}
+ if(entry&&entry.fingerprint===fingerprint&&/^[A-Za-z0-9._:-]{8,64}$/.test(String(entry.key||'')))return entry.key;
+ var key='swp_'+provider.toLowerCase()+'_'+Date.now().toString(36)+'_'+Math.random().toString(36).slice(2,12);
+ key=key.slice(0,64);
+ try{localStorage.setItem(storageKey,JSON.stringify({fingerprint:fingerprint,key:key,createdAt:Date.now()}));}catch(e){}
+ return key;
+}
+function siwitiClearPurchaseIdempotencyKey_(provider,key){
+ var storageKey='siwitiPendingPurchase_'+provider;
+ try{var entry=JSON.parse(localStorage.getItem(storageKey)||'null');if(entry&&entry.key===key)localStorage.removeItem(storageKey);}catch(e){}
+}
+var siwitiEhubPurchaseBusy_=false;
+function siwitiBuyEhubSms_(){
+ if(siwitiEhubPurchaseBusy_)return;
+ var qty=Number(document.getElementById('siwitiEhubBuyQuantity').value||0);
+ var phone=String(document.getElementById('siwitiEhubBuyPhone').value||'').trim();
+ if(!Number.isInteger(qty)||qty<50){Swal.fire({icon:'warning',title:'Idadi si sahihi',text:'Nunua angalau SMS 50.'});return;}
+ if(!phone){Swal.fire({icon:'warning',title:'Namba inahitajika',text:'Weka namba ya Mobile Money itakayopokea ombi la malipo.'});return;}
+ Swal.fire({icon:'question',title:'Thibitisha ununuzi wa eHUB',html:'Unaomba kununua <b>'+qty.toLocaleString('en-US')+' SMS</b> kupitia Mobile Money kwenye namba <b>'+schoolSmsEscape_(phone)+'</b>. eHUB itarudisha kiasi halisi kabla ya kukamilisha malipo.',showCancelButton:true,confirmButtonText:'Endelea',cancelButtonText:'Ghairi'}).then(function(confirm){
+  if(!confirm.isConfirmed)return;
+  siwitiEhubPurchaseBusy_=true;
+  var result=document.getElementById('siwitiEhubPurchaseResult');
+  if(result)result.textContent='Inaandaa ombi la malipo...';
+  var fingerprint=[qty,phone.replace(/\s+/g,'')].join('|');var key=siwitiGetPurchaseIdempotencyKey_('eHUB',fingerprint);
+  siwitiSmsPost_({action:'smsDeveloperEhubPurchase',developerSessionToken:localStorage.getItem('siwitiDeveloperSessionToken')||'',smsQuantity:qty,phoneNumber:phone,idempotencyKey:key}).then(function(r){
+   if(r.status!=='success')throw new Error(r.message||'Ombi la malipo halikufaulu.');
+   localStorage.setItem('siwitiLastEhubOrderReference',r.orderReference);
+   siwitiClearPurchaseIdempotencyKey_('eHUB',key);
+   var amount=Number(r.amount||0).toLocaleString('en-US');
+   if(result)result.innerHTML='<strong>Ombi limeanzishwa.</strong><br>Order: '+schoolSmsEscape_(r.orderReference)+'<br>SMS: '+Number(r.smsQuantity||qty).toLocaleString('en-US')+'<br>Kiasi: TSh '+amount+'<br><button type="button" class="btn btn-info" style="margin-top:8px;" onclick="siwitiCheckEhubPayment_()">Angalia hali ya malipo</button>';
+   Swal.fire({icon:'success',title:'Ombi la malipo limeanzishwa',html:'TSh <b>'+amount+'</b>. Angalia simu ya '+schoolSmsEscape_(phone)+' na thibitisha ombi la Mobile Money.'});
+  }).catch(function(e){if(result)result.textContent=(e.message||'Ununuzi haukufaulu.')+' Ikiwa ombi lilifika kwa eHUB lakini mtandao ulikatika, jaribu tena kwa taarifa zilezile; Idempotency Key ileile itatumika kuzuia malipo rudufu.';Swal.fire({icon:'error',title:'Ununuzi haujathibitishwa',text:(e.message||String(e))+' Tumia taarifa zilezile unapojaribu tena ili key ileile itumike.'});}).finally(function(){siwitiEhubPurchaseBusy_=false;});
+ });
+}
+function siwitiCheckEhubPayment_(){
+ var ref=localStorage.getItem('siwitiLastEhubOrderReference')||'';
+ if(!ref){Swal.fire({icon:'info',title:'Hakuna malipo yanayosubiri',text:'Anzisha ununuzi wa eHUB kwanza.'});return;}
+ var result=document.getElementById('siwitiEhubPurchaseResult');
+ if(result)result.textContent='Inakagua hali ya malipo...';
+ siwitiSmsPost_({action:'smsDeveloperEhubPaymentStatus',developerSessionToken:localStorage.getItem('siwitiDeveloperSessionToken')||'',orderReference:ref}).then(function(r){
+  if(r.status!=='success')throw new Error(r.message||'Hali ya malipo haikupatikana.');
+  var p=r.payment||{},status=String(p.status||'unknown').toLowerCase();
+  if(result)result.innerHTML='Order: '+schoolSmsEscape_(ref)+'<br>Hali: <strong>'+schoolSmsEscape_(status.toUpperCase())+'</strong>';
+  if(status==='completed'){siwitiLoadProviderWallet_('eHUB').catch(function(){});Swal.fire({icon:'success',title:'Malipo yamekamilika',text:'SMS credits zimeongezwa kwenye akaunti ya eHUB.'});}
+  else if(['failed','cancelled'].indexOf(status)>=0)Swal.fire({icon:'error',title:'Malipo hayajakamilika',text:'Hali ya malipo: '+status});
+  else Swal.fire({icon:'info',title:'Malipo yanasubiri',text:'Hali ya malipo: '+status+'. Thibitisha ombi kwenye simu yako.'});
+ }).catch(function(e){if(result)result.textContent=e.message||'Imeshindikana kukagua malipo.';Swal.fire({icon:'error',title:'Hitilafu',text:e.message||String(e)});});
+}
+var siwitiSwalaPackagesCache_=null,siwitiSwalaQuoteTimer_=null,siwitiSwalaLastOrderUid_='';
+function siwitiSwalaPost_(action,extra){var token=localStorage.getItem('siwitiDeveloperSessionToken')||'';return siwitiSmsPost_(Object.assign({action:action,developerSessionToken:token},extra||{}));}
+function siwitiSwalaLoadPackages_(){
+ var country=document.getElementById('siwitiSwalaCountry');if(country)country.innerHTML='<option value="">Inapakia...</option>';
+ return siwitiSwalaPost_('smsDeveloperSwalaPackages').then(function(r){if(r.status!=='success')throw new Error(r.message||'Packages hazikupatikana.');var d=r.data||{},countries=d.countries||[],selected=d.selected_country||{},list=Array.isArray(countries)?countries:[];siwitiSwalaPackagesCache_=d;
+ if(country){country.innerHTML='';list.forEach(function(c){var o=document.createElement('option');o.value=c.uid||c.country_uid||c.wallet_uid||c.id||'';o.textContent=(c.name||c.country_name||c.country||c.iso2||'Tanzania')+(c.currency?' ('+c.currency+')':'');country.appendChild(o);});if(selected.uid)country.value=selected.uid;if(!country.value&&country.options.length)country.selectedIndex=0;}
+ siwitiSwalaLoadPaymentMethods_();siwitiSwalaQuote_();return r;
+ }).catch(function(e){if(country)country.innerHTML='<option value="">'+schoolSmsEscape_(e.message||'Imeshindikana kupakia')+'</option>';var q=document.getElementById('siwitiSwalaQuoteResult');if(q)q.textContent=e.message||'Packages hazikupatikana.';});
+}
+function siwitiSwalaLoadPaymentMethods_(){var c=document.getElementById('siwitiSwalaCountry'),g=document.getElementById('siwitiSwalaGateway');if(!c||!g||!c.value)return;g.innerHTML='<option value="">Inapakia...</option>';siwitiSwalaPost_('smsDeveloperSwalaPaymentMethods',{countryUid:c.value}).then(function(r){if(r.status!=='success')throw new Error(r.message||'Njia za malipo hazikupatikana.');var d=r.data||{},arr=d.payment_methods||d.methods||d.data||[];if(!Array.isArray(arr))arr=[];g.innerHTML='';arr.forEach(function(m){var o=document.createElement('option');o.value=m.code||m.gateway||'';o.textContent=m.name||m.label||m.code||'Payment';o.dataset.requiresPhone=String(!!m.requires_phone);g.appendChild(o);});if(!arr.length)g.innerHTML='<option value="">Hakuna njia ya malipo inayopatikana</option>';}).catch(function(e){g.innerHTML='<option value="">'+schoolSmsEscape_(e.message||'Hitilafu')+'</option>';});}
+function siwitiSwalaQuoteDebounced_(){if(siwitiSwalaQuoteTimer_)clearTimeout(siwitiSwalaQuoteTimer_);siwitiSwalaQuoteTimer_=setTimeout(siwitiSwalaQuote_,500);}
+function siwitiSwalaQuote_(){var q=document.getElementById('siwitiSwalaBuyQuantity'),c=document.getElementById('siwitiSwalaCountry'),out=document.getElementById('siwitiSwalaQuoteResult');if(!q||!c||!out||!c.value)return;var n=Number(q.value);if(!Number.isInteger(n)||n<1||n>1000000){out.textContent='Weka idadi kati ya 1 na 1,000,000 SMS.';return;}out.textContent='Inakokotoa gharama...';siwitiSwalaPost_('smsDeveloperSwalaQuote',{countryUid:c.value,units:n}).then(function(r){if(r.status!=='success')throw new Error(r.message||'Bei haikupatikana.');var x=r.data||{},amount=Number(x.amount||x.total||x.total_amount||0),currency=x.currency||'TZS',unit=Number(x.price_per_unit||x.price_per_sms||x.unit_price||0);out.innerHTML='<b>Idadi:</b> '+n.toLocaleString('en-US')+' SMS &nbsp; <b>Jumla:</b> '+schoolSmsEscape_(currency)+' '+amount.toLocaleString('en-US')+(unit?' <small>('+unit.toLocaleString('en-US')+' kwa SMS)</small>':'');}).catch(function(e){out.textContent=e.message||'Bei haikupatikana.';});}
+var siwitiSwalaPurchaseBusy_=false;
+function siwitiBuySwalaSms_(){
+ if(siwitiSwalaPurchaseBusy_)return;
+ var qty=Number(document.getElementById('siwitiSwalaBuyQuantity').value||0),country=document.getElementById('siwitiSwalaCountry').value,gateway=document.getElementById('siwitiSwalaGateway').value,phone=String(document.getElementById('siwitiSwalaBuyPhone').value||'').trim(),method=document.getElementById('siwitiSwalaGateway').selectedOptions[0],requiresPhone=method&&method.dataset.requiresPhone==='true';
+ if(!country||!gateway||!Number.isInteger(qty)||qty<1||qty>1000000){Swal.fire({icon:'warning',title:'Taarifa hazijakamilika',text:'Chagua nchi, njia ya malipo na idadi sahihi ya SMS.'});return;}
+ if(requiresPhone&&!phone){Swal.fire({icon:'warning',title:'Namba inahitajika',text:'Weka namba ya simu itakayopokea ombi la malipo.'});return;}
+ Swal.fire({icon:'warning',title:'Thibitisha ununuzi wa SwalaSMS',html:'Unaomba kununua <b>'+qty.toLocaleString('en-US')+' SMS</b>. Hii itaanzisha ombi la malipo halisi. Endelea?',showCancelButton:true,confirmButtonText:'Thibitisha ununuzi',cancelButtonText:'Ghairi'}).then(function(x){
+  if(!x.isConfirmed)return;
+  siwitiSwalaPurchaseBusy_=true;
+  var result=document.getElementById('siwitiSwalaPurchaseResult');if(result)result.textContent='Inaandaa ombi la malipo...';
+  var fingerprint=[country,gateway,qty,phone.replace(/\s+/g,'')].join('|'),key=siwitiGetPurchaseIdempotencyKey_('SwalaSMS',fingerprint);
+  siwitiSwalaPost_('smsDeveloperSwalaPurchase',{countryUid:country,units:qty,paymentGateway:gateway,billingPhone:phone,idempotencyKey:key}).then(function(r){
+   if(r.status!=='success')throw new Error(r.message||'Ununuzi haukufaulu.');
+   siwitiClearPurchaseIdempotencyKey_('SwalaSMS',key);
+   siwitiSwalaLastOrderUid_=r.uid||'';localStorage.setItem('siwitiLastSwalaOrderUid',siwitiSwalaLastOrderUid_);
+   var pay=r.payment||{};
+   if(result)result.innerHTML='<b>Ombi limeanzishwa.</b><br>Order: '+schoolSmsEscape_(r.reference||r.uid||'')+'<br>SMS: '+Number(r.units||qty).toLocaleString('en-US')+'<br>Kiasi: '+schoolSmsEscape_(r.currency||'TZS')+' '+Number(r.amount||0).toLocaleString('en-US')+(pay.redirect_url?'<br><a target="_blank" rel="noopener" href="'+schoolSmsEscape_(pay.redirect_url)+'">Endelea na malipo</a>':'')+'<br><button class="btn btn-info" style="margin-top:8px;" type="button" onclick="siwitiCheckSwalaPayment_()">Angalia hali ya malipo</button>';
+   if(pay.redirect_url)window.open(pay.redirect_url,'_blank');
+   Swal.fire({icon:'success',title:'Ombi limeanzishwa',text:pay.mode==='prompt'?'Thibitisha ombi la malipo kwenye simu yako.':'Fuata maelekezo ya malipo yaliyofunguliwa.'});
+  }).catch(function(e){if(result)result.textContent=(e.message||'Ununuzi haukufaulu.')+' Ikiwa ombi lilifika kwa provider lakini mtandao ulikatika, bonyeza tena kwa taarifa zilezile; mfumo utatumia Idempotency Key ileile kuzuia order rudufu.';Swal.fire({icon:'error',title:'Ununuzi haujathibitishwa',text:(e.message||String(e))+' Usibadilishe taarifa za ununuzi ikiwa unajaribu tena ombi lilelile.'});}).finally(function(){siwitiSwalaPurchaseBusy_=false;});
+ });
+}
+function siwitiCheckSwalaPayment_(){var uid=siwitiSwalaLastOrderUid_||localStorage.getItem('siwitiLastSwalaOrderUid')||'',out=document.getElementById('siwitiSwalaPurchaseResult');if(!uid){Swal.fire({icon:'info',title:'Hakuna order inayosubiri',text:'Anzisha ununuzi kwanza.'});return;}if(out)out.textContent='Inakagua hali ya malipo...';siwitiSwalaPost_('smsDeveloperSwalaPaymentStatus',{uid:uid}).then(function(r){if(r.status!=='success')throw new Error(r.message||'Hali ya malipo haikupatikana.');var p=r.payment||{},pay=p.payment||{},status=String(p.status||pay.status||'pending').toLowerCase();if(out)out.innerHTML='Order: '+schoolSmsEscape_(p.reference||uid)+'<br>Hali: <b>'+schoolSmsEscape_(status.toUpperCase())+'</b>';if(status==='paid'||status==='completed'){siwitiLoadProviderWallet_('SwalaSMS').catch(function(){});Swal.fire({icon:'success',title:'Malipo yamekamilika',text:'Salio la SMS limeongezwa.'});}else if(pay.status==='failed'||status==='failed'||status==='cancelled')Swal.fire({icon:'error',title:'Malipo hayajakamilika',text:'Hali: '+status});else Swal.fire({icon:'info',title:'Malipo yanasubiri',text:'Thibitisha ombi la malipo kwenye simu yako.'});}).catch(function(e){if(out)out.textContent=e.message||'Imeshindikana kukagua malipo.';Swal.fire({icon:'error',title:'Hitilafu',text:e.message||String(e)});});}
+
+function siwitiRequestSenderId_(requestedName){var senderName=String(requestedName||'MATOKEO').trim().toUpperCase();var token=localStorage.getItem('siwitiDeveloperSessionToken')||'';Swal.fire({title:'Omba Sender ID '+senderName,input:'textarea',inputLabel:'Mfano wa ujumbe (herufi 50–250)',inputValue:senderName==='TAARIFA'?'Shule inakutaarifu kuhusu taarifa muhimu ya kikao. Tafadhali wasiliana na uongozi wa shule kwa maelezo zaidi.':'Matokeo ya mwanafunzi wako yanapatikana. Tafadhali wasiliana na shule kwa maelezo zaidi.',showCancelButton:true,confirmButtonText:'Wasilisha ombi',preConfirm:function(v){if(!v||v.trim().length<50||v.trim().length>250){Swal.showValidationMessage('Ujumbe uwe herufi 50–250.');return false;}return v.trim();}}).then(function(x){if(!x.isConfirmed)return;siwitiSmsPost_({action:'smsDeveloperRequestSender',developerSessionToken:token,senderName:senderName,sample:x.value}).then(function(r){if(r.status==='success'){var u=document.getElementById('siwitiEhubSenderUuid');if(u&&r.data&&r.data.id)u.value=r.data.id;Swal.fire({icon:'success',title:'Ombi limewasilishwa',html:'Hali: <b>'+schoolSmsEscape_((r.data&&r.data.status)||'pending')+'</b>'});}else Swal.fire({icon:'error',title:'Ombi halikufaulu',text:r.message});}).catch(function(){Swal.fire({icon:'error',title:'Hitilafu',text:'Ombi halijathibitishwa.'});});});}
+
+function siwitiOwnerSmsAuth_(){return {developerSessionToken:localStorage.getItem('siwitiDeveloperSessionToken')||''};}
+var siwitiOwnerSmsCache_=[];
+function siwitiOwnerSmsLoadOwners_(){var status=document.getElementById('siwitiOwnerSmsStatus');if(status)status.textContent='Inapakia wamiliki wa shule...';return siwitiSmsPost_(Object.assign({action:'smsDeveloperOwnerContacts'},siwitiOwnerSmsAuth_())).then(function(r){if(r.status!=='success')throw new Error(r.message||'Wamiliki hawakupatikana.');siwitiOwnerSmsCache_=r.owners||[];var sel=document.getElementById('siwitiOwnerSmsOwners');if(sel)sel.innerHTML=siwitiOwnerSmsCache_.map(function(x){return '<option value="'+schoolSmsEscape_(x.email)+'">'+schoolSmsEscape_(x.schoolName||x.email)+' — '+schoolSmsEscape_(x.email)+' — '+schoolSmsEscape_(x.phone||'HAINA NAMBA')+'</option>';}).join('');if(status)status.textContent='Wamiliki '+siwitiOwnerSmsCache_.length+' wamepatikana; wenye namba: '+siwitiOwnerSmsCache_.filter(function(x){return x.phone;}).length+'.';return r;}).catch(function(e){if(status)status.textContent=e.message;throw e;});}
+function siwitiOwnerSmsAudienceChanged_(){var v=document.getElementById('siwitiOwnerSmsAudience').value;document.getElementById('siwitiOwnerSmsSelectedWrap').style.display=v==='selected'?'block':'none';document.getElementById('siwitiOwnerSmsManualWrap').style.display=v==='manual'?'block':'none';}
+function siwitiOwnerSmsDownloadTemplate_(){
+  try{
+    var rows=[['Email','School Name','Phone']];
+    (siwitiOwnerSmsCache_||[]).forEach(function(x){rows.push([x.email||'',x.schoolName||'',x.phone||'']);});
+    if(rows.length===1)rows.push(['','Jina la Shule','07XXXXXXXX']);
+    var enc=function(v){return offlineXlsxEscape(v==null?'':String(v));};
+    var sheetRows=rows.map(function(row,ri){var cells=row.map(function(v,ci){return offlineXlsxCell(ri+1,ci+1,v,ri===0?4:5);}).join('');return '<row r="'+(ri+1)+'">'+cells+'</row>';}).join('');
+    var sheet='<?xml version="1.0" encoding="UTF-8" standalone="yes"?><worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><cols><col min="1" max="1" width="34" customWidth="1"/><col min="2" max="2" width="32" customWidth="1"/><col min="3" max="3" width="20" customWidth="1"/></cols><sheetData>'+sheetRows+'</sheetData></worksheet>';
+    var wb='<?xml version="1.0" encoding="UTF-8" standalone="yes"?><workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"><sheets><sheet name="HeadOfSchoolPhones" sheetId="1" r:id="rId1"/></sheets></workbook>';
+    var rels='<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet1.xml"/><Relationship Id="rId2" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/></Relationships>';
+    var rootrels='<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="xl/workbook.xml"/></Relationships>';
+    var ct='<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/><Override PartName="/xl/worksheets/sheet1.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/><Override PartName="/xl/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml"/></Types>';
+    var blob=offlineZip([{name:'[Content_Types].xml',data:ct},{name:'_rels/.rels',data:rootrels},{name:'xl/workbook.xml',data:wb},{name:'xl/_rels/workbook.xml.rels',data:rels},{name:'xl/worksheets/sheet1.xml',data:sheet},{name:'xl/styles.xml',data:offlineXlsxStyles()}]);
+    var url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='Siwiti_Head_of_School_Phones_Template.xlsx';document.body.appendChild(a);a.click();a.remove();setTimeout(function(){URL.revokeObjectURL(url);},15000);
+  }catch(e){console.error('Owner phone XLSX template error',e);Swal.fire({icon:'error',title:'Imeshindikana kutengeneza Excel',text:e.message||'Jaribu tena.'});}
+}
+function siwitiOwnerSmsImportTemplate_(file){if(!file)return;if(typeof XLSX==='undefined'){Swal.fire({icon:'error',title:'Excel haipatikani'});return;}var status=document.getElementById('siwitiOwnerSmsImportStatus');if(status)status.textContent='Inasoma faili...';var reader=new FileReader();reader.onload=function(e){try{var wb=XLSX.read(e.target.result,{type:'array'}),ws=wb.Sheets[wb.SheetNames[0]],rows=XLSX.utils.sheet_to_json(ws,{defval:'',raw:false});var clean=rows.map(function(x){return {email:String(x.Email||x.email||'').trim().toLowerCase(),phone:String(x.Phone||x.phone||x['Namba ya Simu']||'').trim()};}).filter(function(x){return x.email&&x.phone;});if(!clean.length)throw new Error('Hakuna mistari yenye Email na Phone kwenye kiolezo.');siwitiSmsPost_(Object.assign({action:'smsDeveloperImportOwnerPhones',rows:clean},siwitiOwnerSmsAuth_())).then(function(r){if(r.status!=='success')throw new Error(r.message||'Imeshindikana kupakia namba.');if(status)status.textContent='Imesasishwa: '+r.updated+'; hazikupatikana: '+r.notFound+'; namba zisizo sahihi: '+r.invalid+'.';return siwitiOwnerSmsLoadOwners_();}).catch(function(err){if(status)status.textContent=err.message;});}catch(err){if(status)status.textContent=err.message;}};reader.readAsArrayBuffer(file);}
+function siwitiOwnerSmsSend_(){var aud=document.getElementById('siwitiOwnerSmsAudience').value,sender=document.getElementById('siwitiOwnerSmsSender').value,message=document.getElementById('siwitiOwnerSmsMessage').value.trim(),recipients=[];if(!sender||!message){Swal.fire({icon:'warning',title:'Sender ID na ujumbe vinahitajika'});return;}if(aud==='selected'){recipients=Array.from(document.getElementById('siwitiOwnerSmsOwners').selectedOptions).map(function(o){return {email:o.value};});if(!recipients.length){Swal.fire({icon:'warning',title:'Chagua wamiliki'});return;}}else if(aud==='manual'){recipients=document.getElementById('siwitiOwnerSmsManual').value.split(/[\n,;]+/).map(function(x){return {phone:x.trim()};}).filter(function(x){return x.phone;});if(!recipients.length){Swal.fire({icon:'warning',title:'Weka namba za simu'});return;}}Swal.fire({icon:'question',title:'Thibitisha utumaji',text:'Ujumbe utatumwa kwa '+(aud==='all'?'wamiliki wote wenye namba':recipients.length+' wapokeaji')+'. Gharama itakatwa kwenye salio la provider.',showCancelButton:true,confirmButtonText:'Tuma SMS',cancelButtonText:'Ghairi'}).then(function(c){if(!c.isConfirmed)return;return siwitiSmsPost_(Object.assign({action:'smsDeveloperSendOwnerSms',audience:aud,recipients:recipients,senderName:sender,message:message,requestId:'dev_owner_'+Date.now()+'_'+Math.random().toString(36).slice(2)},siwitiOwnerSmsAuth_())).then(function(r){if(r.status!=='success'&&r.status!=='partial')throw new Error(r.message||'SMS haikutumwa.');Swal.fire({icon:r.status==='success'?'success':'warning',title:'Matokeo ya utumaji',text:r.message||('Imekubaliwa: '+r.sent+', Imeshindikana: '+r.failed)});});});}
+function saveOwnerPhoneFromSettings_(){
+  var input=document.getElementById('ownerSystemPhone'),btn=document.getElementById('saveOwnerSystemPhoneBtn'),status=document.getElementById('ownerSystemPhoneStatus');
+  var phone=String(input&&input.value||'').trim();
+  if(!/^((0[67]\d{8})|(\+?255[67]\d{8}))$/.test(phone.replace(/[\s().-]/g,''))){if(status)status.textContent='Weka namba sahihi ya simu ya Tanzania, mfano 0712345678.';if(input)input.focus();return;}
+  if(btn){btn.disabled=true;btn.innerHTML='<i class="fas fa-spinner fa-spin"></i> Inahifadhi...';}if(status)status.textContent='Inahifadhi namba ya simu kwenye mfumo...';
+  siwitiSmsPost_({action:'saveOwnerPhone',dbId:localStorage.getItem('dbId')||'',email:localStorage.getItem('currentUserEmail')||'',managementToken:localStorage.getItem('managementToken')||'',phone:phone}).then(function(r){if(r.status!=='success')throw new Error(r.message||'Imeshindikana kuhifadhi namba.');if(input)input.value=r.phone||phone;localStorage.setItem('ownerPhoneNumber',r.phone||phone);if(status)status.textContent='Namba ya simu imehifadhiwa kikamilifu.';}).catch(function(e){if(status)status.textContent=e.message||'Hitilafu ya kuhifadhi namba.';Swal.fire({icon:'error',title:'Imeshindikana',text:e.message||'Hitilafu ya kuhifadhi namba.'});}).finally(function(){if(btn){btn.disabled=false;btn.innerHTML='<i class="fas fa-save"></i> Hifadhi Namba ya Simu';}});
+}
+function siwitiRequireOwnerPhoneAfterLogin_(data,email){var lang=(data.language||'sw')==='en';Swal.fire({title:lang?'Phone number required':'Namba ya simu inahitajika',text:lang?'Enter your phone number to continue using the school account.':'Weka namba yako ya simu ili uweze kuendelea kutumia akaunti ya shule.',input:'tel',inputPlaceholder:'07XXXXXXXX',inputAttributes:{inputmode:'tel',autocomplete:'tel'},allowOutsideClick:false,allowEscapeKey:false,showCancelButton:false,showLoaderOnConfirm:true,confirmButtonText:lang?'Save and continue':'Hifadhi na endelea',didOpen:function(){var b=Swal.getConfirmButton();if(b){b.style.minWidth='150px';}},preConfirm:function(value){var phone=String(value||'').trim();if(!/^((0[67]\d{8})|(\+?255[67]\d{8}))$/.test(phone.replace(/[\s().-]/g,''))){Swal.showValidationMessage(lang?'Enter a valid Tanzanian mobile number.':'Weka namba sahihi ya simu ya Tanzania.');return false;}return siwitiSmsPost_({action:'saveOwnerPhone',dbId:data.dbId,email:email,managementToken:data.managementToken,phone:phone}).then(function(r){if(r.status!=='success')throw new Error(r.message||'Imeshindikana kuhifadhi namba.');return r;}).catch(function(e){Swal.showValidationMessage(e.message);return false;});}}).then(function(r){if(r.isConfirmed){data.phoneRequired=false;data.phoneNumber=r.value.phone||'';handleSuccessfulLogin(data,email);}});}
+</script>
+</body>
 </html>
