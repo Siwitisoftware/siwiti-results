@@ -1315,175 +1315,60 @@ tr:hover {
 
 
 
-/* ============================================
-   PAYMENT OVERLAY - FULL SCREEN MODAL
-   ============================================ */
-
-/* Full screen overlay - covers everything */
-.disabled-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0, 0, 0, 0.85);
-  backdrop-filter: blur(8px);
-  z-index: 99999 !important;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  transition: all 0.3s ease;
+/* PAYMENT PANEL: non-blocking floating dashboard (does not cover the page) */
+#paymentOverlay.disabled-overlay {
+  position: fixed !important;
+  top: auto !important;
+  left: auto !important;
+  right: 14px !important;
+  bottom: 14px !important;
+  width: min(430px, calc(100vw - 28px)) !important;
+  height: auto !important;
+  max-height: min(78vh, 760px) !important;
+  background: transparent !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  z-index: 90000 !important;
+  display: none;
+  align-items: flex-end !important;
+  justify-content: flex-end !important;
+  pointer-events: none !important;
+  overflow: visible !important;
+}
+#paymentOverlay.disabled-overlay .payment-message {
+  width: 100% !important;
+  max-width: 430px !important;
+  max-height: min(78vh, 760px) !important;
+  overflow-y: auto !important;
+  box-sizing: border-box !important;
+  padding: 18px !important;
+  margin: 0 !important;
+  border: 1px solid #dbe4f0 !important;
+  border-radius: 18px !important;
+  background: #fff !important;
+  box-shadow: 0 12px 38px rgba(15,23,42,.22) !important;
+  pointer-events: auto !important;
+  position: relative !important;
+  z-index: 90001 !important;
+  animation: paymentPanelIn .18s ease-out !important;
+}
+#paymentOverlay.disabled-overlay .payment-message h2 {font-size:1.08rem !important;margin:0 28px 12px 0 !important;text-align:left !important;justify-content:flex-start !important;}
+#paymentOverlay.disabled-overlay .payment-message p {font-size:.86rem !important;line-height:1.45 !important;margin-bottom:10px !important;}
+#paymentOverlay.disabled-overlay .payment-message > div {padding:12px !important;margin:12px 0 !important;border-radius:12px !important;}
+#paymentOverlay.disabled-overlay .payment-message .btn {margin-top:10px !important;padding:11px !important;font-size:.9rem !important;}
+#paymentOverlay.disabled-overlay .payment-message input,
+#paymentOverlay.disabled-overlay .payment-message select {min-height:42px !important;font-size:16px !important;}
+#paymentOverlay.disabled-overlay .payment-message details {margin:10px 0 !important;}
+@keyframes paymentPanelIn {from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+#paymentOverlay .payment-panel-close {position:absolute;right:14px;top:14px;border:0;border-radius:9px;background:#eef2f7;color:#334155;padding:7px 10px;font-size:13px;font-weight:700;cursor:pointer;z-index:3;}
+#reportDashboard > .header .subscription-header-buy {display:inline-flex;align-items:center;gap:6px;width:auto;margin:8px 0 0;padding:7px 11px;border:0;border-radius:999px;background:#fff;color:#3156c9;font-size:12px;font-weight:800;box-shadow:0 2px 9px rgba(15,23,42,.16);cursor:pointer;}
+#reportDashboard > .header .subscription-header-buy:active {transform:scale(.97)}
+@media(max-width:600px){
+ #paymentOverlay.disabled-overlay{right:8px !important;bottom:8px !important;width:calc(100vw - 16px) !important;max-height:68vh !important;}
+ #paymentOverlay.disabled-overlay .payment-message{max-height:68vh !important;padding:15px !important;}
+ #reportDashboard > .header .subscription-header-buy{font-size:11px;padding:6px 9px;}
 }
 
-/* Payment message container */
-.disabled-overlay .payment-message {
-  background: white;
-  border-radius: 24px;
-  padding: 32px;
-  max-width: 500px;
-  width: 90%;
-  max-height: 90vh;
-  overflow-y: auto;
-  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
-  animation: modalSlideIn 0.3s ease;
-  position: relative;
-  z-index: 100000;
-}
-
-/* Modal animation */
-@keyframes modalSlideIn {
-  from {
-    opacity: 0;
-    transform: translateY(-30px) scale(0.95);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0) scale(1);
-  }
-}
-
-/* Payment message heading */
-.disabled-overlay .payment-message h2 {
-  font-size: 1.5rem;
-  margin-bottom: 20px;
-  text-align: center;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 10px;
-}
-
-/* Payment message text */
-.disabled-overlay .payment-message p {
-  font-size: 0.9375rem;
-  line-height: 1.5;
-  color: #333;
-  margin-bottom: 15px;
-}
-
-/* Payment info box */
-.disabled-overlay .payment-message > div {
-  background: #f8f9fa;
-  border-radius: 16px;
-  padding: 20px;
-  margin: 20px 0;
-}
-
-/* Payment info box text */
-.disabled-overlay .payment-message > div p {
-  margin-bottom: 10px;
-  font-size: 1rem;
-}
-
-/* Payment info box strong */
-.disabled-overlay .payment-message > div p strong {
-  color: #2c3e50;
-}
-
-/* Payment methods styling */
-.disabled-overlay .payment-message p i {
-  margin-right: 8px;
-  width: 24px;
-  color: #4361ee;
-}
-
-/* Phone numbers */
-.disabled-overlay .payment-message p strong {
-  color: #f72585;
-  font-size: 1.1rem;
-}
-
-/* Button styling */
-.disabled-overlay .payment-message .btn {
-  width: 100%;
-  margin-top: 20px;
-  padding: 14px;
-  font-size: 1rem;
-  font-weight: 600;
-  border-radius: 12px;
-}
-
-/* Scrollbar for modal content */
-.disabled-overlay .payment-message::-webkit-scrollbar {
-  width: 6px;
-}
-
-.disabled-overlay .payment-message::-webkit-scrollbar-track {
-  background: #f1f1f1;
-  border-radius: 10px;
-}
-
-.disabled-overlay .payment-message::-webkit-scrollbar-thumb {
-  background: #888;
-  border-radius: 10px;
-}
-
-.disabled-overlay .payment-message::-webkit-scrollbar-thumb:hover {
-  background: #555;
-}
-
-/* Mobile responsive */
-@media (max-width: 768px) {
-  .disabled-overlay .payment-message {
-    padding: 24px;
-    width: 95%;
-    max-height: 85vh;
-  }
-  
-  .disabled-overlay .payment-message h2 {
-    font-size: 1.25rem;
-  }
-  
-  .disabled-overlay .payment-message p {
-    font-size: 0.875rem;
-  }
-  
-  .disabled-overlay .payment-message > div p {
-    font-size: 0.875rem;
-  }
-  
-  .disabled-overlay .payment-message p strong {
-    font-size: 1rem;
-  }
-}
-
-@media (max-width: 480px) {
-  .disabled-overlay .payment-message {
-    padding: 20px;
-  }
-  
-  .disabled-overlay .payment-message h2 {
-    font-size: 1.1rem;
-  }
-  
-  .disabled-overlay .payment-message p {
-    font-size: 0.8125rem;
-  }
-  
-  .disabled-overlay .payment-message > div {
-    padding: 15px;
-  }
-}
 
 /* Ensure payment overlay is above everything */
 .disabled-overlay {
@@ -5303,6 +5188,13 @@ html[data-school-level="primary"] #secondaryDivisionSettingsSection { display:no
 .swal2-popup .swal2-confirm{border-radius:12px!important;padding:11px 25px!important;font-weight:700!important;box-shadow:0 5px 14px rgba(37,99,235,.2)}
 .swal2-popup .swal2-cancel{border-radius:12px!important;padding:11px 22px!important;font-weight:700!important}
 </style>
+
+<style id="siwiti-ui-repair-styles">
+.sidebar-buy-time-btn{display:inline-flex;align-items:center;justify-content:center;gap:5px;margin:7px 0 2px;padding:5px 9px;border:1px solid rgba(255,255,255,.28);border-radius:999px;background:linear-gradient(135deg,#0f9f6e,#087f5b);color:#fff;font-size:11px;font-weight:700;line-height:1.2;box-shadow:0 2px 7px rgba(0,0,0,.16);cursor:pointer}
+.sidebar-buy-time-btn:hover{filter:brightness(1.08)}.sidebar-buy-time-btn:active{transform:scale(.97)}
+#changePasswordOverlay{z-index:10000020!important}#changePasswordModal{z-index:10000021!important}
+@media(max-width:768px){#changePasswordOverlay{position:fixed!important;inset:0!important;padding:12px!important;overflow:auto!important}#changePasswordModal{max-height:calc(100dvh - 24px)!important;overflow:auto!important}}
+</style>
 </head>
 <body>
 
@@ -5528,6 +5420,7 @@ html[data-school-level="primary"] #secondaryDivisionSettingsSection { display:no
         <span>Inahesabu muda...</span>
       </div>
       <div id="sidebarPlanName" class="sidebar-plan-name"></div>
+      <button id="sidebarBuyTimeBtn" type="button" class="sidebar-buy-time-btn" onclick="openSidebarRenewal_()" title="Nunua kifurushi cha muda wa matumizi"><i class="fas fa-plus-circle" aria-hidden="true"></i><span>Nunua muda</span></button>
     </div>
 
   </div>
@@ -7429,6 +7322,7 @@ html[data-school-level="primary"] #secondaryDivisionSettingsSection { display:no
   <!-- Payment Overlay - Full Screen Modal -->
 <div class="disabled-overlay hidden" id="paymentOverlay">
   <div class="payment-message">
+    <button type="button" class="payment-panel-close" onclick="hidePaymentOverlay()" aria-label="Funga paneli">Funga ✕</button>
     <h2 style="color: #f72585;">
       <i class="fas fa-exclamation-triangle"></i> 
       UMEFIKA MWISHO WA MATUMIZI YAKO
@@ -7439,7 +7333,7 @@ html[data-school-level="primary"] #secondaryDivisionSettingsSection { display:no
       <p><i class="fas fa-money-bill-wave"></i> <strong>Ada ya Mwaka:</strong> <span id="expiredYearlyFee">TSh 30,000</span></p>
     </div>
     <div style="background:#f8fafc;border:1px solid #dbe3ef;border-radius:14px;padding:16px;margin:16px 0;text-align:left;">
-      <h3 style="margin:0 0 12px;color:#173b73;"><i class="fas fa-shield-alt"></i> LIPA KWA USALAMA KUPITIA EASYPAY</h3>
+      <h3 style="margin:0 0 12px;color:#173b73;"><i class="fas fa-shield-alt"></i> LIPA KWA USALAMA KUPITIA SIWITI SOFTWARE</h3>
       <label for="siwitiEasyPayPlan" style="display:block;font-weight:700;margin:10px 0 5px;">Chagua Kifurushi</label>
       <select id="siwitiEasyPayPlan" style="width:100%;padding:12px;border:1px solid #cbd5e1;border-radius:9px;">
         <option value="BASIC_PLAN">Basic Plan</option><option value="GOLD_PLAN">Gold Plan</option>
@@ -7459,7 +7353,7 @@ html[data-school-level="primary"] #secondaryDivisionSettingsSection { display:no
         <i class="fas fa-sync-alt"></i> ANGALIA HALI YA USAJILI
       </button>
     </div>
-    <p style="font-size:12px;color:#64748b;text-align:center;">Baada ya kuanzisha malipo, thibitisha ombi litakalotumwa kwenye simu yako. Akaunti itaongezewa muda baada ya EasyPay kuthibitisha malipo kupitia webhook.</p>
+    <p style="font-size:12px;color:#64748b;text-align:center;">Baada ya kuanzisha malipo, thibitisha ombi litakalotumwa kwenye simu yako. Akaunti itaongezewa muda baada ya malipo kuthibitishwa.</p>
     <details style="margin:14px 0;text-align:left;border:1px solid #e2e8f0;border-radius:10px;padding:12px;">
       <summary style="cursor:pointer;font-weight:700;color:#475569;">Njia ya malipo ya kawaida (Manual Payment)</summary>
       <p style="margin:10px 0 4px;"><i class="fab fa-m-pesa"></i> M-Pesa: <strong>+255750183275</strong></p>
@@ -7476,7 +7370,7 @@ html[data-school-level="primary"] #secondaryDivisionSettingsSection { display:no
 </div>
   <script>
 //AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
-    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzaeZGHQqmt1dIfQEOWO8re-HW3Ya3mPLGyyR2HMTTx59GQZ_XRGuwJe9JsbRRkKzYX/exec';
+    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyo_8oEshCJ6_2FZ8feQXQBh_Ujn1dfea37JEVY2zzxAff5A83tbXQIuvVQribjgV-g/exec';
 
 
     // ============================================
@@ -15487,6 +15381,7 @@ function showDashboard(dashboard) {
     
     if (canAccessReport) {
       document.getElementById("reportDashboard").classList.remove('hidden');
+      ensureSubscriptionHeaderButton_();
       updateActiveMenu('reportMenu');
       loadTerms(); // Load terms for report dashboard too
       loadReport();
@@ -22070,16 +21965,28 @@ function siwitiEasyPayStartSubscription_(){
   var plan=document.getElementById('siwitiEasyPayPlan').value,cycle=document.getElementById('siwitiEasyPayCycle').value,number=String(phone&&phone.value||'').trim();
   if(!email||!dbId){if(status)status.textContent='Tafadhali ingia tena kwenye akaunti ya Head of School.';return;}
   if(!/^((\+?255)?[\s-]?)?0?[67][0-9\s-]{8,12}$/.test(number)){if(status)status.textContent='Weka namba sahihi ya simu, mfano 0712345678.';if(phone)phone.focus();return;}
-  var requestId=localStorage.getItem('siwitiEasyPayRequestId');if(!requestId){requestId='trs-'+(window.crypto&&crypto.randomUUID?crypto.randomUUID():Date.now()+'-'+Math.random().toString(36).slice(2));localStorage.setItem('siwitiEasyPayRequestId',requestId);}
+  function newSubscriptionRequestId_(){return 'trs-'+(window.crypto&&crypto.randomUUID?crypto.randomUUID():Date.now()+'-'+Math.random().toString(36).slice(2));}
+  var requestId=newSubscriptionRequestId_();localStorage.setItem('siwitiEasyPayRequestId',requestId);
   if(btn){btn.disabled=true;btn.innerHTML='<i class="fas fa-spinner fa-spin"></i> INATUMA OMBI...';}
-  if(status)status.textContent='Inaunganisha na EasyPay. Tafadhali subiri...';
-  fetchWithServerRetry(SCRIPT_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({action:'easypayInitiateSubscription',email:email,dbId:dbId,managementToken:localStorage.getItem('managementToken')||'',schoolName:localStorage.getItem('schoolName')||'',phone:number,plan:plan,cycle:cycle,requestId:requestId})})
-    .then(function(r){if(!r.ok)throw new Error('HTTP '+r.status);return r.json();})
-    .then(function(d){if(!d||d.status!=='success')throw new Error(d&&d.message||'EasyPay imeshindwa kuanzisha malipo.');
-      if(status)status.innerHTML='<strong style="color:#047857;">Ombi limetumwa!</strong><br>Reference: <b>'+String(d.reference||'')+'</b><br>Thibitisha ombi kwenye simu yenye namba '+number+'. Malipo yakikamilika, bonyeza Angalia Hali ya Usajili.';
+  if(status)status.textContent='Inaandaa ombi la malipo. Tafadhali subiri...';
+  var subscriptionPayload={action:'easypayInitiateSubscription',email:email,dbId:dbId,managementToken:localStorage.getItem('managementToken')||'',schoolName:localStorage.getItem('schoolName')||'',phone:number,plan:plan,cycle:cycle};
+  function sendSubscriptionRequest_(id,attempt){
+    subscriptionPayload.requestId=id;
+    return fetchWithServerRetry(SCRIPT_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(subscriptionPayload)})
+      .then(function(r){if(!r.ok)throw new Error('HTTP '+r.status);return r.json();})
+      .then(function(d){
+        if(d&&d.status==='success')return d;
+        // Only a definitive rejection is safe to retry automatically. A timeout,
+        // UNKNOWN, or IN_PROGRESS response must retain the same key to avoid double charging.
+        if(d&&d.code==='EASYPAY_REJECTED'&&attempt===0){var fresh=newSubscriptionRequestId_();localStorage.setItem('siwitiEasyPayRequestId',fresh);if(status)status.textContent='Ombi la awali limekataliwa. Mfumo unaanzisha ombi jipya moja kwa moja...';return sendSubscriptionRequest_(fresh,1);}
+        var err=new Error(d&&d.message||'Imeshindikana kuanzisha ombi la malipo. Tafadhali jaribu tena au wasiliana na Siwiti Software.');err.paymentCode=d&&d.code||'';throw err;
+      });
+  }
+  sendSubscriptionRequest_(requestId,0)
+    .then(function(d){
       localStorage.setItem('siwitiEasyPayPendingRef',String(d.reference||''));
       var refresh=document.getElementById('siwitiEasyPayRefreshBtn');if(refresh)refresh.style.display='block';
-      if(typeof Swal!=='undefined')Swal.fire({icon:'info',title:'Thibitisha kwenye simu',html:'EasyPay imetuma ombi la malipo ya <b>TSh '+Number(d.amount||0).toLocaleString('en-US')+'</b> kwenye namba <b>'+number+'</b>.<br><small>Reference: '+String(d.reference||'')+'</small>',confirmButtonText:'Sawa'});
+      if(status)status.innerHTML='<strong style="color:#047857;">Ombi limepokelewa na mtoa huduma.</strong><br>Angalia simu <b>'+number+'</b> na ukubali ombi la malipo litakaloonekana. Kama halijatokea, subiri muda mfupi kisha wasiliana na Siwiti Software ukiwa na kumbukumbu <b>'+String(d.reference||'')+'</b>. Usibonyeze Lipa tena wakati ombi hili bado linachakatwa.';
     }).catch(function(e){if(status)status.textContent=e.message||'Imeshindikana kuanzisha malipo. Jaribu tena.';})
     .finally(function(){if(btn){btn.disabled=false;btn.innerHTML='<i class="fas fa-mobile-alt"></i> LIPA SASA KWA SIMU';}});
 }
@@ -22089,23 +21996,28 @@ function siwitiEasyPayRefreshSubscription_(){
   fetchWithServerRetry(SCRIPT_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({action:'getUserSubscriptionStatus',email:email,dbId:dbId})})
     .then(function(r){return r.json();}).then(function(d){
       var sub=d&&d.subscription||{};
-      if(d&&d.status==='success'&&['active','subscription','trial'].indexOf(String(sub.status||'').toLowerCase())>=0&&Number(sub.timeRemaining||0)>0){if(status)status.innerHTML='<strong style="color:#047857;">Malipo yamethibitishwa. Akaunti yako imehuishwa.</strong>';localStorage.removeItem('siwitiEasyPayRequestId');localStorage.removeItem('siwitiEasyPayPendingRef');if(typeof Swal!=='undefined')Swal.fire({icon:'success',title:'Malipo Yamekamilika',text:'Usajili wako umehuishwa kikamilifu.'}).then(function(){hidePaymentOverlay();checkSubscriptionStatus(false);});}
+      if(d&&d.status==='success'&&['active','subscription','trial'].indexOf(String(sub.status||'').toLowerCase())>=0&&Number(sub.timeRemaining||0)>0){if(status)status.innerHTML='<strong style="color:#047857;">Malipo yamethibitishwa. Akaunti yako imehuishwa.</strong>';localStorage.removeItem('siwitiEasyPayRequestId');localStorage.removeItem('siwitiEasyPayPendingRef');hidePaymentOverlay();checkSubscriptionStatus(false);}
       else if(status)status.textContent='Malipo bado hayajathibitishwa na webhook. Subiri kidogo kisha angalia tena. Usirudie malipo kama ombi la kwanza bado linaendelea.';
     }).catch(function(){if(status)status.textContent='Imeshindikana kusoma hali ya akaunti. Hakikisha una mtandao kisha jaribu tena.';});
 }
-document.addEventListener('DOMContentLoaded',function(){var p=document.getElementById('siwitiEasyPayPlan'),c=document.getElementById('siwitiEasyPayCycle');if(p)p.addEventListener('change',siwitiEasyPayUpdateQuote_);if(c)c.addEventListener('change',siwitiEasyPayUpdateQuote_);siwitiEasyPayUpdateQuote_();});
+document.addEventListener('DOMContentLoaded',function(){var p=document.getElementById('siwitiEasyPayPlan'),c=document.getElementById('siwitiEasyPayCycle');if(p)p.addEventListener('change',siwitiEasyPayUpdateQuote_);if(c)c.addEventListener('change',siwitiEasyPayUpdateQuote_);siwitiEasyPayUpdateQuote_();ensureSubscriptionHeaderButton_();});
 
+function ensureSubscriptionHeaderButton_(){ /* Heading purchase button intentionally removed; renewal remains in sidebar. */ }
 function showPaymentOverlay() {
+  if(typeof window.siwitiCloseOtherModals_==='function')window.siwitiCloseOtherModals_('paymentOverlay');
   const overlay = document.getElementById('paymentOverlay');
   if (window.__ratibaLoggedOut === true ||
       (typeof window.ratibaHasAuthenticatedDashboard_ === 'function' && !window.ratibaHasAuthenticatedDashboard_())) {
     hidePaymentOverlay(); return;
   }
+  if(String(localStorage.getItem('userType')||'').toLowerCase()!=='owner')return;
   if (overlay) {
     try { siwitiEasyPayUpdateQuote_(); } catch (quoteErr) {}
+    ensureSubscriptionHeaderButton_();
     overlay.classList.remove('hidden');
     overlay.style.display = 'flex';
     overlay.style.visibility = 'visible';
+    overlay.style.pointerEvents = 'none';
     document.body.style.overflow = '';
     document.addEventListener('keydown', handleEscapeKey);
   }
@@ -22140,7 +22052,7 @@ function hidePaymentOverlay() {
     overlay.style.display = 'none';
     overlay.style.visibility = 'hidden';
     overlay.style.pointerEvents = 'none';
-    // Restore body scrolling
+    // The payment panel is non-modal; the underlying page remains interactive.
     document.body.style.overflow = '';
     // Remove escape key listener
     document.removeEventListener('keydown', handleEscapeKey);
@@ -22333,19 +22245,6 @@ function showDashboardWarningImmediately() {
             Subscribe to continue using Report features
           </div>
         </div>
-        <button onclick="showPaymentOverlay()" style="
-          background: white;
-          color: #f72585;
-          border: none;
-          padding: 10px 20px;
-          border-radius: 5px;
-          font-weight: bold;
-          cursor: pointer;
-          white-space: nowrap;
-          box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-        ">
-          💰 Subscribe Now
-        </button>
       </div>
     </div>
   `;
@@ -22358,6 +22257,7 @@ function showDashboardWarningImmediately() {
     reportDashboard.insertAdjacentHTML('afterbegin', warningHTML);
   }
   
+  ensureSubscriptionHeaderButton_();
   // Add pulse animation CSS
   if (!document.querySelector('#pulseWarningStyle')) {
     const style = document.createElement('style');
@@ -22444,18 +22344,6 @@ function showDashboardWarning() {
             Subscribe to continue using Report features
           </div>
         </div>
-        <button onclick="showPaymentOverlay()" style="
-          background: white;
-          color: #f72585;
-          border: none;
-          padding: 8px 15px;
-          border-radius: 5px;
-          font-weight: bold;
-          cursor: pointer;
-          margin-left: 10px;
-        ">
-          Subscribe Now
-        </button>
       </div>
     </div>
   `;
@@ -22467,6 +22355,7 @@ function showDashboardWarning() {
   } else {
     reportDashboard.insertAdjacentHTML('afterbegin', warningHTML);
   }
+  ensureSubscriptionHeaderButton_();
 }
 
 
@@ -22813,6 +22702,20 @@ function updateSidebarPlanDisplay_(subscription){
     timer.appendChild(el);
   }
   if (label) el.textContent = label;
+  var buyBtn = document.getElementById('sidebarBuyTimeBtn');
+  if (!buyBtn) {
+    buyBtn = document.createElement('button');
+    buyBtn.id = 'sidebarBuyTimeBtn';
+    buyBtn.type = 'button';
+    buyBtn.className = 'sidebar-buy-time-btn';
+    buyBtn.title = 'Nunua kifurushi cha muda wa matumizi';
+    buyBtn.innerHTML = '<i class="fas fa-plus-circle" aria-hidden="true"></i><span>Nunua muda</span>';
+    buyBtn.addEventListener('click', openSidebarRenewal_);
+  }
+  if (buyBtn.parentNode !== timer) {
+    if (el.nextSibling) timer.insertBefore(buyBtn, el.nextSibling);
+    else timer.appendChild(buyBtn);
+  }
 }
 
 function applyAuthenticatedSchoolName_(name) {
@@ -26362,7 +26265,29 @@ function changePassword() {
 // ============================================
 // SHOW CHANGE PASSWORD MODAL
 // ============================================
+function closeSidebarForModalOnMobile_() {
+  if (window.innerWidth > 768) return;
+  var sidebar = document.getElementById('sidebar');
+  if (sidebar && sidebar.classList.contains('active')) {
+    if (typeof toggleSidebar === 'function') toggleSidebar();
+    else {
+      sidebar.classList.remove('active');
+      document.body.classList.remove('sidebar-open');
+      var main = document.getElementById('mainContent');
+      if (main) main.classList.remove('shifted');
+      var overlay = document.querySelector('.sidebar-overlay');
+      if (overlay) overlay.classList.remove('active');
+    }
+  }
+}
+function openSidebarRenewal_() {
+  closeSidebarForModalOnMobile_();
+  if (typeof showPaymentOverlay === 'function') showPaymentOverlay();
+}
+
 function showChangePasswordModal() {
+  closeSidebarForModalOnMobile_();
+  if(typeof window.siwitiCloseOtherModals_==='function')window.siwitiCloseOtherModals_('changePasswordModal');
   console.log("🔓 Opening change password modal...");
   
   // Close any open SweetAlert first
@@ -33622,7 +33547,80 @@ document.addEventListener('change',function(e){
     reportBrandingRefreshStreams_();
   }
 });
-</script><script id="siwiti-school-sms-js">
+</script>
+<script id="siwiti-single-modal-manager">
+(function(){
+  if(window.__siwitiSingleModalManagerInstalled)return;
+  window.__siwitiSingleModalManagerInstalled=true;
+  var modalGroups=[
+    {id:'siwitiSmsPurchaseDashboard',open:function(e){return e.classList.contains('is-open');},close:function(e){e.classList.remove('is-open');}},
+    {id:'paymentOverlay',open:function(e){return !e.classList.contains('hidden')&&e.style.display!=='none'&&getComputedStyle(e).display!=='none';},close:function(e){e.classList.add('hidden');e.style.display='none';e.style.visibility='hidden';e.style.pointerEvents='none';}},
+    {id:'changePasswordModal',open:function(e){return !e.classList.contains('hidden');},close:function(e){e.classList.add('hidden');var o=document.getElementById('changePasswordOverlay');if(o)o.classList.add('hidden');}},
+    {id:'reportSettingsModal',open:function(e){return !e.classList.contains('hidden');},close:function(e){e.classList.add('hidden');var o=document.getElementById('reportSettingsOverlay');if(o)o.classList.add('hidden');}},
+    {id:'addUserModal',open:function(e){return !e.classList.contains('hidden');},close:function(e){e.classList.add('hidden');var o=document.getElementById('addUserOverlay');if(o)o.classList.add('hidden');}},
+    {id:'devChangePasswordModal',open:function(e){return !e.classList.contains('hidden');},close:function(e){e.classList.add('hidden');var o=document.getElementById('devChangePasswordOverlay');if(o)o.classList.add('hidden');}},
+    {id:'subscriptionModal',open:function(e){return e.style.display!=='none'&&getComputedStyle(e).display!=='none';},close:function(e){e.style.display='none';}},
+    {id:'accountPlanModal',open:function(e){return !e.classList.contains('hidden');},close:function(e){e.classList.add('hidden');}},
+    {id:'forgotPasswordModal',open:function(e){return !e.classList.contains('hidden');},close:function(e){e.classList.add('hidden');}}
+  ];
+  window.siwitiCloseOtherModals_=function(keepId){
+    modalGroups.forEach(function(g){var e=document.getElementById(g.id);if(!e||g.id===keepId)return;try{if(g.open(e))g.close(e);}catch(err){console.warn('Modal close skipped:',g.id,err);}});
+    if(window.Swal&&typeof Swal.isVisible==='function'&&Swal.isVisible()&&keepId!=='__sweetalert__'){
+      try{Swal.close();}catch(e){}
+    }
+  };
+  window.siwitiOpenExclusiveModal_=function(id,openFn){
+    window.siwitiCloseOtherModals_(id);
+    if(typeof openFn==='function')openFn();
+  };
+  function installObserver(){
+    if(!document.body||!window.MutationObserver)return;
+    var observer=new MutationObserver(function(records){
+      var opened=null;
+      records.forEach(function(r){
+        var el=r.target;if(!el||!el.id)return;
+        var g=modalGroups.find(function(x){return x.id===el.id;});
+        if(g){try{if(g.open(el))opened=g.id;}catch(e){}}
+      });
+      if(opened)window.siwitiCloseOtherModals_(opened);
+    });
+    modalGroups.forEach(function(g){var e=document.getElementById(g.id);if(e)observer.observe(e,{attributes:true,attributeFilter:['class','style']});});
+    window.__siwitiModalObserver=observer;
+    // Normalize any legacy overlapping state during initial load.
+    var visible=modalGroups.filter(function(g){var e=document.getElementById(g.id);try{return e&&g.open(e);}catch(err){return false;}});
+    if(visible.length>1)window.siwitiCloseOtherModals_(visible[visible.length-1].id);
+  }
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',installObserver,{once:true});else installObserver();
+})();
+</script>
+<style id="siwiti-purchase-dashboard-styles">
+.siwiti-purchase-dash{display:none;position:fixed;z-index:10000020;right:14px;bottom:14px;width:min(440px,calc(100vw - 28px));max-height:min(82dvh,720px);overflow:auto;background:#fff;border:1px solid #dbe4ef;border-radius:18px;box-shadow:0 18px 55px rgba(15,23,42,.24);padding:18px;box-sizing:border-box;color:#172033}
+.siwiti-purchase-dash.is-open{display:block;animation:siwitiDashIn .16s ease-out}
+.siwiti-purchase-dash .siwiti-dash-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:-2px 0 14px}
+.siwiti-purchase-dash .siwiti-dash-head h3{margin:0;font-size:19px;font-weight:800}
+.siwiti-purchase-dash .siwiti-dash-close{border:0;background:#f1f5f9;border-radius:9px;width:36px;height:36px;font-size:22px;cursor:pointer;color:#334155}
+.siwiti-purchase-dash label{display:block;font-weight:700;margin:10px 0 5px}
+.siwiti-purchase-dash input,.siwiti-purchase-dash select{width:100%;box-sizing:border-box;padding:12px;border:1px solid #cbd5e1;border-radius:9px;font:inherit;background:#fff}
+.siwiti-purchase-dash .siwiti-dash-status{margin-top:12px;padding:11px;border-radius:10px;background:#f1f5f9;color:#334155;font-size:13px;line-height:1.55;overflow-wrap:anywhere}
+.siwiti-purchase-dash .siwiti-dash-actions{display:flex;gap:9px;margin-top:12px;flex-wrap:wrap}
+.siwiti-purchase-dash .siwiti-dash-actions button{flex:1 1 130px;min-height:42px}
+@keyframes siwitiDashIn{from{opacity:.6;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+@media(max-width:600px){.siwiti-purchase-dash{right:8px;bottom:8px;width:calc(100vw - 16px);max-height:76dvh;border-radius:16px;padding:15px}}
+/* Expired-subscription purchase area behaves as a compact dashboard, not a page-blocking dialog. */
+#paymentOverlay{pointer-events:none!important;background:transparent!important;backdrop-filter:none!important;-webkit-backdrop-filter:none!important}
+#paymentOverlay .payment-message{pointer-events:auto!important;max-height:82dvh;overflow:auto}
+</style>
+<div id="siwitiSmsPurchaseDashboard" class="siwiti-purchase-dash" role="region" aria-label="Nunua SMS" aria-live="polite">
+ <div class="siwiti-dash-head"><h3 id="siwitiSmsPurchaseTitle">Nunua SMS</h3><button type="button" class="siwiti-dash-close" onclick="schoolSmsClosePurchaseDash_()" aria-label="Funga">×</button></div>
+ <div id="siwitiSmsPurchasePrice" style="padding:10px;background:#ecfdf5;border-radius:9px;font-weight:800;color:#065f46">Inapakia bei...</div>
+ <label for="siwitiSmsBuyQty">Idadi ya SMS</label><input id="siwitiSmsBuyQty" type="number" min="1" max="1000000" step="1" value="100" inputmode="numeric">
+ <label for="siwitiSmsBuyPhone">Namba ya simu ya Mobile Money</label><input id="siwitiSmsBuyPhone" type="tel" inputmode="tel" autocomplete="tel" placeholder="0712345678" maxlength="16">
+ <div id="siwitiSmsBuyTotal" style="font-weight:800;color:#047857;margin-top:10px">Jumla: —</div>
+ <small id="siwitiSmsPurchaseHint" style="display:block;color:#64748b;line-height:1.5;margin-top:8px">Siwiti Software itatuma ombi la malipo kwenye simu yako. Thibitisha kwenye simu yako.</small>
+ <div id="siwitiSmsPurchaseStatus" class="siwiti-dash-status" aria-live="polite">Dashboard ya ununuzi iko tayari.</div>
+ <div class="siwiti-dash-actions"><button id="siwitiSmsPurchasePayBtn" type="button" class="btn btn-primary" onclick="schoolSmsSubmitPurchase_()">Endelea kulipa</button><button type="button" class="btn btn-secondary" onclick="schoolSmsClosePurchaseDash_()">Funga</button></div>
+</div>
+<script id="siwiti-school-sms-js">
 var schoolSmsCache_={dbId:'',classes:null,parents:null,history:null,students:{},loadedAt:0,historyLoadedAt:0};
 function siwitiSmsPost_(payload){return fetchWithServerRetry(SCRIPT_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(payload)}).then(function(r){if(!r||!r.ok)throw new Error('Server haikujibu vizuri.');return r.json();});}
 function canUseSchoolSmsClient_(){var role=String(localStorage.getItem('userType')||'').toLowerCase();return role==='owner'||(role==='staff'&&String(localStorage.getItem('timetableRole')||'').toLowerCase()==='academic');}
@@ -33643,7 +33641,7 @@ function schoolSmsRenderCredit_(state,offline){
  if(msg){var prefix=offline?(en?'Last saved balance (offline). ':'Salio la mwisho lililohifadhiwa (bila mtandao). '):'';
   if(!schoolSmsCreditState_.enabled)msg.textContent=prefix+(en?'SMS sending is disabled by the Developer.':'Huduma ya SMS imesimamishwa na Developer.');
   else if(Number(schoolSmsCreditState_.balance)>0)msg.innerHTML=schoolSmsEscape_(prefix)+(en?'Available SMS credits.':'SMS zilizopo tayari kutumika.')+(unit>0?'<br><b>'+(en?'Price per SMS: ':'Bei ya SMS 1: ')+'TZS '+unit.toLocaleString('en-US')+'</b>':'<br><b>'+(en?'SMS unit price has not been set.':'Bei ya SMS moja bado haijawekwa na Developer.')+'</b>');
-  else{var priceText=unit>0?'TZS '+unit.toLocaleString('en-US'):(en?'Not set':'Haijawekwa');msg.innerHTML=schoolSmsEscape_(prefix)+(en?'Your SMS balance is exhausted. Pay Siwiti Software to continue.':'Salio limeisha. Lipa kifurushi kwa Siwiti Software ili uendelee.')+'<br><b>'+(en?'Price per SMS: ':'Bei ya SMS 1: ')+schoolSmsEscape_(priceText)+'</b><br><b>M-Pesa:</b> 0750183275 — Fadhili Godiwell Siwiti<br><b>Mixx by Yas:</b> 0652343371 — Fadhili Godiwell Siwiti<br><small>'+(en?'After payment, contact Siwiti Software and provide your school name and payment confirmation.':'Baada ya kulipa, wasiliana na Siwiti Software ukitaja jina la shule na uthibitisho wa malipo.')+'</small>';}}
+  else{var priceText=unit>0?'TZS '+unit.toLocaleString('en-US'):(en?'Not set':'Haijawekwa');msg.innerHTML=schoolSmsEscape_(prefix)+(en?'Your SMS balance is exhausted. Pay Siwiti Software to continue.':'Salio limeisha. Lipa kifurushi kwa Siwiti Software ili uendelee.')+'<br><b>'+(en?'Price per SMS: ':'Bei ya SMS 1: ')+schoolSmsEscape_(priceText)+'</b><br><small>'+(en?'Use the Buy SMS button to receive a Mobile Money payment prompt.':'Tumia kitufe cha Nunua SMS kupokea ombi la malipo kwenye simu yako.')+'</small>';}}
  var card=document.getElementById('schoolSmsCreditCard');if(card){card.style.background=(!schoolSmsCreditState_.enabled||schoolSmsCreditState_.balance<=0)?'#fff7ed':'#f0fdf4';card.style.borderColor=(!schoolSmsCreditState_.enabled||schoolSmsCreditState_.balance<=0)?'#fed7aa':'#bbf7d0';}
  var send=document.getElementById('smsCampaignSendBtn');if(send){send.disabled=!schoolSmsCreditState_.enabled||schoolSmsCreditState_.balance<=0||(typeof navigator!=='undefined'&&!navigator.onLine);send.title=send.disabled?(en?'SMS package or internet connection required':'Kifurushi cha SMS au muunganisho wa intaneti vinahitajika'):'';}
 }
@@ -33668,7 +33666,54 @@ function schoolSmsLoadCredit_(force){
  });
 }
 window.addEventListener('online',function(){if(canUseSchoolSmsClient_())schoolSmsLoadCredit_(true);});
-function schoolSmsShowPurchaseInfo_(){var btn=document.getElementById('schoolSmsBuyButton');if(btn&&btn.disabled)return;var original=btn?btn.innerHTML:'<i class="fas fa-shopping-cart"></i><span>Nunua SMS</span>';if(btn){btn.disabled=true;btn.style.opacity='.72';btn.style.cursor='wait';btn.innerHTML='<i class="fas fa-circle-notch fa-spin"></i><span>Inapakia taarifa...</span>';}siwitiSmsPost_(Object.assign({action:'smsSchoolBalance'},schoolSmsAuth_())).then(function(r){if(r.status!=='success')throw new Error(r.message||'Bei haijapatikana.');var unit=Number(r.pricePerSms||0);var html='<div style="text-align:left;line-height:1.8"><b>Bei ya SMS 1: '+(unit>0?'TZS '+unit.toLocaleString('en-US'):'Bado haijawekwa na Developer')+'</b><br><br><b>M-Pesa:</b> 0750183275<br>Fadhili Godiwell Siwiti<br><br><b>Mixx by Yas:</b> 0652343371<br>Fadhili Godiwell Siwiti<br><br><small>Baada ya kulipa, wasiliana na Siwiti Software ukitaja jina la shule, idadi ya SMS unazohitaji na uthibitisho wa malipo. Developer ataongeza salio baada ya kuthibitisha malipo.</small></div>';return Swal.fire({icon:'info',title:'Nunua SMS',html:html,confirmButtonText:'Sawa'});}).catch(function(e){Swal.fire({icon:'error',title:'Taarifa za malipo hazijapatikana',text:e.message||String(e)});}).finally(function(){if(btn){btn.disabled=false;btn.style.opacity='1';btn.style.cursor='pointer';btn.innerHTML=original;}});}
+var schoolSmsPurchaseUnitPrice_=0,schoolSmsPurchaseBusy_=false,schoolSmsPurchasePollTimer_=null,schoolSmsPurchaseRef_='';
+function schoolSmsPurchaseText_(sw,en){return schoolSmsCurrentLanguage_()==='en'?en:sw;}
+function schoolSmsPurchaseUpdateTotal_(){var q=document.getElementById('siwitiSmsBuyQty'),t=document.getElementById('siwitiSmsBuyTotal');if(!q||!t)return;var qty=Math.max(0,Math.floor(Number(q.value)||0)),total=qty*schoolSmsPurchaseUnitPrice_;t.textContent=schoolSmsPurchaseText_('Jumla: ','Total: ') +(schoolSmsPurchaseUnitPrice_>0?'TSh '+total.toLocaleString('en-US'):'—');}
+function schoolSmsClosePurchaseDash_(){var d=document.getElementById('siwitiSmsPurchaseDashboard');if(d)d.classList.remove('is-open');}
+function schoolSmsShowPurchaseInfo_(){
+ if(!canUseSchoolSmsClient_())return;
+ if(typeof window.siwitiCloseOtherModals_==='function')window.siwitiCloseOtherModals_('siwitiSmsPurchaseDashboard');
+ var dash=document.getElementById('siwitiSmsPurchaseDashboard'),btn=document.getElementById('schoolSmsBuyButton');if(!dash)return;
+ // Open immediately; price retrieval happens in the background and never delays the dashboard.
+ dash.classList.add('is-open');if(btn){btn.blur();}
+ var cached=null;try{cached=JSON.parse(localStorage.getItem(schoolSmsCreditCacheKey_())||'null');}catch(e){}
+ var priceBox=document.getElementById('siwitiSmsPurchasePrice'),status=document.getElementById('siwitiSmsPurchaseStatus');
+ schoolSmsPurchaseUnitPrice_=Number((cached&&cached.pricePerSms)||schoolSmsCreditState_.pricePerSms||0);
+ if(schoolSmsPurchaseUnitPrice_>0){if(priceBox)priceBox.textContent=schoolSmsPurchaseText_('Bei ya SMS 1: ','Price per SMS: ')+'TSh '+schoolSmsPurchaseUnitPrice_.toLocaleString('en-US');schoolSmsPurchaseUpdateTotal_();}
+ else if(priceBox)priceBox.textContent=schoolSmsPurchaseText_('Inapakia bei kwa nyuma...','Loading price in background...');
+ if(status&&!schoolSmsPurchaseBusy_)status.textContent=schoolSmsPurchaseText_('Weka idadi ya SMS na namba ya simu.','Enter the SMS quantity and phone number.');
+ siwitiSmsPost_(Object.assign({action:'smsSchoolBalance'},schoolSmsAuth_())).then(function(r){if(r.status!=='success')throw new Error(r.message||'Taarifa za bei hazijapatikana.');if(!r.enabled)throw new Error('Huduma ya SMS imesimamishwa na Developer.');var unit=Number(r.pricePerSms||0);if(!(unit>0))throw new Error('Bei ya SMS moja haijawekwa na Developer.');schoolSmsPurchaseUnitPrice_=unit;if(priceBox)priceBox.textContent=schoolSmsPurchaseText_('Bei ya SMS 1: ','Price per SMS: ')+'TSh '+unit.toLocaleString('en-US');schoolSmsPurchaseUpdateTotal_();})
+ .catch(function(e){if(!schoolSmsPurchaseUnitPrice_&&priceBox)priceBox.textContent=e.message||'Bei haijapatikana. Jaribu tena ukiwa mtandaoni.';});
+ var qty=document.getElementById('siwitiSmsBuyQty');if(qty&&!qty.dataset.bound){qty.addEventListener('input',schoolSmsPurchaseUpdateTotal_);qty.dataset.bound='1';}
+}
+function schoolSmsSubmitPurchase_(){
+ if(schoolSmsPurchaseBusy_)return;var qty=Number((document.getElementById('siwitiSmsBuyQty')||{}).value),phone=String((document.getElementById('siwitiSmsBuyPhone')||{}).value||'').trim(),status=document.getElementById('siwitiSmsPurchaseStatus'),payBtn=document.getElementById('siwitiSmsPurchasePayBtn');
+ if(!Number.isInteger(qty)||qty<1||qty>1000000){if(status)status.textContent='Weka idadi kamili ya SMS kati ya 1 na 1,000,000.';return;}
+ if(!/^((\+?255)?[\s-]?)?0?[67][0-9\s-]{8,12}$/.test(phone)){if(status)status.textContent='Weka namba sahihi ya simu ya Tanzania.';var ph=document.getElementById('siwitiSmsBuyPhone');if(ph)ph.focus();return;}
+ if(!(schoolSmsPurchaseUnitPrice_>0)){if(status)status.textContent='Bei bado haijapakiwa. Hakikisha intaneti ipo kisha jaribu tena.';return;}
+ schoolSmsPurchaseBusy_=true;if(payBtn){payBtn.disabled=true;payBtn.textContent='Inatuma ombi...';}if(status)status.textContent='Ombi linatumwa. Unaweza kuacha dashboard hii wazi au kuifunga; haitazuia uthibitisho kwenye simu yako.';
+ var smsAuth=schoolSmsAuth_(),smsRequestKey='siwitiSmsPaymentRequestId_'+String(smsAuth.dbId||'');
+ function newSmsRequestId_(){return 'sms-'+(window.crypto&&crypto.randomUUID?crypto.randomUUID():Date.now()+'-'+Math.random().toString(36).slice(2));}
+ var requestId=newSmsRequestId_();localStorage.setItem(smsRequestKey,requestId);
+ function sendSmsPurchaseRequest_(id,attempt){
+  return siwitiSmsPost_(Object.assign({action:'easypayInitiateSmsPurchase',quantity:qty,phone:phone,requestId:id},smsAuth)).then(function(pay){
+   if(pay&&pay.status==='success')return pay;
+   // Retry once with a fresh idempotency key only after a definitive rejection.
+   // UNKNOWN/network outcomes are not retried because the provider may have received the push.
+   if(pay&&pay.code==='EASYPAY_REJECTED'&&attempt===0){var fresh=newSmsRequestId_();localStorage.setItem(smsRequestKey,fresh);if(status)status.textContent='Ombi la awali limekataliwa. Mfumo unaanzisha ombi jipya moja kwa moja...';return sendSmsPurchaseRequest_(fresh,1);}
+   var err=new Error(pay&&pay.message||'Imeshindikana kuanzisha ombi la malipo. Tafadhali jaribu tena.');err.paymentCode=pay&&pay.code||'';throw err;
+  });
+ }
+ sendSmsPurchaseRequest_(requestId,0).then(function(pay){
+  var ref=String(pay.reference||'');if(!ref)throw new Error('Ombi halijapata namba ya kumbukumbu. Wasiliana na Siwiti Software kabla ya kujaribu tena.');schoolSmsPurchaseRef_=ref;
+  if(status)status.innerHTML='<b style="color:#047857">Ombi limetumwa kwenye simu '+schoolSmsEscape_(phone)+'.</b><br>Thibitisha ombi la malipo kwenye simu yako. Dashboard hii haitazuia ujumbe wa uthibitisho.<br><small>Reference: '+schoolSmsEscape_(ref)+'</small><br><span id="siwitiSmsPayState">Inasubiri uthibitisho wa malipo...</span>';
+  if(payBtn){payBtn.disabled=false;payBtn.textContent='Endelea kulipa';payBtn.onclick=schoolSmsSubmitPurchase_;}
+  schoolSmsStartPurchasePolling_(ref);
+ }).catch(function(e){if(status)status.textContent=e.message||'Imeshindikana kutuma ombi. Jaribu tena.';})
+ .finally(function(){schoolSmsPurchaseBusy_=false;if(payBtn&&payBtn.textContent==='Inatuma ombi...'){payBtn.disabled=false;payBtn.textContent='Endelea kulipa';}});
+}
+function schoolSmsStartPurchasePolling_(ref){if(schoolSmsPurchasePollTimer_)clearTimeout(schoolSmsPurchasePollTimer_);var tries=0;function tick(){if(!ref)return;tries++;schoolSmsCheckPurchaseStatus_(true).finally(function(){if(tries<120)schoolSmsPurchasePollTimer_=setTimeout(tick,5000);});}schoolSmsPurchasePollTimer_=setTimeout(tick,4000);}
+function schoolSmsCheckPurchaseStatus_(silent){var ref=schoolSmsPurchaseRef_;if(!ref)return Promise.resolve();return siwitiSmsPost_(Object.assign({action:'easypaySmsPaymentStatus',reference:ref},schoolSmsAuth_())).then(function(st){if(!st||st.status!=='success')throw new Error(st&&st.message||'Hali ya malipo haijapatikana.');var state=String(st.state||'').toUpperCase(),el=document.getElementById('siwitiSmsPayState'),status=document.getElementById('siwitiSmsPurchaseStatus');if(state==='COMPLETED'){try{localStorage.removeItem('siwitiSmsPaymentRequestId_'+String(currentDbId||''));}catch(e){}if(el)el.innerHTML='<b style="color:#047857">Malipo yamefanikiwa. SMS zimeongezwa kwenye salio.</b>';if(status)status.innerHTML='<b style="color:#047857">Malipo yamekamilika!</b> SMS zimeongezwa kwenye salio la shule.';if(schoolSmsPurchasePollTimer_)clearTimeout(schoolSmsPurchasePollTimer_);schoolSmsPurchasePollTimer_=null;schoolSmsLoadCredit_(true);var b=document.getElementById('siwitiSmsPurchasePayBtn');if(b){b.disabled=true;b.textContent='Malipo yamekamilika';}return st;}if(['FAILED','CANCELLED','EXPIRED'].indexOf(state)>=0){try{localStorage.removeItem('siwitiSmsPaymentRequestId_'+String(currentDbId||''));}catch(e){}if(el)el.textContent='Malipo hayajakamilika: '+state;if(status)status.textContent='Malipo hayajakamilika: '+state+'. Unaweza kuanzisha ombi jipya.';var retryBtn=document.getElementById('siwitiSmsPurchasePayBtn');if(retryBtn){retryBtn.disabled=false;retryBtn.textContent='Endelea kulipa';retryBtn.onclick=schoolSmsSubmitPurchase_;}if(schoolSmsPurchasePollTimer_)clearTimeout(schoolSmsPurchasePollTimer_);schoolSmsPurchasePollTimer_=null;return st;}if(el)el.textContent='Hali ya malipo: '+(state||'PENDING')+' — inasubiri uthibitisho...';return st;}).catch(function(e){if(!silent){var status=document.getElementById('siwitiSmsPurchaseStatus');if(status)status.textContent=e.message||'Imeshindikana kuangalia hali ya malipo.';}return null;});}
 
 function schoolSmsLoadClasses_(force){if(!canUseSchoolSmsClient_())return Promise.resolve();schoolSmsEnsureCacheScope_();if(!force&&schoolSmsCache_.classes){schoolSmsApplyClasses_(schoolSmsCache_.classes);return Promise.resolve(schoolSmsCache_.classes);}return siwitiSmsPost_(Object.assign({action:'smsSchoolClasses'},schoolSmsAuth_())).then(function(r){if(r.status!=='success')throw new Error(r.message||'Madarasa hayakupatikana.');schoolSmsCache_.classes=r.classes||[];schoolSmsApplyClasses_(schoolSmsCache_.classes);return schoolSmsCache_.classes;}).catch(function(e){console.error('SMS classes:',e);return [];});}
 function schoolSmsApplyClasses_(classes){['smsParentClass','smsSendClass','smsParentListClass'].forEach(function(id){var el=document.getElementById(id);if(!el)return;var label=id==='smsParentListClass'?'Madarasa yote':'Chagua darasa';schoolSmsFillSelect_(id,classes,label);});}
@@ -34114,7 +34159,7 @@ function siwitiBuyEhubSms_(){
    localStorage.setItem('siwitiLastEhubOrderReference',r.orderReference);
    siwitiClearPurchaseIdempotencyKey_('eHUB',key);
    var amount=Number(r.amount||0).toLocaleString('en-US');
-   if(result)result.innerHTML='<strong>Ombi limeanzishwa.</strong><br>Order: '+schoolSmsEscape_(r.orderReference)+'<br>SMS: '+Number(r.smsQuantity||qty).toLocaleString('en-US')+'<br>Kiasi: TSh '+amount+'<br><button type="button" class="btn btn-info" style="margin-top:8px;" onclick="siwitiCheckEhubPayment_()">Angalia hali ya malipo</button>';
+   if(result)result.innerHTML='<strong>Ombi limeanzishwa.</strong><br>Order: '+schoolSmsEscape_(r.orderReference)+'<br>SMS: '+Number(r.smsQuantity||qty).toLocaleString('en-US')+'<br>Kiasi: TSh '+amount;
    Swal.fire({icon:'success',title:'Ombi la malipo limeanzishwa',html:'TSh <b>'+amount+'</b>. Angalia simu ya '+schoolSmsEscape_(phone)+' na thibitisha ombi la Mobile Money.'});
   }).catch(function(e){if(result)result.textContent=(e.message||'Ununuzi haukufaulu.')+' Ikiwa ombi lilifika kwa eHUB lakini mtandao ulikatika, jaribu tena kwa taarifa zilezile; Idempotency Key ileile itatumika kuzuia malipo rudufu.';Swal.fire({icon:'error',title:'Ununuzi haujathibitishwa',text:(e.message||String(e))+' Tumia taarifa zilezile unapojaribu tena ili key ileile itumike.'});}).finally(function(){siwitiEhubPurchaseBusy_=false;});
  });
@@ -34161,7 +34206,7 @@ function siwitiBuySwalaSms_(){
    siwitiClearPurchaseIdempotencyKey_('SwalaSMS',key);
    siwitiSwalaLastOrderUid_=r.uid||'';localStorage.setItem('siwitiLastSwalaOrderUid',siwitiSwalaLastOrderUid_);
    var pay=r.payment||{};
-   if(result)result.innerHTML='<b>Ombi limeanzishwa.</b><br>Order: '+schoolSmsEscape_(r.reference||r.uid||'')+'<br>SMS: '+Number(r.units||qty).toLocaleString('en-US')+'<br>Kiasi: '+schoolSmsEscape_(r.currency||'TZS')+' '+Number(r.amount||0).toLocaleString('en-US')+(pay.redirect_url?'<br><a target="_blank" rel="noopener" href="'+schoolSmsEscape_(pay.redirect_url)+'">Endelea na malipo</a>':'')+'<br><button class="btn btn-info" style="margin-top:8px;" type="button" onclick="siwitiCheckSwalaPayment_()">Angalia hali ya malipo</button>';
+   if(result)result.innerHTML='<b>Ombi limeanzishwa.</b><br>Order: '+schoolSmsEscape_(r.reference||r.uid||'')+'<br>SMS: '+Number(r.units||qty).toLocaleString('en-US')+'<br>Kiasi: '+schoolSmsEscape_(r.currency||'TZS')+' '+Number(r.amount||0).toLocaleString('en-US')+(pay.redirect_url?'<br><a target="_blank" rel="noopener" href="'+schoolSmsEscape_(pay.redirect_url)+'">Endelea na malipo</a>':'');
    if(pay.redirect_url)window.open(pay.redirect_url,'_blank');
    Swal.fire({icon:'success',title:'Ombi limeanzishwa',text:pay.mode==='prompt'?'Thibitisha ombi la malipo kwenye simu yako.':'Fuata maelekezo ya malipo yaliyofunguliwa.'});
   }).catch(function(e){if(result)result.textContent=(e.message||'Ununuzi haukufaulu.')+' Ikiwa ombi lilifika kwa provider lakini mtandao ulikatika, bonyeza tena kwa taarifa zilezile; mfumo utatumia Idempotency Key ileile kuzuia order rudufu.';Swal.fire({icon:'error',title:'Ununuzi haujathibitishwa',text:(e.message||String(e))+' Usibadilishe taarifa za ununuzi ikiwa unajaribu tena ombi lilelile.'});}).finally(function(){siwitiSwalaPurchaseBusy_=false;});
